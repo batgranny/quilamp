@@ -6,7 +6,7 @@ const isDev = !app.isPackaged;
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 413,
-        height: 348,
+        height: 696,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -15,7 +15,7 @@ function createWindow() {
         },
         frame: false,
         transparent: true,
-        resizable: false,
+        resizable: true,
         maximizable: false
     });
 

@@ -384,15 +384,35 @@ volumeSlider.addEventListener('click', () => { /* handled by makeDraggableSlider
 
 // Load files via IPC
 if (window.electronAPI) {
+    // Eject button (Main Window) - REPLACES playlist
     btnEject.addEventListener('click', async () => {
         const filePaths = await window.electronAPI.openFileDialog();
         if (filePaths && filePaths.length > 0) {
-            // Append to playlist or replace
-            // For now, replace
             trackList = filePaths;
             loadTrack(0);
         }
     });
+
+    // ADD button (Playlist Window) - APPENDS to playlist
+    const btnPlAdd = document.getElementById('pl-btn-add');
+    if (btnPlAdd) {
+        btnPlAdd.addEventListener('click', async () => {
+            const filePaths = await window.electronAPI.openFileDialog();
+            if (filePaths && filePaths.length > 0) {
+                const wasEmpty = trackList.length === 0;
+                // Avoid duplicates by filtering (optional, but good practice)
+                const newPaths = filePaths.filter(p => !trackList.includes(p));
+                trackList = trackList.concat(newPaths);
+
+                renderPlaylist();
+
+                // If the playlist was empty and nothing is currently playing, start playing
+                if (wasEmpty && !audio.src && trackList.length > 0) {
+                    loadTrack(0);
+                }
+            }
+        });
+    }
 
     // Drag and Drop support
     document.addEventListener('dragover', (e) => {
