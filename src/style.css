@@ -311,24 +311,23 @@ body.skin-active #time-display {
 /* Seek Slider (Custom Div) */
 #seek-slider {
     width: 248px;
-    height: 20px;
-    /* larger hitbox */
-    margin: 0 auto;
+    height: 18px;
+    /* hitbox */
+    margin: 4px auto;
     position: relative;
     cursor: pointer;
     z-index: 100;
-    /* ensure it's on top of visualization */
     pointer-events: auto !important;
     display: flex;
     align-items: center;
-    /* vertically center contents */
 }
 
-/* Visual bar inside the larger hitbox for non-skinned mode */
+/* Visual bar "groove" inside the larger hitbox */
 #seek-slider::before {
     content: '';
     position: absolute;
-    top: 5px;
+    top: 4px;
+    /* (18 - 10) / 2 */
     left: 0;
     width: 100%;
     height: 10px;
@@ -342,9 +341,8 @@ body.skin-active #time-display {
     height: 10px;
     background: #ccc;
     position: absolute;
-    /* Changed back to absolute for JS .left movement */
-    top: 5px;
-    /* (20 - 10) / 2 */
+    top: 4px;
+    /* (18 - 10) / 2 */
     left: 0;
     z-index: 101;
     pointer-events: none;
@@ -352,12 +350,12 @@ body.skin-active #time-display {
 
 body.skin-active #seek-slider {
     position: absolute;
-    left: 14px;
-    /* perfectly centered: (275 - 248) / 2 = 13.5 -> 14 */
-    top: 59px;
-    /* shifted slightly for 20px hitbox to cover the 10px groove area */
+    left: 13.5px;
+    /* (275 - 248) / 2 = 13.5 */
+    top: 60px;
+    /* Adjusted to align better with main.bmp groove at 1.5x zoom */
     width: 248px;
-    height: 20px;
+    height: 18px;
     background: transparent !important;
     border: none;
     margin: 0;
@@ -365,7 +363,6 @@ body.skin-active #seek-slider {
 
 body.skin-active #seek-slider::before {
     display: none;
-    /* hide default bar in skin mode */
 }
 
 body.skin-active #seek-thumb {
@@ -373,6 +370,7 @@ body.skin-active #seek-thumb {
     background-position: -248px 0 !important;
     width: 29px;
     height: 10px;
+    top: 4px;
 }
 
 /* Track Info */
@@ -446,6 +444,8 @@ body.skin-active #track-name {
 }
 
 body.skin-active .audio-stats {
+    font-size: 0 !important;
+    /* hide the text nodes 'kbps' and 'kHz' */
     position: absolute;
     top: 15px;
     /* offset from track-info top */
@@ -454,7 +454,16 @@ body.skin-active .audio-stats {
     padding: 0;
     width: 154px;
     letter-spacing: -0.5px;
+}
+
+body.skin-active .audio-stats span {
+    font-size: 9px !important;
+    /* show the numbers */
     color: #00ff00;
+    font-family: 'Arial Narrow', sans-serif;
+    /* more like winamp digits */
+    margin-right: 32px;
+    /* push the kbps and khz digits apart to fit skin background */
 }
 
 /* Controls Panel */
@@ -491,7 +500,8 @@ body.skin-active .playback-controls {
 }
 
 /* Base button defaults */
-.play-btn {
+.play-btn,
+#btn-eject {
     background: var(--skin-cbuttons-bg, linear-gradient(to bottom, #eeeeee, #aaaaaa));
     border: inset 2px #cccccc;
     font-size: 10px;
@@ -507,17 +517,22 @@ body.skin-active .playback-controls {
     outline: none !important;
     appearance: none;
     -webkit-appearance: none;
+    vertical-align: top;
 }
 
-.play-btn:active {
+.play-btn:active,
+#btn-eject:active {
     border: inset 2px #aaaaaa;
     background: var(--skin-cbuttons-bg, linear-gradient(to bottom, #aaaaaa, #cccccc));
 }
 
 /* Specific Winamp Sprite Slicing for Playback Controls (from cbuttons.bmp) */
 body.skin-active .play-btn,
-body.skin-active .play-btn:active {
+body.skin-active .play-btn:active,
+body.skin-active #btn-eject,
+body.skin-active #btn-eject:active {
     border: none !important;
+    padding: 0 !important;
     color: transparent !important;
     background-color: transparent !important;
     box-shadow: none !important;
@@ -525,81 +540,106 @@ body.skin-active .play-btn:active {
     /* hide our text */
     background-repeat: no-repeat !important;
     width: 23px;
-    /* standard winamp button size */
+    height: 18px !important;
+    /* standard winamp button height */
+    overflow: hidden;
+    margin: 0;
 }
 
-body.skin-active #btn-prev {
-    background-position: 0 0;
+/* Background position rules moved below the reset block */
+
+/* Button resets - ONLY IN SKIN MODE - ensure NO highlights, bars, or shadows */
+body.skin-active #btn-eject,
+body.skin-active #btn-eject:active,
+body.skin-active #btn-eject:focus,
+body.skin-active .play-btn,
+body.skin-active .play-btn:active,
+body.skin-active .play-btn:focus {
+    all: unset;
+    /* The absolute nuclear option for browser button styling */
+    cursor: pointer;
+    display: inline-block;
+    background-color: transparent !important;
+    background-image: var(--skin-cbuttons-bg) !important;
+    background-repeat: no-repeat !important;
+    -webkit-tap-highlight-color: transparent !important;
+    user-select: none;
+    color: transparent !important;
+    width: 23px;
+    height: 18px !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    position: relative;
+    z-index: 200;
 }
 
-body.skin-active #btn-prev:active {
-    background-position: 0 -18px;
-}
-
-body.skin-active #btn-play {
-    background-position: -23px 0;
-}
-
-body.skin-active #btn-play:active {
-    background-position: -23px -18px;
-}
-
-body.skin-active #btn-pause {
-    background-position: -46px 0;
-}
-
-body.skin-active #btn-pause:active {
-    background-position: -46px -18px;
-}
-
-body.skin-active #btn-stop {
-    background-position: -69px 0;
-}
-
-body.skin-active #btn-stop:active {
-    background-position: -69px -18px;
-}
-
-body.skin-active #btn-next {
-    background-position: -92px 0;
-}
-
-body.skin-active #btn-next:active {
-    background-position: -92px -18px;
-}
-
+body.skin-active #btn-next,
 body.skin-active #btn-eject {
-    background-position: -114px 0;
     width: 22px;
 }
 
+/* Specific sprite positions MUST come after the 'all: unset' reset */
+body.skin-active #btn-prev {
+    background-position: 0 0 !important;
+}
+
+body.skin-active #btn-prev:active {
+    background-position: 0 -18px !important;
+}
+
+body.skin-active #btn-play {
+    background-position: -23px 0 !important;
+}
+
+body.skin-active #btn-play:active {
+    background-position: -23px -18px !important;
+}
+
+body.skin-active #btn-pause {
+    background-position: -46px 0 !important;
+}
+
+body.skin-active #btn-pause:active {
+    background-position: -46px -18px !important;
+}
+
+body.skin-active #btn-stop {
+    background-position: -69px 0 !important;
+}
+
+body.skin-active #btn-stop:active {
+    background-position: -69px -18px !important;
+}
+
+body.skin-active #btn-next {
+    background-position: -92px 0 !important;
+}
+
+body.skin-active #btn-next:active {
+    background-position: -92px -18px !important;
+}
+
+body.skin-active #btn-eject {
+    background-position: -114px 0 !important;
+}
+
 body.skin-active #btn-eject:active {
-    background-position: -114px -18px;
+    background-position: -114px -18px !important;
 }
 
-/* Only apply aggressive transparency and border removal in SKIN MODE */
-body.skin-active #btn-eject,
-body.skin-active #btn-eject:focus,
-body.skin-active #btn-eject:active,
-body.skin-active .play-btn,
-body.skin-active .play-btn:focus,
-body.skin-active .play-btn:active {
-    outline: none !important;
-    box-shadow: none !important;
-    background-color: transparent !important;
-    -webkit-tap-highlight-color: transparent !important;
-    -webkit-appearance: none;
-    appearance: none;
-    border-color: transparent;
-    user-select: none;
-    color: transparent !important;
-}
-
-/* Ensure buttons are ALWAYS on top and interactive in all modes */
+/* Ensure buttons are ALWAYS on top and interactive */
 #btn-eject,
 .play-btn {
     position: relative;
     z-index: 200;
+}
+
+/* Remove default focus blue outline in all modes but keep visibility */
+.play-btn:focus,
+#btn-eject:focus {
+    outline: none !important;
 }
 
 /* ===================== Custom Div Sliders ===================== */

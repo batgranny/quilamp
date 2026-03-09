@@ -42,12 +42,22 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
 
     function update(e) {
         const rect = track.getBoundingClientRect();
-        // Correct for CSS zoom: clientX is in screen pixels, rect is also screen pixels
-        let ratio = (e.clientX - rect.left) / rect.width;
-        ratio = Math.max(0, Math.min(1, ratio));
-        value = ratio;
-        positionThumb(ratio);
-        onChange(ratio);
+        const trackWidth = rect.width / CSS_ZOOM;
+        const thumbWidth = thumb.getBoundingClientRect().width / CSS_ZOOM;
+
+        // Calculate mouse position relative to track in CSS pixels
+        let mouseX = (e.clientX - rect.left) / CSS_ZOOM;
+
+        // Standard slider behavior: center knob on mouse click, but clamp to bounds
+        let targetLeft = mouseX - (thumbWidth / 2);
+        let maxLeft = trackWidth - thumbWidth;
+        let clampedLeft = Math.max(0, Math.min(maxLeft, targetLeft));
+
+        // Ratio is for the onChange callback (0 to 1)
+        value = maxLeft > 0 ? clampedLeft / maxLeft : 0;
+
+        thumb.style.left = `${Math.round(clampedLeft)}px`;
+        onChange(value);
     }
 
     // Set initially
