@@ -311,15 +311,30 @@ body.skin-active #time-display {
 /* Seek Slider (Custom Div) */
 #seek-slider {
     width: 248px;
+    height: 20px;
+    /* larger hitbox */
+    margin: 0 auto;
+    position: relative;
+    cursor: pointer;
+    z-index: 100;
+    /* ensure it's on top of visualization */
+    pointer-events: auto !important;
+    display: flex;
+    align-items: center;
+    /* vertically center contents */
+}
+
+/* Visual bar inside the larger hitbox for non-skinned mode */
+#seek-slider::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 0;
+    width: 100%;
     height: 10px;
     background: #333;
     border: inset 1px #222;
-    margin: 4px auto;
-    position: relative;
-    cursor: pointer;
-    z-index: 10;
-    pointer-events: auto !important;
-    /* ensure it's clickable in skinned mode override */
+    z-index: -1;
 }
 
 #seek-thumb {
@@ -327,22 +342,30 @@ body.skin-active #time-display {
     height: 10px;
     background: #ccc;
     position: absolute;
-    top: 0;
+    /* Changed back to absolute for JS .left movement */
+    top: 5px;
+    /* (20 - 10) / 2 */
     left: 0;
-    z-index: 11;
+    z-index: 101;
     pointer-events: none;
-    /* let clicks pass to track for jumping */
 }
 
 body.skin-active #seek-slider {
     position: absolute;
-    left: 16px;
-    top: 64px;
+    left: 14px;
+    /* perfectly centered: (275 - 248) / 2 = 13.5 -> 14 */
+    top: 59px;
+    /* shifted slightly for 20px hitbox to cover the 10px groove area */
     width: 248px;
-    height: 10px;
+    height: 20px;
     background: transparent !important;
     border: none;
     margin: 0;
+}
+
+body.skin-active #seek-slider::before {
+    display: none;
+    /* hide default bar in skin mode */
 }
 
 body.skin-active #seek-thumb {
@@ -554,7 +577,7 @@ body.skin-active #btn-eject:active {
     background-position: -114px -18px;
 }
 
-/* Aggressive removal of focus/active highlights including blue background - ONLY IN SKIN MODE */
+/* Only apply aggressive transparency and border removal in SKIN MODE */
 body.skin-active #btn-eject,
 body.skin-active #btn-eject:focus,
 body.skin-active #btn-eject:active,
@@ -569,6 +592,14 @@ body.skin-active .play-btn:active {
     appearance: none;
     border-color: transparent;
     user-select: none;
+    color: transparent !important;
+}
+
+/* Ensure buttons are ALWAYS on top and interactive in all modes */
+#btn-eject,
+.play-btn {
+    position: relative;
+    z-index: 200;
 }
 
 /* ===================== Custom Div Sliders ===================== */
