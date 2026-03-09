@@ -11,84 +11,86 @@
 </head>
 
 <body>
-    <!-- The main winamp player UI -->
-    <div id="player-container">
-        <div id="title-bar" class="drag-region">
-            <div class="title-text">QUINAMP</div>
-            <div class="window-controls no-drag">
-                <button id="btn-minimize" class="ctrl-btn">-</button>
-                <button id="btn-close" class="ctrl-btn">x</button>
-            </div>
-        </div>
-
-        <div id="main-display">
-            <div class="main-top-row">
-                <div id="time-display" class="digital-font">00:00</div>
-
-                <div class="visualizer">
-                    <!-- placeholder for visualizer or static lines -->
+    <div id="app-container">
+        <!-- The main winamp player UI -->
+        <div id="player-container">
+            <div id="title-bar" class="drag-region">
+                <div class="title-text">QUINAMP</div>
+                <div class="window-controls no-drag">
+                    <button id="btn-minimize" class="ctrl-btn">-</button>
+                    <button id="btn-close" class="ctrl-btn">x</button>
                 </div>
             </div>
 
-            <!-- Custom Seek Slider -->
-            <div id="seek-slider" class="custom-slider no-drag" title="Seek">
-                <div class="slider-thumb" id="seek-thumb"></div>
-            </div>
+            <div id="main-display">
+                <div class="main-top-row">
+                    <div id="time-display" class="digital-font">00:00</div>
 
-            <div id="track-info">
-                <div id="track-name" class="marquee">
-                    <span>*** QUINAMP *** WINAMP CLONE ***</span>
+                    <div class="visualizer">
+                        <!-- placeholder for visualizer or static lines -->
+                    </div>
                 </div>
-                <div class="audio-stats">
-                    <span id="kbps">128</span> kbps
-                    <span id="khz">44</span> kHz
+
+                <!-- Custom Seek Slider -->
+                <div id="seek-slider" class="custom-slider no-drag" title="Seek">
+                    <div class="slider-thumb" id="seek-thumb"></div>
+                </div>
+
+                <div id="track-info">
+                    <div id="track-name" class="marquee">
+                        <span>*** QUINAMP *** WINAMP CLONE ***</span>
+                    </div>
+                    <div class="audio-stats">
+                        <span id="kbps">128</span> kbps
+                        <span id="khz">44</span> kHz
+                    </div>
+                </div>
+            </div>
+
+            <div id="controls-panel">
+                <!-- Custom Volume Slider -->
+                <div id="volume-slider" class="custom-slider no-drag" title="Volume">
+                    <div class="slider-fill" id="volume-fill"></div>
+                    <div class="slider-thumb" id="volume-thumb"></div>
+                </div>
+                <!-- Custom Pan Slider -->
+                <div id="pan-slider" class="custom-slider no-drag" title="Pan">
+                    <div class="slider-fill" id="pan-fill"></div>
+                    <div class="slider-thumb" id="pan-thumb"></div>
+                </div>
+
+                <div class="playback-controls no-drag">
+                    <button id="btn-prev" class="play-btn" title="Previous">|&lt;</button>
+                    <button id="btn-play" class="play-btn" title="Play">&gt;</button>
+                    <button id="btn-pause" class="play-btn" title="Pause">||</button>
+                    <button id="btn-stop" class="play-btn" title="Stop">[]</button>
+                    <button id="btn-next" class="play-btn" title="Next">&gt;|</button>
+                    <button id="btn-eject" class="play-btn" title="Open File(s)">^</button>
+                </div>
+
+                <div class="misc-controls no-drag">
+                    <button id="btn-shuffle" class="toggle-btn">SHUF</button>
+                    <button id="btn-repeat" class="toggle-btn">REP</button>
                 </div>
             </div>
         </div>
 
-        <div id="controls-panel">
-            <!-- Custom Volume Slider -->
-            <div id="volume-slider" class="custom-slider no-drag" title="Volume">
-                <div class="slider-fill" id="volume-fill"></div>
-                <div class="slider-thumb" id="volume-thumb"></div>
+        <!-- Playlist Window -->
+        <div id="playlist-container">
+            <div id="playlist-title-bar" class="drag-region">
+                <div class="title-text">QUINAMP PLAYLIST</div>
             </div>
-            <!-- Custom Pan Slider -->
-            <div id="pan-slider" class="custom-slider no-drag" title="Pan">
-                <div class="slider-fill" id="pan-fill"></div>
-                <div class="slider-thumb" id="pan-thumb"></div>
+            <div id="playlist-box">
+                <ul id="playlist-items" class="no-drag">
+                    <!-- Dynamically populated -->
+                </ul>
             </div>
-
-            <div class="playback-controls no-drag">
-                <button id="btn-prev" class="play-btn" title="Previous">|&lt;</button>
-                <button id="btn-play" class="play-btn" title="Play">&gt;</button>
-                <button id="btn-pause" class="play-btn" title="Pause">||</button>
-                <button id="btn-stop" class="play-btn" title="Stop">[]</button>
-                <button id="btn-next" class="play-btn" title="Next">&gt;|</button>
-                <button id="btn-eject" class="play-btn" title="Open File(s)">^</button>
+            <div id="playlist-bottom" class="drag-region">
+                <button id="pl-btn-add" class="pl-action-btn no-drag" title="Add files">ADD</button>
+                <button id="pl-btn-rem" class="pl-action-btn no-drag" title="Remove files">REM</button>
+                <button id="pl-btn-sel" class="pl-action-btn no-drag" title="Select files">SEL</button>
+                <button id="pl-btn-misc" class="pl-action-btn no-drag" title="Misc options">MISC</button>
             </div>
-
-            <div class="misc-controls no-drag">
-                <button id="btn-shuffle" class="toggle-btn">SHUF</button>
-                <button id="btn-repeat" class="toggle-btn">REP</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Playlist Window -->
-    <div id="playlist-container">
-        <div id="playlist-title-bar" class="drag-region">
-            <div class="title-text">QUINAMP PLAYLIST</div>
-        </div>
-        <div id="playlist-box">
-            <ul id="playlist-items" class="no-drag">
-                <!-- Dynamically populated -->
-            </ul>
-        </div>
-        <div id="playlist-bottom" class="drag-region">
-            <button id="pl-btn-add" class="pl-action-btn no-drag" title="Add files">ADD</button>
-            <button id="pl-btn-rem" class="pl-action-btn no-drag" title="Remove files">REM</button>
-            <button id="pl-btn-sel" class="pl-action-btn no-drag" title="Select files">SEL</button>
-            <button id="pl-btn-misc" class="pl-action-btn no-drag" title="Misc options">MISC</button>
         </div>
     </div>
 

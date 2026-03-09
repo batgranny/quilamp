@@ -450,3 +450,20 @@ if (window.electronAPI) {
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }
+
+// Ensure the Electron OS Window accurately resizes when the CSS container resizes
+const appContainer = document.getElementById('app-container');
+if (appContainer && window.electronAPI && window.electronAPI.resizeWindow) {
+    const resizeObserver = new ResizeObserver(entries => {
+        for (let entry of entries) {
+            // Apply zoom factor correction since the CSS width/height are zoomed by body
+            const zoomedWidth = Math.ceil(entry.contentRect.width * CSS_ZOOM);
+            const zoomedHeight = Math.ceil(entry.contentRect.height * CSS_ZOOM);
+
+            // Only trigger if actually resized
+            window.electronAPI.resizeWindow(zoomedWidth, zoomedHeight);
+        }
+    });
+
+    resizeObserver.observe(appContainer);
+}

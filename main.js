@@ -15,10 +15,9 @@ function createWindow() {
         },
         frame: false,
         transparent: true,
-        resizable: true,
+        resizable: true, // OS window resizable (though we rely on CSS resize)
         maximizable: false
     });
-
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -26,6 +25,19 @@ function createWindow() {
         mainWindow.loadFile(path.join(__dirname, 'build/index.html'));
     }
 }
+
+ipcMain.handle('resize-window', (event, { width, height }) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        const bounds = win.getBounds();
+        win.setBounds({
+            x: bounds.x,
+            y: bounds.y,
+            width: width,
+            height: height
+        });
+    }
+});
 
 app.whenReady().then(() => {
     createWindow();
