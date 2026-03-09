@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quinamp</title>
+    <!-- We will use a web font for the digital display, and system fonts for others -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/style.css" />
+</head>
+
+<body>
+    <!-- The main winamp player UI -->
+    <div id="player-container">
+        <div id="title-bar" class="drag-region">
+            <div class="title-text">QUINAMP</div>
+            <div class="window-controls no-drag">
+                <button id="btn-minimize" class="ctrl-btn">-</button>
+                <button id="btn-close" class="ctrl-btn">x</button>
+            </div>
+        </div>
+
+        <div id="main-display">
+            <div id="time-display" class="digital-font">00:00</div>
+
+            <div class="visualizer">
+                <!-- placeholder for visualizer or static lines -->
+            </div>
+
+            <div id="track-info">
+                <div id="track-name" class="marquee">
+                    <span>*** QUINAMP *** WINAMP CLONE ***</span>
+                </div>
+                <div class="audio-stats">
+                    <span id="kbps">128</span> kbps
+                    <span id="khz">44</span> kHz
+                </div>
+            </div>
+        </div>
+
+        <div id="controls-panel">
+            <input type="range" id="volume-slider" min="0" max="100" value="100" class="no-drag">
+            <input type="range" id="pan-slider" min="-100" max="100" value="0" class="no-drag">
+
+            <div class="playback-controls no-drag">
+                <button id="btn-prev" class="play-btn" title="Previous">|&lt;</button>
+                <button id="btn-play" class="play-btn" title="Play">&gt;</button>
+                <button id="btn-pause" class="play-btn" title="Pause">||</button>
+                <button id="btn-stop" class="play-btn" title="Stop">[]</button>
+                <button id="btn-next" class="play-btn" title="Next">&gt;|</button>
+                <button id="btn-eject" class="play-btn" title="Open File(s)">^</button>
+            </div>
+
+            <div class="misc-controls no-drag">
+                <button id="btn-shuffle" class="toggle-btn">SHUF</button>
+                <button id="btn-repeat" class="toggle-btn">REP</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playlist Window -->
+    <div id="playlist-container">
+        <div id="playlist-title-bar" class="drag-region">
+            <div class="title-text">QUINAMP PLAYLIST</div>
+        </div>
+        <div id="playlist-box">
+            <ul id="playlist-items" class="no-drag">
+                <!-- Dynamically populated -->
+            </ul>
+        </div>
+    </div>
+
+    <script type="module" src="./src/renderer.js"></script>
+</body>
+
+</html>
