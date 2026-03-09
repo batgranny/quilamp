@@ -22,13 +22,18 @@
         </div>
 
         <div id="main-display">
-            <div id="time-display" class="digital-font">00:00</div>
+            <div class="main-top-row">
+                <div id="time-display" class="digital-font">00:00</div>
 
-            <div class="visualizer">
-                <!-- placeholder for visualizer or static lines -->
+                <div class="visualizer">
+                    <!-- placeholder for visualizer or static lines -->
+                </div>
             </div>
 
-            <input type="range" id="seek-slider" min="0" max="1000" value="0" class="no-drag">
+            <!-- Custom Seek Slider -->
+            <div id="seek-slider" class="custom-slider no-drag" title="Seek">
+                <div class="slider-thumb" id="seek-thumb"></div>
+            </div>
 
             <div id="track-info">
                 <div id="track-name" class="marquee">

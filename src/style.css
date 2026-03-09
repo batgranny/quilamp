@@ -238,14 +238,20 @@ body.skin-active #btn-close:active {
     border-bottom-color: #fff;
 }
 
-/* Main Display Area */
 #main-display {
     display: flex;
+    flex-direction: column;
     padding: 4px;
-    height: 44px;
+    height: 60px;
+    /* increased to fit seek bar */
     background: #000;
     margin: 4px;
     border: inset 2px #444;
+}
+
+.main-top-row {
+    display: flex;
+    height: 32px;
 }
 
 body.skin-active #main-display {
@@ -302,49 +308,48 @@ body.skin-active #time-display {
     margin-left: 4px;
 }
 
-/* Seek Slider */
+/* Seek Slider (Custom Div) */
 #seek-slider {
-    -webkit-appearance: none;
-    appearance: none;
     width: 248px;
     height: 10px;
     background: #333;
     border: inset 1px #222;
     margin: 4px auto;
-    display: block;
+    position: relative;
+    cursor: pointer;
+    z-index: 10;
+    pointer-events: auto !important;
+    /* ensure it's clickable in skinned mode override */
 }
 
-#seek-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 15px;
+#seek-thumb {
+    width: 29px;
     height: 10px;
     background: #ccc;
-    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 11;
+    pointer-events: none;
+    /* let clicks pass to track for jumping */
 }
 
 body.skin-active #seek-slider {
     position: absolute;
     left: 16px;
-    top: 58px;
-    /* 72px from window top - 14px main-display offset */
+    top: 64px;
     width: 248px;
     height: 10px;
     background: transparent !important;
     border: none;
     margin: 0;
-    padding: 0;
 }
 
-body.skin-active #seek-slider::-webkit-slider-thumb {
+body.skin-active #seek-thumb {
     background: var(--skin-posbar-bg, #999) !important;
     background-position: -248px 0 !important;
     width: 29px;
     height: 10px;
-    border: none !important;
-    border-radius: 0;
-    cursor: pointer;
-    margin-top: 0;
 }
 
 /* Track Info */
@@ -476,6 +481,9 @@ body.skin-active .playback-controls {
     justify-content: center;
     color: #333;
     font-weight: bold;
+    outline: none !important;
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 .play-btn:active {
@@ -488,6 +496,9 @@ body.skin-active .play-btn,
 body.skin-active .play-btn:active {
     border: none !important;
     color: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
     /* hide our text */
     background-repeat: no-repeat !important;
     width: 23px;
@@ -541,6 +552,23 @@ body.skin-active #btn-eject {
 
 body.skin-active #btn-eject:active {
     background-position: -114px -18px;
+}
+
+/* Aggressive removal of focus/active highlights including blue background - ONLY IN SKIN MODE */
+body.skin-active #btn-eject,
+body.skin-active #btn-eject:focus,
+body.skin-active #btn-eject:active,
+body.skin-active .play-btn,
+body.skin-active .play-btn:focus,
+body.skin-active .play-btn:active {
+    outline: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-appearance: none;
+    appearance: none;
+    border-color: transparent;
+    user-select: none;
 }
 
 /* ===================== Custom Div Sliders ===================== */

@@ -30,13 +30,14 @@ let panValue = 0.5;    // 0-1 (0.5 = center)
 // CSS zoom factor applied to the body — needed to correct getBoundingClientRect coordinates
 const CSS_ZOOM = 1.5;
 
-function makeDraggableSlider(track, thumb, initialValue, onChange) {
+function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEnd) {
     let dragging = false;
     let value = initialValue;
 
     function positionThumb(ratio) {
         const trackWidth = track.getBoundingClientRect().width / CSS_ZOOM;
-        thumb.style.left = `${Math.round(ratio * (trackWidth - 14))}px`;
+        const thumbWidth = thumb.getBoundingClientRect().width / CSS_ZOOM;
+        thumb.style.left = `${Math.round(ratio * (trackWidth - thumbWidth))}px`;
     }
 
     function update(e) {
@@ -49,12 +50,15 @@ function makeDraggableSlider(track, thumb, initialValue, onChange) {
         onChange(ratio);
     }
 
-    // Set initial thumb position once rendered
+    // Set initially
+    positionThumb(value);
+    // And again after a short delay in case of font/layout shifts
     setTimeout(() => positionThumb(value), 150);
 
     // Thumb mousedown: start drag, prevent bubbling to track
     thumb.addEventListener('mousedown', (e) => {
         dragging = true;
+        if (onStart) onStart();
         e.preventDefault();
         e.stopPropagation();
     });
@@ -62,6 +66,7 @@ function makeDraggableSlider(track, thumb, initialValue, onChange) {
     // Track mousedown: click on track to jump there, then allow drag
     track.addEventListener('mousedown', (e) => {
         dragging = true;
+        if (onStart) onStart();
         e.preventDefault();
         update(e);
     });
@@ -70,7 +75,10 @@ function makeDraggableSlider(track, thumb, initialValue, onChange) {
         if (dragging) update(e);
     });
 
-    document.addEventListener('mouseup', () => { dragging = false; });
+    document.addEventListener('mouseup', () => {
+        if (dragging && onEnd) onEnd();
+        dragging = false;
+    });
 
     return {
         getValue: () => value,
@@ -300,27 +308,30 @@ function updatePanTrack(ratio, bmpUrl) {
 
 
 // UI Elements for playback
+const seekThumb = document.getElementById('seek-thumb');
 const seekSlider = document.getElementById('seek-slider');
-let isSeeking = false;
+if (!window.isSeekingDeclared) {
+    window.isSeeking = false;
+    window.isSeekingDeclared = true;
+}
+
+const seekControl = makeDraggableSlider(
+    seekSlider,
+    seekThumb,
+    0,
+    (ratio) => {
+        if (audio.duration) {
+            audio.currentTime = ratio * audio.duration;
+        }
+    },
+    () => { window.isSeeking = true; },
+    () => { window.isSeeking = false; }
+);
 
 // Audio element event listeners
 audio.addEventListener('timeupdate', () => {
-    if (!isSeeking && audio.duration) {
-        seekSlider.value = (audio.currentTime / audio.duration) * 1000;
-    }
-});
-
-seekSlider.addEventListener('mousedown', () => {
-    isSeeking = true;
-});
-
-seekSlider.addEventListener('mouseup', () => {
-    isSeeking = false;
-});
-
-seekSlider.addEventListener('input', () => {
-    if (audio.duration) {
-        audio.currentTime = (seekSlider.value / 1000) * audio.duration;
+    if (!window.isSeeking && audio.duration) {
+        seekControl.setValue(audio.currentTime / audio.duration);
     }
 });
 
