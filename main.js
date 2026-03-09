@@ -21,7 +21,7 @@ function createWindow() {
 
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
-        // mainWindow.webContents.openDevTools({ mode: 'detach' });
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
     } else {
         mainWindow.loadFile(path.join(__dirname, 'build/index.html'));
     }
@@ -43,7 +43,8 @@ ipcMain.handle('dialog:openFile', async () => {
     const result = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections'],
         filters: [
-            { name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg'] }
+            { name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg'] },
+            { name: 'Winamp Skins', extensions: ['wsz', 'zip'] }
         ]
     });
 

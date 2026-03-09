@@ -4,6 +4,10 @@
     user-select: none;
 }
 
+*:focus {
+    outline: none !important;
+}
+
 :root {
     --bg-dark: #1e1e24;
     --bg-panel: #2a2a35;
@@ -11,6 +15,11 @@
     --text-secondary: #00aa00;
     --border-light: #444455;
     --border-dark: #111118;
+
+    /* Skin Variables (Fallback to none naturally) */
+    --skin-main-bg: none;
+    --skin-titlebar-bg: none;
+    --skin-cbuttons-bg: none;
 }
 
 body {
@@ -22,18 +31,39 @@ body {
     height: 232px;
     overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    /* Solid background for default state */
+}
+
+/* Make body transparent if we are dragging so frameless window shows well, or just let #player-container handle it? Actually let's set the main app background to black #000 temporarily to see if that fixes the global transparency issue, wait, no, electron requires body color. */
+body:not(.skin-active) {
+    background-color: var(--bg-dark);
 }
 
 #player-container {
     width: 275px;
     height: 116px;
-    background: linear-gradient(to bottom, #3a3a45, var(--bg-dark));
+    background: var(--skin-main-bg, linear-gradient(to bottom, #3a3a45, var(--bg-dark)));
+    background-position: 0 0;
     border: 1px solid var(--border-dark);
     border-radius: 4px 4px 0 0;
     position: relative;
     box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
+}
+
+/* When skin is active, remove our default CSS styling that interferes with the 1:1 image mapping */
+body.skin-active #player-container {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+}
+
+body.skin-active #title-bar {
+    border: none;
 }
 
 /* Playlist Region */
@@ -77,7 +107,7 @@ body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 10px;
-    color: #0f0;
+    color: var(--text-primary);
 }
 
 #playlist-items li {
@@ -110,7 +140,8 @@ body {
 /* Title Bar */
 #title-bar {
     height: 14px;
-    background: linear-gradient(to right, #0000a0, #202020);
+    background: var(--skin-titlebar-bg, linear-gradient(to right, #0000a0, #202020));
+    background-position: 0 0;
     /* Classic active titlebar */
     display: flex;
     justify-content: space-between;
@@ -124,6 +155,11 @@ body {
 .title-text {
     font-weight: bold;
     letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #000;
+}
+
+body.skin-active .title-text {
+    display: none;
 }
 
 .window-controls {
@@ -131,8 +167,9 @@ body {
     gap: 2px;
 }
 
+/* Base button defaults */
 .ctrl-btn {
-    background: #ccc;
+    background: var(--skin-titlebar-bg, #ccc);
     border: inset 1px #fff;
     border-right-color: #666;
     border-bottom-color: #666;
@@ -147,7 +184,36 @@ body {
     line-height: 1;
 }
 
-.ctrl-btn:active {
+/* If a skin is active, remove our default css borders and let the skin sprites show */
+body.skin-active .ctrl-btn {
+    border: none;
+    background-color: transparent !important;
+    color: transparent;
+    /* hide our text */
+}
+
+/* Specific button offsets from titlebar.bmp (standard winamp spec) */
+body.skin-active #btn-minimize {
+    background-position: -275px -18px !important;
+    width: 9px;
+    height: 9px;
+}
+
+body.skin-active #btn-minimize:active {
+    background-position: -275px -27px !important;
+}
+
+body.skin-active #btn-close {
+    background-position: -293px -18px !important;
+    width: 9px;
+    height: 9px;
+}
+
+body.skin-active #btn-close:active {
+    background-position: -293px -27px !important;
+}
+
+.ctrl-btn:not(.skin-active):active {
     border: inset 1px #666;
     border-right-color: #fff;
     border-bottom-color: #fff;
@@ -163,6 +229,21 @@ body {
     border: inset 2px #444;
 }
 
+body.skin-active #main-display {
+    border: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 14px;
+    /* below 14px titlebar */
+    left: 0;
+    background: transparent;
+    width: 275px;
+    height: 102px;
+    pointer-events: none;
+    /* let clicks pass through to sliders etc */
+}
+
 /* Digital Time */
 #time-display {
     font-family: 'VT323', monospace;
@@ -173,6 +254,24 @@ body {
     width: 80px;
     text-align: right;
     padding-right: 4px;
+    margin-top: -2px;
+}
+
+body.skin-active #time-display {
+    position: absolute;
+    left: 42px;
+    top: 10px;
+    /* 24px from top of window - 14px titlebar */
+    width: 60px;
+    height: 16px;
+    font-size: 26px;
+    /* scale down slightly to fit */
+    line-height: 16px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 /* Visualizer Placeholder */
@@ -182,6 +281,51 @@ body {
     border: 1px solid #0a0a0a;
     background: #001100;
     margin-left: 4px;
+}
+
+/* Seek Slider */
+#seek-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 248px;
+    height: 10px;
+    background: #333;
+    border: inset 1px #222;
+    margin: 4px auto;
+    display: block;
+}
+
+#seek-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 10px;
+    background: #ccc;
+    cursor: pointer;
+}
+
+body.skin-active #seek-slider {
+    position: absolute;
+    left: 16px;
+    top: 58px;
+    /* 72px from window top - 14px main-display offset */
+    width: 248px;
+    height: 10px;
+    background: transparent !important;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+body.skin-active #seek-slider::-webkit-slider-thumb {
+    background: var(--skin-posbar-bg, #999) !important;
+    background-position: -248px 0 !important;
+    width: 29px;
+    height: 10px;
+    border: none !important;
+    border-radius: 0;
+    cursor: pointer;
+    margin-top: 0;
 }
 
 /* Track Info */
@@ -194,6 +338,20 @@ body {
     font-family: 'VT323', monospace;
     font-size: 14px;
     overflow: hidden;
+    padding: 2px 0;
+}
+
+body.skin-active #track-info {
+    position: absolute;
+    left: 112px;
+    top: 12px;
+    /* 26px from window top - 14px titlebar */
+    width: 154px;
+    height: 26px;
+    /* track name and stats fit within this height in main.bmp */
+    margin: 0;
+    padding: 0;
+    display: block;
 }
 
 #track-name {
@@ -204,6 +362,18 @@ body {
     border: 1px solid #222;
     background: #0a0a0a;
     padding: 0 2px;
+}
+
+body.skin-active #track-name {
+    background: transparent;
+    border: none;
+    color: #00ff00;
+    width: 154px;
+    height: 10px;
+    line-height: 10px;
+    margin: 0;
+    padding: 0;
+    display: block;
 }
 
 .marquee span {
@@ -228,6 +398,18 @@ body {
     color: #88aa88;
 }
 
+body.skin-active .audio-stats {
+    position: absolute;
+    top: 15px;
+    /* offset from track-info top */
+    left: 0;
+    margin: 0;
+    padding: 0;
+    width: 154px;
+    letter-spacing: -0.5px;
+    color: #00ff00;
+}
+
 /* Controls Panel */
 #controls-panel {
     display: flex;
@@ -239,18 +421,36 @@ body {
     gap: 4px;
 }
 
+body.skin-active #controls-panel {
+    position: absolute;
+    left: 16px;
+    top: 88px;
+    margin: 0;
+    padding: 0;
+    gap: 0;
+}
+
 /* Playback buttons */
 .playback-controls {
     display: flex;
     gap: 1px;
 }
 
+body.skin-active .playback-controls {
+    position: absolute;
+    left: 0;
+    top: 0;
+    gap: 0;
+}
+
+/* Base button defaults */
 .play-btn {
-    background: linear-gradient(to bottom, #eeeeee, #aaaaaa);
-    border: outset 2px #cccccc;
+    background: var(--skin-cbuttons-bg, linear-gradient(to bottom, #eeeeee, #aaaaaa));
+    border: inset 2px #cccccc;
     font-size: 10px;
     height: 18px;
     min-width: 22px;
+    padding: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -261,34 +461,165 @@ body {
 
 .play-btn:active {
     border: inset 2px #aaaaaa;
-    background: linear-gradient(to bottom, #aaaaaa, #cccccc);
+    background: var(--skin-cbuttons-bg, linear-gradient(to bottom, #aaaaaa, #cccccc));
 }
 
-/* Volume/Pan Sliders */
-input[type=range] {
-    -webkit-appearance: none;
-    width: 60px;
-    background: transparent;
-    height: 10px;
+/* Specific Winamp Sprite Slicing for Playback Controls (from cbuttons.bmp) */
+body.skin-active .play-btn,
+body.skin-active .play-btn:active {
+    border: none !important;
+    color: transparent !important;
+    /* hide our text */
+    background-repeat: no-repeat !important;
+    width: 23px;
+    /* standard winamp button size */
 }
 
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    height: 12px;
-    width: 8px;
-    background: #ccc;
-    border: 1px solid #666;
-    border-radius: 1px;
+body.skin-active #btn-prev {
+    background-position: 0 0;
+}
+
+body.skin-active #btn-prev:active {
+    background-position: 0 -18px;
+}
+
+body.skin-active #btn-play {
+    background-position: -23px 0;
+}
+
+body.skin-active #btn-play:active {
+    background-position: -23px -18px;
+}
+
+body.skin-active #btn-pause {
+    background-position: -46px 0;
+}
+
+body.skin-active #btn-pause:active {
+    background-position: -46px -18px;
+}
+
+body.skin-active #btn-stop {
+    background-position: -69px 0;
+}
+
+body.skin-active #btn-stop:active {
+    background-position: -69px -18px;
+}
+
+body.skin-active #btn-next {
+    background-position: -92px 0;
+}
+
+body.skin-active #btn-next:active {
+    background-position: -92px -18px;
+}
+
+body.skin-active #btn-eject {
+    background-position: -114px 0;
+    width: 22px;
+}
+
+body.skin-active #btn-eject:active {
+    background-position: -114px -18px;
+}
+
+/* ===================== Custom Div Sliders ===================== */
+.custom-slider {
+    position: relative;
+    width: 68px;
+    height: 7px;
+    background: #0a1a0a;
+    /* Visible dark green groove, not blending with player bg */
+    border: 1px inset #004400;
     cursor: pointer;
-    margin-top: -4px;
+    flex-shrink: 0;
+    /* No overflow:hidden — it breaks transform centering on the thumb child */
 }
 
-input[type=range]::-webkit-slider-runnable-track {
+/* Pan slider slightly wider in default mode for better usability */
+#pan-slider {
+    width: 68px;
+}
+
+.slider-thumb {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    left: 0;
+    width: 14px;
+    height: 11px;
+    background: #888;
+    border: 1px solid #ccc;
+    cursor: grab;
+    background-repeat: no-repeat;
+    background-size: auto auto;
+    z-index: 2;
+    /* Ensure transform works: parent must not have overflow:hidden */
+}
+
+.slider-thumb:active {
+    cursor: grabbing;
+}
+
+/* Fill bar inside the slider (shows current level) */
+.slider-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
     width: 100%;
-    height: 4px;
-    cursor: pointer;
-    background: #000;
-    border: 1px solid #444;
+    /* Overridden by JS based on value */
+    pointer-events: none;
+    /* Default: orange for volume, we'll set green for pan in skin-active via JS */
+    background: linear-gradient(to right, #cc6600, #ff8800);
+    border-radius: 1px;
+    z-index: 1;
+}
+
+#pan-fill {
+    background: linear-gradient(to right, #006600, #00aa00);
+}
+
+/* In skin mode the fill background-image is set directly by JS (volume.bmp rows) */
+body.skin-active .slider-fill {
+    background: transparent;
+    /* image applied by JS */
+    height: 13px;
+}
+
+/* In skin mode: track background is set by JS from volume.bmp rows. DO NOT use !important here 
+   or it will override the inline JS-set backgroundImage */
+body.skin-active .custom-slider {
+    background-color: transparent;
+    border: none;
+}
+
+body.skin-active .slider-thumb {
+    background-color: transparent;
+    border: none;
+}
+
+/* Volume slider position (inside controls-panel which is at left:16, top:88 in window) */
+body.skin-active #volume-slider {
+    position: absolute;
+    left: 91px;
+    /* 107px from window left - 16px controls-panel left */
+    top: -31px;
+    /* 57px from window top - 88px controls-panel top */
+    width: 68px;
+    height: 13px;
+}
+
+/* Pan slider position */
+body.skin-active #pan-slider {
+    position: absolute;
+    left: 161px;
+    /* 177px from window left - 16px controls-panel left */
+    top: -31px;
+    width: 56px;
+    /* wider than spec 38px for better usability at 1.5x zoom */
+    height: 13px;
 }
 
 .toggle-btn {
@@ -302,4 +633,56 @@ input[type=range]::-webkit-slider-runnable-track {
 
 .toggle-btn.active {
     color: #0f0;
+}
+
+/* Specific Winamp Sprite Slicing for Shuf / Rep (from shufrep.bmp) */
+body.skin-active .toggle-btn {
+    border: none;
+    color: transparent;
+    background: var(--skin-shufrep-bg, transparent);
+    background-repeat: no-repeat;
+    height: 15px;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+}
+
+body.skin-active #btn-shuffle {
+    width: 47px;
+    background-position: -28px 0;
+    left: 148px;
+    /* 164 - 16 */
+    top: 1px;
+    /* 89 - 88 */
+}
+
+body.skin-active #btn-shuffle:active {
+    background-position: -28px -15px;
+}
+
+body.skin-active #btn-shuffle.active {
+    background-position: -28px -30px;
+}
+
+body.skin-active #btn-repeat {
+    width: 28px;
+    background-position: 0 0;
+    left: 194px;
+    /* 210 - 16 */
+    top: 1px;
+    /* 89 - 88 */
+}
+
+body.skin-active #btn-repeat:active {
+    background-position: 0 -15px;
+}
+
+body.skin-active #btn-repeat.active {
+    background-position: 0 -30px;
+}
+
+/* Hide fallback visualizer box on skin */
+body.skin-active .visualizer {
+    background: transparent;
+    border: none;
 }
