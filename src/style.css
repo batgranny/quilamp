@@ -12,6 +12,8 @@ html,
 body {
     margin: 0;
     padding: 0;
+    height: 100%;
+    overflow: hidden;
 }
 
 :root {
@@ -22,10 +24,7 @@ body {
     --border-light: #444455;
     --border-dark: #111118;
 
-    /* Skin Variables (Fallback to none naturally) */
-    --skin-main-bg: none;
-    --skin-titlebar-bg: none;
-    --skin-cbuttons-bg: none;
+    /* Skin Variables (Undefined by default to trigger var() fallbacks) */
 }
 
 body {
@@ -39,11 +38,10 @@ body {
 
 #app-container {
     width: 275px;
-    height: 464px;
-    /* 116px player + 348px playlist default */
+    height: 100%;
+    /* Flexes to OS window height natively */
     display: flex;
     flex-direction: column;
-    resize: vertical;
     overflow: hidden;
     position: relative;
     background-color: var(--bg-dark);

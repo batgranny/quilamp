@@ -104,6 +104,19 @@ import './style.css';
 ### 6. ID3 Tag Reading
 `jsmediatags` is loaded via a `<script>` tag pointing to `./node_modules/jsmediatags/dist/jsmediatags.min.js`. The `loadTrack()` function in `renderer.js` is `async` and calls `readID3Tags(filePath)` to extract artist/title after the track starts playing.
 
+### 7. Canvas Sprite Extraction Toolkit (PLEDIT.BMP handling)
+Winamp skin files generally use composite bitmaps. While many elements can be aligned visually via `-webkit-background-clip` or standard `background-position`, complex repeating frame borders (like the playlist window borders in `PLEDIT.BMP`) easily glitch or show cross-contamination artifacts (like a single pixel blue line) if not physically separated.
+**Solution**: `renderer.js` implements a Canvas-based generic sprite extraction script (`extractSpriteRegion(url, x, y, width, height)`). This extracts strict mathematical portions of the original bitmap into isolated `data:` URI blobs. These isolated blobs can be safely `repeat-y` tiled the entire vertical height of the window natively without CSS leaking adjacent row data. 
+
+### 8. Custom Sync-Driven DOM Scrollbar
+The native CSS `::-webkit-scrollbar` drastically deviates from the Winamp design because standard browser interfaces scale the handle (thumb) size inversely proportional to the volume of the scrollable content, and automatically hide the track altogether if content doesn't overflow. 
+**Solution**: The playlist uses a purely absolute-positioned custom DOM hierarchy (`#playlist-scrollbar` & `#playlist-scroll-thumb`). The JavaScript layer intercepts native DOM `scroll` events from `#playlist-box`, and dynamically maps ratios to exactly calculate the 18px tall sprite-graphic's top property coordinate, mirroring classic behavior.
+
+### 9. Chromium VBR Duration Anomaly (The "Seekbar stops at 66%" Bug)
+If the seekbar slider mathematically spans exactly 248px graphically, but visually comes to a halt roughly two-thirds across the screen at the exact second the song concludes naturally, **DO NOT change the CSS sizing**. 
+This is a known Chromium VBR (Variable Bit Rate) MP3 metadata bug. Chromium natively inflates the HTML5 `<audio duration>` calculation significantly higher than the actual track footprint, meaning division operations fall drastically mathematically short of `1.0`.
+**Solution**: Instead of relying on `audio.duration`, `music-metadata` provides flawless binary extraction via an IPC endpoint bridge across to Node environment in `main.js`. The UI stores that absolute integer locally in `renderer.js` and normalizes the slider against it.
+
 ## Current State / Known Issues
 
 ### Working:

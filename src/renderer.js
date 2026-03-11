@@ -276,14 +276,28 @@ async function loadTrack(index) {
         audio.play();
         renderPlaylist();
 
-        // Try to read ID3 tags
-        const tags = await readID3Tags(filePath);
-        if (tags.artist && tags.title) {
-            trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
-        } else if (tags.title) {
-            trackNameDisplay.textContent = tags.title;
+        // Try to read metadata via IPC
+        window.currentTrackDuration = 0;
+        if (window.electronAPI && window.electronAPI.getMetadata) {
+            const tags = await window.electronAPI.getMetadata(filePath);
+            if (tags) {
+                if (tags.duration) window.currentTrackDuration = tags.duration;
+                if (tags.artist && tags.title) {
+                    trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
+                } else if (tags.title) {
+                    trackNameDisplay.textContent = tags.title;
+                }
+                // else keep the filename
+            }
+        } else {
+            // Fallback for browser testing
+            const tags = await readID3Tags(filePath);
+            if (tags.artist && tags.title) {
+                trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
+            } else if (tags.title) {
+                trackNameDisplay.textContent = tags.title;
+            }
         }
-        // else keep the filename
     }
 }
 
@@ -470,8 +484,9 @@ const seekControl = makeDraggableSlider(
     seekThumb,
     0,
     (ratio) => {
-        if (audio.duration) {
-            audio.currentTime = ratio * audio.duration;
+        const duration = window.currentTrackDuration || audio.duration;
+        if (duration) {
+            audio.currentTime = ratio * duration;
         }
     },
     () => { window.isSeeking = true; },
@@ -480,8 +495,15 @@ const seekControl = makeDraggableSlider(
 
 // Audio element event listeners
 audio.addEventListener('timeupdate', () => {
-    if (!window.isSeeking && audio.duration) {
-        seekControl.setValue(audio.currentTime / audio.duration);
+    const duration = window.currentTrackDuration || audio.duration;
+    if (!window.isSeeking && duration) {
+        seekControl.setValue(audio.currentTime / duration);
+    }
+});
+
+audio.addEventListener('ended', () => {
+    if (!window.isSeeking) {
+        seekControl.setValue(1.0);
     }
 });
 

@@ -1,11 +1,18 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 
+// Force application name for macOS menu bar when running unpackaged
+if (process.platform === 'darwin') {
+    app.setName('Quinamp');
+}
+
 const isDev = !app.isPackaged;
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 413,
+        minWidth: 413,
+        maxWidth: 413,
         height: 696,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
@@ -15,7 +22,7 @@ function createWindow() {
         },
         frame: false,
         transparent: true,
-        resizable: true, // OS window resizable (though we rely on CSS resize)
+        resizable: true, // OS window resizable vertically
         maximizable: false
     });
     if (isDev) {
@@ -64,5 +71,20 @@ ipcMain.handle('dialog:openFile', async () => {
         return null;
     } else {
         return result.filePaths;
+    }
+});
+
+ipcMain.handle('get-metadata', async (event, filePath) => {
+    try {
+        const mm = await import('music-metadata');
+        const metadata = await mm.parseFile(filePath, { duration: true });
+        return {
+            title: metadata.common.title || null,
+            artist: metadata.common.artist || null,
+            duration: metadata.format.duration || null
+        };
+    } catch (err) {
+        console.error("Failed to read metadata:", err);
+        return null;
     }
 });
