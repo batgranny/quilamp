@@ -4,7 +4,7 @@ import { resolve } from 'path';
 export default defineConfig({
   base: './', // Use relative paths for Electron
   build: {
-    outDir: 'build',
+    outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
       input: {
