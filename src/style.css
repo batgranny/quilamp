@@ -140,6 +140,26 @@ body.skin-active #playlist-container {
     box-shadow: none !important;
 }
 
+body.skin-active #playlist-title-bar {
+    height: 20px !important;
+    background-image:
+        var(--skin-pledit-top-left),
+        var(--skin-pledit-top-right),
+        var(--skin-pledit-top-fill) !important;
+    background-position:
+        left top,
+        right top,
+        left top !important;
+    background-repeat:
+        no-repeat,
+        no-repeat,
+        repeat-x !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 25px !important;
+    /* Padding keeps the Quina text out of the corner graphics */
+}
+
 body.skin-active #playlist-box {
     border: none !important;
     padding: 0 20px 0 12px !important;

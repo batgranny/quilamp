@@ -281,6 +281,15 @@ async function applySkin(file) {
         const pleditBottomFillUrl = await extractSpriteRegion('pledit.bmp', 179, 0, 25, 38);
         if (pleditBottomFillUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-fill', `url("${pleditBottomFillUrl}")`);
 
+        const pleditTopLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 21, 25, 20);
+        if (pleditTopLeftUrl) document.documentElement.style.setProperty('--skin-pledit-top-left', `url("${pleditTopLeftUrl}")`);
+
+        const pleditTopRightUrl = await extractSpriteRegion('pledit.bmp', 153, 21, 25, 20);
+        if (pleditTopRightUrl) document.documentElement.style.setProperty('--skin-pledit-top-right', `url("${pleditTopRightUrl}")`);
+
+        const pleditTopFillUrl = await extractSpriteRegion('pledit.bmp', 127, 21, 25, 20);
+        if (pleditTopFillUrl) document.documentElement.style.setProperty('--skin-pledit-top-fill', `url("${pleditTopFillUrl}")`);
+
         // Apply skin-active class NOW — before any optional thumb styling
         document.body.classList.add('skin-active');
 
