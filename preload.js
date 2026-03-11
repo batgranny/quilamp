@@ -1,5 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    openFileDialog: () => ipcRenderer.invoke('dialog:openFile')
+    openFileDialog: () => ipcRenderer.invoke('dialog:openFile'),
+    resizeWindow: (width, height) => ipcRenderer.invoke('resize-window', { width, height }),
+    getMetadata: (filePath) => ipcRenderer.invoke('get-metadata', filePath)
 });

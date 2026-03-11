@@ -8,6 +8,14 @@
     outline: none !important;
 }
 
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
 :root {
     --bg-dark: #1e1e24;
     --bg-panel: #2a2a35;
@@ -16,23 +24,27 @@
     --border-light: #444455;
     --border-dark: #111118;
 
-    /* Skin Variables (Fallback to none naturally) */
-    --skin-main-bg: none;
-    --skin-titlebar-bg: none;
-    --skin-cbuttons-bg: none;
+    /* Skin Variables (Undefined by default to trigger var() fallbacks) */
 }
 
 body {
     zoom: 1.5;
-    margin: 0;
-    padding: 0;
     background-color: transparent;
     width: 275px;
-    height: 232px;
-    overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-dark);
     /* Solid background for default state */
+}
+
+#app-container {
+    width: 275px;
+    height: 100%;
+    /* Flexes to OS window height natively */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--bg-dark);
 }
 
 /* Make body transparent if we are dragging so frameless window shows well, or just let #player-container handle it? Actually let's set the main app background to black #000 temporarily to see if that fixes the global transparency issue, wait, no, electron requires body color. */
@@ -83,7 +95,9 @@ body.skin-active #title-bar {
 /* Playlist Region */
 #playlist-container {
     width: 275px;
-    height: 116px;
+    flex-grow: 1;
+    min-height: 116px;
+    /* Base height */
     background: linear-gradient(to bottom, #3a3a45, var(--bg-dark));
     border: 1px solid var(--border-dark);
     border-top: none;
@@ -110,9 +124,79 @@ body.skin-active #title-bar {
 
 #playlist-box {
     flex-grow: 1;
+    min-height: 0;
     background: #000;
     border: inset 2px #444;
     overflow-y: auto;
+}
+
+body.skin-active #playlist-container {
+    padding: 0 !important;
+    border: none !important;
+    background: #000 !important;
+    /* The skin usually tiled PLEDIT.BMP but we'll leave it black for now or user can provide tiling logic */
+    box-shadow: none !important;
+}
+
+body.skin-active #playlist-title-bar {
+    height: 20px !important;
+    background-image:
+        var(--skin-pledit-top-left),
+        var(--skin-pledit-top-right),
+        var(--skin-pledit-top-fill) !important;
+    background-position:
+        left top,
+        right top,
+        left top !important;
+    background-repeat:
+        no-repeat,
+        no-repeat,
+        repeat-x !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 25px !important;
+    /* Padding keeps the Quina text out of the corner graphics */
+}
+
+body.skin-active #playlist-box {
+    border: none !important;
+    padding: 0 20px 0 12px !important;
+    background-color: transparent !important;
+    position: relative;
+    box-sizing: border-box;
+    z-index: 1;
+    overflow-y: scroll !important;
+    /* Keep content and scrollbar above border backgrounds */
+}
+
+body.skin-active #playlist-container::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    /* Title bar height */
+    left: 0;
+    bottom: 38px;
+    /* Bottom bar height */
+    width: 12px;
+    background-image: var(--skin-pledit-left);
+    background-position: left top;
+    background-repeat: repeat-y;
+    z-index: 0;
+}
+
+body.skin-active #playlist-container::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    /* Title bar height */
+    right: 0;
+    bottom: 38px;
+    /* Bottom bar height */
+    width: 19px;
+    background-image: var(--skin-pledit-right);
+    background-position: right top;
+    background-repeat: repeat-y;
+    z-index: 0;
 }
 
 #playlist-items {
@@ -122,6 +206,40 @@ body.skin-active #title-bar {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 10px;
     color: var(--text-primary);
+}
+
+/* Skinned Playlist Custom Scrollbar */
+body.skin-active #playlist-box::-webkit-scrollbar {
+    width: 0;
+    display: none;
+}
+
+body.skin-active #playlist-scrollbar {
+    display: block;
+    position: absolute;
+    top: 20px;
+    right: 0;
+    bottom: 38px;
+    width: 19px;
+    z-index: 20;
+}
+
+body:not(.skin-active) #playlist-scrollbar {
+    display: none;
+}
+
+#playlist-scroll-thumb {
+    position: absolute;
+    top: 0;
+    left: 1px;
+    width: 8px;
+    /* Sprite width */
+    height: 18px;
+    /* Sprite height */
+    background-image: var(--skin-pledit-scroll-handle);
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
 }
 
 #playlist-items li {
@@ -139,6 +257,98 @@ body.skin-active #title-bar {
 #playlist-items li.active {
     background: #0000a0;
     color: #fff;
+}
+
+#playlist-bottom {
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 4px;
+    background: #2a2a35;
+    border-top: inset 1px #555;
+    margin-top: 2px;
+}
+
+.pl-action-btn {
+    background: linear-gradient(to bottom, #eeeeee, #aaaaaa);
+    border: inset 2px #cccccc;
+    font-size: 8px;
+    font-weight: bold;
+    height: 18px;
+    min-width: 32px;
+    padding: 0;
+    cursor: pointer;
+    color: #333;
+    outline: none;
+    user-select: none;
+}
+
+.pl-action-btn:active {
+    border: inset 2px #aaaaaa;
+    background: linear-gradient(to bottom, #aaaaaa, #cccccc);
+}
+
+/* Skinned Mode bottom bar */
+body.skin-active #playlist-bottom {
+    background-image:
+        var(--skin-pledit-bottom-left),
+        var(--skin-pledit-bottom-right),
+        var(--skin-pledit-bottom-fill) !important;
+    background-position:
+        left top,
+        right top,
+        left top !important;
+    background-repeat:
+        no-repeat,
+        no-repeat,
+        repeat-x !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    position: relative;
+}
+
+/* Skinned Mode transparent buttons overlay */
+body.skin-active .pl-action-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent !important;
+    border: none !important;
+    color: transparent !important;
+    font-size: 0 !important;
+    cursor: pointer;
+    position: absolute;
+    height: 18px;
+    top: 14px;
+}
+
+/* Approximate widths & positions from PLEDIT.BMP layout */
+body.skin-active #pl-btn-add {
+    width: 22px;
+    left: 14px;
+}
+
+body.skin-active #pl-btn-rem {
+    width: 22px;
+    left: 43px;
+}
+
+body.skin-active #pl-btn-sel {
+    width: 22px;
+    left: 72px;
+}
+
+body.skin-active #pl-btn-misc {
+    width: 22px;
+    left: 101px;
+}
+
+/* Generic active state fallback (darken) */
+body.skin-active .pl-action-btn:active {
+    filter: brightness(0.6);
 }
 
 
@@ -330,7 +540,7 @@ body.skin-active #time-display {
     /* (18 - 10) / 2 */
     left: 0;
     width: 100%;
-    height: 10px;
+    height: 5px;
     background: #333;
     border: inset 1px #222;
     z-index: -1;
@@ -341,7 +551,7 @@ body.skin-active #time-display {
     height: 10px;
     background: #ccc;
     position: absolute;
-    top: 4px;
+    top: 8.5px;
     /* (18 - 10) / 2 */
     left: 0;
     z-index: 101;

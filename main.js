@@ -1,12 +1,19 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 
+// Force application name for macOS menu bar when running unpackaged
+if (process.platform === 'darwin') {
+    app.setName('Quinamp');
+}
+
 const isDev = !app.isPackaged;
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 413,
-        height: 348,
+        minWidth: 413,
+        maxWidth: 413,
+        height: 696,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -15,10 +22,9 @@ function createWindow() {
         },
         frame: false,
         transparent: true,
-        resizable: false,
+        resizable: true, // OS window resizable vertically
         maximizable: false
     });
-
     if (isDev) {
         mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools({ mode: 'detach' });
@@ -26,6 +32,19 @@ function createWindow() {
         mainWindow.loadFile(path.join(__dirname, 'build/index.html'));
     }
 }
+
+ipcMain.handle('resize-window', (event, { width, height }) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) {
+        const bounds = win.getBounds();
+        win.setBounds({
+            x: bounds.x,
+            y: bounds.y,
+            width: width,
+            height: height
+        });
+    }
+});
 
 app.whenReady().then(() => {
     createWindow();
@@ -52,5 +71,20 @@ ipcMain.handle('dialog:openFile', async () => {
         return null;
     } else {
         return result.filePaths;
+    }
+});
+
+ipcMain.handle('get-metadata', async (event, filePath) => {
+    try {
+        const mm = await import('music-metadata');
+        const metadata = await mm.parseFile(filePath, { duration: true });
+        return {
+            title: metadata.common.title || null,
+            artist: metadata.common.artist || null,
+            duration: metadata.format.duration || null
+        };
+    } catch (err) {
+        console.error("Failed to read metadata:", err);
+        return null;
     }
 });

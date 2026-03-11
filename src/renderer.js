@@ -23,6 +23,93 @@ const panSlider = document.getElementById('pan-slider');
 const panThumb = document.getElementById('pan-thumb');
 const playlistItemsContainer = document.getElementById('playlist-items');
 
+// Custom Playlist Scrollbar Logic
+function initPlaylistScrollbar() {
+    const box = document.getElementById('playlist-box');
+    const thumb = document.getElementById('playlist-scroll-thumb');
+    const track = document.getElementById('playlist-scrollbar');
+
+    if (!box || !thumb || !track) return;
+
+    let dragging = false;
+    let startY = 0;
+    let startTop = 0;
+
+    function updateThumb() {
+        if (dragging) return;
+        const maxScroll = box.scrollHeight - box.clientHeight;
+        const trackHeight = track.clientHeight;
+        const thumbHeight = thumb.clientHeight;
+        const maxTop = Math.max(0, trackHeight - thumbHeight);
+
+        if (maxScroll <= 0) {
+            thumb.style.top = '0px';
+            return;
+        }
+
+        const ratio = box.scrollTop / maxScroll;
+        thumb.style.top = `${ratio * maxTop}px`;
+    }
+
+    box.addEventListener('scroll', updateThumb);
+    box.addEventListener('playlistUpdated', updateThumb);
+    window.addEventListener('resize', updateThumb);
+
+    thumb.addEventListener('mousedown', (e) => {
+        dragging = true;
+        startY = e.clientY;
+        startTop = parseFloat(thumb.style.top) || 0;
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const trackHeight = track.clientHeight;
+        const thumbHeight = thumb.clientHeight;
+        const maxTop = Math.max(0, trackHeight - thumbHeight);
+
+        const deltaY = (e.clientY - startY) / CSS_ZOOM;
+        let newTop = startTop + deltaY;
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+        thumb.style.top = `${newTop}px`;
+
+        const maxScroll = box.scrollHeight - box.clientHeight;
+        if (maxScroll > 0 && maxTop > 0) {
+            box.scrollTop = (newTop / maxTop) * maxScroll;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        dragging = false;
+    });
+
+    track.addEventListener('mousedown', (e) => {
+        if (e.target === thumb) return;
+        const rect = track.getBoundingClientRect();
+        let mouseY = (e.clientY - rect.top) / CSS_ZOOM;
+        const trackHeight = track.clientHeight;
+        const thumbHeight = thumb.clientHeight;
+        const maxTop = Math.max(0, trackHeight - thumbHeight);
+
+        let newTop = mouseY - (thumbHeight / 2);
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+        thumb.style.top = `${newTop}px`;
+
+        const maxScroll = box.scrollHeight - box.clientHeight;
+        if (maxScroll > 0 && maxTop > 0) {
+            box.scrollTop = (newTop / maxTop) * maxScroll;
+        }
+
+        dragging = true;
+        startY = e.clientY;
+        startTop = newTop;
+        e.preventDefault();
+    });
+}
+
+initPlaylistScrollbar();
+
 // Custom slider state
 let volumeValue = 1.0; // 0-1
 let panValue = 0.5;    // 0-1 (0.5 = center)
@@ -168,6 +255,10 @@ function renderPlaylist() {
         });
         playlistItemsContainer.appendChild(li);
     });
+
+    // Notify scrollbar that heights may have changed
+    const box = document.getElementById('playlist-box');
+    if (box) box.dispatchEvent(new Event('playlistUpdated'));
 }
 
 // Update track name and play
@@ -185,14 +276,28 @@ async function loadTrack(index) {
         audio.play();
         renderPlaylist();
 
-        // Try to read ID3 tags
-        const tags = await readID3Tags(filePath);
-        if (tags.artist && tags.title) {
-            trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
-        } else if (tags.title) {
-            trackNameDisplay.textContent = tags.title;
+        // Try to read metadata via IPC
+        window.currentTrackDuration = 0;
+        if (window.electronAPI && window.electronAPI.getMetadata) {
+            const tags = await window.electronAPI.getMetadata(filePath);
+            if (tags) {
+                if (tags.duration) window.currentTrackDuration = tags.duration;
+                if (tags.artist && tags.title) {
+                    trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
+                } else if (tags.title) {
+                    trackNameDisplay.textContent = tags.title;
+                }
+                // else keep the filename
+            }
+        } else {
+            // Fallback for browser testing
+            const tags = await readID3Tags(filePath);
+            if (tags.artist && tags.title) {
+                trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
+            } else if (tags.title) {
+                trackNameDisplay.textContent = tags.title;
+            }
         }
-        // else keep the filename
     }
 }
 
@@ -211,6 +316,23 @@ async function applySkin(file) {
                 return URL.createObjectURL(fileData);
             }
             return null;
+        };
+
+        const extractSpriteRegion = async (filename, x, y, width, height) => {
+            const url = await extractImage(filename);
+            if (!url) return null;
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = url;
+            });
         };
 
         // Extract all skin images
@@ -243,6 +365,38 @@ async function applySkin(file) {
 
         const posbarBmpUrl = await extractImage('posbar.bmp');
         if (posbarBmpUrl) document.documentElement.style.setProperty('--skin-posbar-bg', `url("${posbarBmpUrl}")`);
+
+        const genBmpUrl = await extractImage('gen.bmp');
+        if (genBmpUrl) document.documentElement.style.setProperty('--skin-gen-bg', `url("${genBmpUrl}")`);
+
+        // Extract specific playlist border slices so they can cleanly repeat-y in CSS purely as a 29px tile
+        const pleditLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 42, 12, 29);
+        if (pleditLeftUrl) document.documentElement.style.setProperty('--skin-pledit-left', `url("${pleditLeftUrl}")`);
+
+        // Crop 1px off the left side of the right border slice (offset 31 -> 32) to remove the blue scrollbar edge line
+        const pleditRightUrl = await extractSpriteRegion('pledit.bmp', 32, 42, 19, 29);
+        if (pleditRightUrl) document.documentElement.style.setProperty('--skin-pledit-right', `url("${pleditRightUrl}")`);
+
+        const pleditBottomLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 72, 125, 38);
+        if (pleditBottomLeftUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-left', `url("${pleditBottomLeftUrl}")`);
+
+        const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 126, 72, 150, 38);
+        if (pleditBottomRightUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-right', `url("${pleditBottomRightUrl}")`);
+
+        const pleditBottomFillUrl = await extractSpriteRegion('pledit.bmp', 179, 0, 25, 38);
+        if (pleditBottomFillUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-fill', `url("${pleditBottomFillUrl}")`);
+
+        const pleditTopLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 21, 25, 20);
+        if (pleditTopLeftUrl) document.documentElement.style.setProperty('--skin-pledit-top-left', `url("${pleditTopLeftUrl}")`);
+
+        const pleditTopRightUrl = await extractSpriteRegion('pledit.bmp', 153, 21, 25, 20);
+        if (pleditTopRightUrl) document.documentElement.style.setProperty('--skin-pledit-top-right', `url("${pleditTopRightUrl}")`);
+
+        const pleditTopFillUrl = await extractSpriteRegion('pledit.bmp', 127, 21, 25, 20);
+        if (pleditTopFillUrl) document.documentElement.style.setProperty('--skin-pledit-top-fill', `url("${pleditTopFillUrl}")`);
+
+        const pleditScrollHandleUrl = await extractSpriteRegion('pledit.bmp', 52, 53, 8, 18);
+        if (pleditScrollHandleUrl) document.documentElement.style.setProperty('--skin-pledit-scroll-handle', `url("${pleditScrollHandleUrl}")`);
 
         // Apply skin-active class NOW — before any optional thumb styling
         document.body.classList.add('skin-active');
@@ -330,8 +484,9 @@ const seekControl = makeDraggableSlider(
     seekThumb,
     0,
     (ratio) => {
-        if (audio.duration) {
-            audio.currentTime = ratio * audio.duration;
+        const duration = window.currentTrackDuration || audio.duration;
+        if (duration) {
+            audio.currentTime = ratio * duration;
         }
     },
     () => { window.isSeeking = true; },
@@ -340,8 +495,15 @@ const seekControl = makeDraggableSlider(
 
 // Audio element event listeners
 audio.addEventListener('timeupdate', () => {
-    if (!window.isSeeking && audio.duration) {
-        seekControl.setValue(audio.currentTime / audio.duration);
+    const duration = window.currentTrackDuration || audio.duration;
+    if (!window.isSeeking && duration) {
+        seekControl.setValue(audio.currentTime / duration);
+    }
+});
+
+audio.addEventListener('ended', () => {
+    if (!window.isSeeking) {
+        seekControl.setValue(1.0);
     }
 });
 
@@ -384,15 +546,35 @@ volumeSlider.addEventListener('click', () => { /* handled by makeDraggableSlider
 
 // Load files via IPC
 if (window.electronAPI) {
+    // Eject button (Main Window) - REPLACES playlist
     btnEject.addEventListener('click', async () => {
         const filePaths = await window.electronAPI.openFileDialog();
         if (filePaths && filePaths.length > 0) {
-            // Append to playlist or replace
-            // For now, replace
             trackList = filePaths;
             loadTrack(0);
         }
     });
+
+    // ADD button (Playlist Window) - APPENDS to playlist
+    const btnPlAdd = document.getElementById('pl-btn-add');
+    if (btnPlAdd) {
+        btnPlAdd.addEventListener('click', async () => {
+            const filePaths = await window.electronAPI.openFileDialog();
+            if (filePaths && filePaths.length > 0) {
+                const wasEmpty = trackList.length === 0;
+                // Avoid duplicates by filtering (optional, but good practice)
+                const newPaths = filePaths.filter(p => !trackList.includes(p));
+                trackList = trackList.concat(newPaths);
+
+                renderPlaylist();
+
+                // If the playlist was empty and nothing is currently playing, start playing
+                if (wasEmpty && !audio.src && trackList.length > 0) {
+                    loadTrack(0);
+                }
+            }
+        });
+    }
 
     // Drag and Drop support
     document.addEventListener('dragover', (e) => {
