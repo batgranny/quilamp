@@ -1,0 +1,20 @@
+
+    <html>
+    <body>
+        <canvas id="c"></canvas>
+        <script>
+            const { ipcRenderer } = require('electron');
+            const img = new Image();
+            img.onload = () => {
+                const c = document.getElementById('c');
+                c.width = img.width;
+                c.height = img.height;
+                const ctx = c.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                ipcRenderer.send('done', c.toDataURL('image/png'));
+            };
+            img.src = 'file:///Users/chrisconnolly/.gemini/antigravity/brain/816c3550-c4a9-411e-9fbb-7e9934b32ae8/PLEDIT.BMP';
+        </script>
+    </body>
+    </html>
+    

@@ -27,7 +27,8 @@
       "category": "public.app-category.music"
     },
     "directories": {
-      "buildResources": "build"
+      "buildResources": "build",
+      "output": "release"
     }
   }
 }

@@ -264,11 +264,24 @@ body:not(.skin-active) #playlist-scrollbar {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    gap: 4px;
+    justify-content: space-between;
+    padding: 0 14px 0 12px;
     background: #2a2a35;
     border-top: inset 1px #555;
     margin-top: 2px;
+    position: relative;
+}
+
+.pl-left-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.pl-right-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1px;
 }
 
 .pl-action-btn {
@@ -285,9 +298,48 @@ body:not(.skin-active) #playlist-scrollbar {
     user-select: none;
 }
 
-.pl-action-btn:active {
+.pl-list-btn {
+    background: linear-gradient(to bottom, #eeeeee, #aaaaaa);
+    border: inset 2px #cccccc;
+    font-size: 6px;
+    font-weight: bold;
+    height: 11px;
+    min-width: 28px;
+    padding: 0;
+    cursor: pointer;
+    color: #333;
+    outline: none;
+    user-select: none;
+    line-height: 1;
+}
+
+.pl-list-btn:active {
     border: inset 2px #aaaaaa;
     background: linear-gradient(to bottom, #aaaaaa, #cccccc);
+}
+
+.pl-right-actions {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#pl-list-opts-menu {
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    margin-bottom: 2px;
+    background: #2a2a35;
+    border: inset 1px #555;
+    padding: 2px;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+#pl-list-opts-menu.collapsed {
+    display: none !important;
 }
 
 /* Skinned Mode bottom bar */
@@ -309,6 +361,10 @@ body.skin-active #playlist-bottom {
     margin: 0 !important;
     gap: 0 !important;
     position: relative;
+    height: 38px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
 }
 
 /* Skinned Mode transparent buttons overlay */
@@ -346,9 +402,52 @@ body.skin-active #pl-btn-misc {
     left: 101px;
 }
 
+body.skin-active #pl-btn-list-opts {
+    width: 22px;
+    height: 18px;
+    margin-right: 18px;
+    top: auto;
+    right: auto;
+    left: auto;
+    position: relative;
+    appearance: none;
+    background: transparent !important;
+    border: none !important;
+    color: transparent !important;
+}
+
 /* Generic active state fallback (darken) */
 body.skin-active .pl-action-btn:active {
     filter: brightness(0.6);
+}
+
+/* Skinned Mode Pop-up Menu Alignment */
+body.skin-active #pl-list-opts-menu {
+    right: 18px;
+    /* Align horizontally with the skinned LIST OPTS hitbox margin */
+    bottom: 100%;
+    /* Anchor firmly on top of the now physical .pl-right-actions block */
+    width: auto;
+    height: auto;
+}
+
+body.skin-active .pl-list-btn {
+    position: relative;
+    /* Revert hitboxes cleanly for natural CSS buttons */
+    right: auto;
+    width: auto;
+    height: auto;
+    appearance: auto;
+    background: linear-gradient(to bottom, #eeeeee, #aaaaaa) !important;
+    border: inset 2px #cccccc !important;
+    color: #333 !important;
+    font-size: 6px !important;
+}
+
+body.skin-active .pl-list-btn:active {
+    filter: none;
+    border: inset 2px #aaaaaa !important;
+    background: linear-gradient(to bottom, #aaaaaa, #cccccc) !important;
 }
 
 
