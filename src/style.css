@@ -166,32 +166,39 @@ body.skin-active #playlist-box {
     background-color: transparent !important;
     position: relative;
     box-sizing: border-box;
+    z-index: 1;
+    overflow-y: scroll !important;
+    /* Keep content and scrollbar above border backgrounds */
 }
 
-body.skin-active #playlist-box::before {
+body.skin-active #playlist-container::before {
     content: "";
     position: absolute;
-    top: 0;
+    top: 20px;
+    /* Title bar height */
     left: 0;
-    bottom: 0;
+    bottom: 38px;
+    /* Bottom bar height */
     width: 12px;
     background-image: var(--skin-pledit-left);
     background-position: left top;
     background-repeat: repeat-y;
-    z-index: 10;
+    z-index: 0;
 }
 
-body.skin-active #playlist-box::after {
+body.skin-active #playlist-container::after {
     content: "";
     position: absolute;
-    top: 0;
+    top: 20px;
+    /* Title bar height */
     right: 0;
-    bottom: 0;
+    bottom: 38px;
+    /* Bottom bar height */
     width: 19px;
     background-image: var(--skin-pledit-right);
     background-position: right top;
     background-repeat: repeat-y;
-    z-index: 10;
+    z-index: 0;
 }
 
 #playlist-items {
@@ -201,6 +208,40 @@ body.skin-active #playlist-box::after {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 10px;
     color: var(--text-primary);
+}
+
+/* Skinned Playlist Custom Scrollbar */
+body.skin-active #playlist-box::-webkit-scrollbar {
+    width: 0;
+    display: none;
+}
+
+body.skin-active #playlist-scrollbar {
+    display: block;
+    position: absolute;
+    top: 20px;
+    right: 0;
+    bottom: 38px;
+    width: 19px;
+    z-index: 20;
+}
+
+body:not(.skin-active) #playlist-scrollbar {
+    display: none;
+}
+
+#playlist-scroll-thumb {
+    position: absolute;
+    top: 0;
+    left: 1px;
+    width: 8px;
+    /* Sprite width */
+    height: 18px;
+    /* Sprite height */
+    background-image: var(--skin-pledit-scroll-handle);
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
 }
 
 #playlist-items li {

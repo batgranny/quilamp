@@ -23,6 +23,93 @@ const panSlider = document.getElementById('pan-slider');
 const panThumb = document.getElementById('pan-thumb');
 const playlistItemsContainer = document.getElementById('playlist-items');
 
+// Custom Playlist Scrollbar Logic
+function initPlaylistScrollbar() {
+    const box = document.getElementById('playlist-box');
+    const thumb = document.getElementById('playlist-scroll-thumb');
+    const track = document.getElementById('playlist-scrollbar');
+
+    if (!box || !thumb || !track) return;
+
+    let dragging = false;
+    let startY = 0;
+    let startTop = 0;
+
+    function updateThumb() {
+        if (dragging) return;
+        const maxScroll = box.scrollHeight - box.clientHeight;
+        const trackHeight = track.clientHeight;
+        const thumbHeight = thumb.clientHeight;
+        const maxTop = Math.max(0, trackHeight - thumbHeight);
+
+        if (maxScroll <= 0) {
+            thumb.style.top = '0px';
+            return;
+        }
+
+        const ratio = box.scrollTop / maxScroll;
+        thumb.style.top = `${ratio * maxTop}px`;
+    }
+
+    box.addEventListener('scroll', updateThumb);
+    box.addEventListener('playlistUpdated', updateThumb);
+    window.addEventListener('resize', updateThumb);
+
+    thumb.addEventListener('mousedown', (e) => {
+        dragging = true;
+        startY = e.clientY;
+        startTop = parseFloat(thumb.style.top) || 0;
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        const trackHeight = track.clientHeight;
+        const thumbHeight = thumb.clientHeight;
+        const maxTop = Math.max(0, trackHeight - thumbHeight);
+
+        const deltaY = (e.clientY - startY) / CSS_ZOOM;
+        let newTop = startTop + deltaY;
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+        thumb.style.top = `${newTop}px`;
+
+        const maxScroll = box.scrollHeight - box.clientHeight;
+        if (maxScroll > 0 && maxTop > 0) {
+            box.scrollTop = (newTop / maxTop) * maxScroll;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        dragging = false;
+    });
+
+    track.addEventListener('mousedown', (e) => {
+        if (e.target === thumb) return;
+        const rect = track.getBoundingClientRect();
+        let mouseY = (e.clientY - rect.top) / CSS_ZOOM;
+        const trackHeight = track.clientHeight;
+        const thumbHeight = thumb.clientHeight;
+        const maxTop = Math.max(0, trackHeight - thumbHeight);
+
+        let newTop = mouseY - (thumbHeight / 2);
+        newTop = Math.max(0, Math.min(newTop, maxTop));
+        thumb.style.top = `${newTop}px`;
+
+        const maxScroll = box.scrollHeight - box.clientHeight;
+        if (maxScroll > 0 && maxTop > 0) {
+            box.scrollTop = (newTop / maxTop) * maxScroll;
+        }
+
+        dragging = true;
+        startY = e.clientY;
+        startTop = newTop;
+        e.preventDefault();
+    });
+}
+
+initPlaylistScrollbar();
+
 // Custom slider state
 let volumeValue = 1.0; // 0-1
 let panValue = 0.5;    // 0-1 (0.5 = center)
@@ -168,6 +255,10 @@ function renderPlaylist() {
         });
         playlistItemsContainer.appendChild(li);
     });
+
+    // Notify scrollbar that heights may have changed
+    const box = document.getElementById('playlist-box');
+    if (box) box.dispatchEvent(new Event('playlistUpdated'));
 }
 
 // Update track name and play
@@ -289,6 +380,9 @@ async function applySkin(file) {
 
         const pleditTopFillUrl = await extractSpriteRegion('pledit.bmp', 127, 21, 25, 20);
         if (pleditTopFillUrl) document.documentElement.style.setProperty('--skin-pledit-top-fill', `url("${pleditTopFillUrl}")`);
+
+        const pleditScrollHandleUrl = await extractSpriteRegion('pledit.bmp', 52, 53, 8, 18);
+        if (pleditScrollHandleUrl) document.documentElement.style.setProperty('--skin-pledit-scroll-handle', `url("${pleditScrollHandleUrl}")`);
 
         // Apply skin-active class NOW — before any optional thumb styling
         document.body.classList.add('skin-active');
