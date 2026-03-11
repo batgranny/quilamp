@@ -396,11 +396,15 @@ async function applySkin(file) {
         const pleditBottomLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 72, 125, 38);
         if (pleditBottomLeftUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-left', `url("${pleditBottomLeftUrl}")`);
 
-        const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 126, 72, 150, 38);
+        const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 126, 72, 149, 38);
         if (pleditBottomRightUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-right', `url("${pleditBottomRightUrl}")`);
 
         const pleditBottomFillUrl = await extractSpriteRegion('pledit.bmp', 179, 0, 25, 38);
         if (pleditBottomFillUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-fill', `url("${pleditBottomFillUrl}")`);
+
+        // List Opts Pop-up Menu (NEW | SAVE | LOAD) - 22 width x 42 height
+        const pleditMenuUrl = await extractSpriteRegion('pledit.bmp', 43, 42, 22, 42);
+        if (pleditMenuUrl) document.documentElement.style.setProperty('--skin-pledit-menu-bg', `url("${pleditMenuUrl}")`);
 
         const pleditTopLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 21, 25, 20);
         if (pleditTopLeftUrl) document.documentElement.style.setProperty('--skin-pledit-top-left', `url("${pleditTopLeftUrl}")`);
@@ -588,6 +592,60 @@ if (window.electronAPI) {
                 if (wasEmpty && !audio.src && trackList.length > 0) {
                     loadTrack(0);
                 }
+            }
+        });
+    }
+
+    // Playlist Save/Load Buttons
+    const btnPlListOpts = document.getElementById('pl-btn-list-opts');
+    const plListOptsMenu = document.getElementById('pl-list-opts-menu');
+
+    const btnPlNew = document.getElementById('pl-btn-list-new');
+    const btnPlSave = document.getElementById('pl-btn-list-save');
+    const btnPlLoad = document.getElementById('pl-btn-list-load');
+
+    if (btnPlListOpts && plListOptsMenu) {
+        btnPlListOpts.addEventListener('click', (e) => {
+            e.stopPropagation(); // prevent window click from immediately closing it
+            plListOptsMenu.classList.toggle('collapsed');
+        });
+
+        // Click outside to close map
+        window.addEventListener('click', (e) => {
+            if (!plListOptsMenu.contains(e.target) && e.target !== btnPlListOpts) {
+                if (!plListOptsMenu.classList.contains('collapsed')) {
+                    plListOptsMenu.classList.add('collapsed');
+                }
+            }
+        });
+    }
+
+    if (btnPlNew) {
+        btnPlNew.addEventListener('click', () => {
+            trackList = [];
+            currentTrackIndex = -1;
+            audio.src = '';
+            document.querySelector('.marquee span').textContent = '*** QUINAMP *** WINAMP CLONE ***';
+            timeDisplay.textContent = '00:00';
+            renderPlaylist();
+        });
+    }
+
+    if (btnPlSave) {
+        btnPlSave.addEventListener('click', async () => {
+            if (trackList.length > 0) {
+                await window.electronAPI.savePlaylist(trackList);
+            }
+        });
+    }
+
+    if (btnPlLoad) {
+        btnPlLoad.addEventListener('click', async () => {
+            const loadedTracks = await window.electronAPI.loadPlaylist();
+            if (loadedTracks && loadedTracks.length > 0) {
+                trackList = loadedTracks;
+                renderPlaylist();
+                loadTrack(0);
             }
         });
     }
