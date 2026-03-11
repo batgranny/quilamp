@@ -213,6 +213,23 @@ async function applySkin(file) {
             return null;
         };
 
+        const extractSpriteRegion = async (filename, x, y, width, height) => {
+            const url = await extractImage(filename);
+            if (!url) return null;
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, x, y, width, height, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = url;
+            });
+        };
+
         // Extract all skin images
         const mainBmpUrl = await extractImage('main.bmp');
         if (mainBmpUrl) document.documentElement.style.setProperty('--skin-main-bg', `url("${mainBmpUrl}")`);
@@ -243,6 +260,26 @@ async function applySkin(file) {
 
         const posbarBmpUrl = await extractImage('posbar.bmp');
         if (posbarBmpUrl) document.documentElement.style.setProperty('--skin-posbar-bg', `url("${posbarBmpUrl}")`);
+
+        const genBmpUrl = await extractImage('gen.bmp');
+        if (genBmpUrl) document.documentElement.style.setProperty('--skin-gen-bg', `url("${genBmpUrl}")`);
+
+        // Extract specific playlist border slices so they can cleanly repeat-y in CSS purely as a 29px tile
+        const pleditLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 42, 12, 29);
+        if (pleditLeftUrl) document.documentElement.style.setProperty('--skin-pledit-left', `url("${pleditLeftUrl}")`);
+
+        // Crop 1px off the left side of the right border slice (offset 31 -> 32) to remove the blue scrollbar edge line
+        const pleditRightUrl = await extractSpriteRegion('pledit.bmp', 32, 42, 19, 29);
+        if (pleditRightUrl) document.documentElement.style.setProperty('--skin-pledit-right', `url("${pleditRightUrl}")`);
+
+        const pleditBottomLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 72, 125, 38);
+        if (pleditBottomLeftUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-left', `url("${pleditBottomLeftUrl}")`);
+
+        const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 126, 72, 150, 38);
+        if (pleditBottomRightUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-right', `url("${pleditBottomRightUrl}")`);
+
+        const pleditBottomFillUrl = await extractSpriteRegion('pledit.bmp', 179, 0, 25, 38);
+        if (pleditBottomFillUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-fill', `url("${pleditBottomFillUrl}")`);
 
         // Apply skin-active class NOW — before any optional thumb styling
         document.body.classList.add('skin-active');
@@ -449,21 +486,4 @@ if (window.electronAPI) {
     });
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
-}
-
-// Ensure the Electron OS Window accurately resizes when the CSS container resizes
-const appContainer = document.getElementById('app-container');
-if (appContainer && window.electronAPI && window.electronAPI.resizeWindow) {
-    const resizeObserver = new ResizeObserver(entries => {
-        for (let entry of entries) {
-            // Apply zoom factor correction since the CSS width/height are zoomed by body
-            const zoomedWidth = Math.ceil(entry.contentRect.width * CSS_ZOOM);
-            const zoomedHeight = Math.ceil(entry.contentRect.height * CSS_ZOOM);
-
-            // Only trigger if actually resized
-            window.electronAPI.resizeWindow(zoomedWidth, zoomedHeight);
-        }
-    });
-
-    resizeObserver.observe(appContainer);
 }
