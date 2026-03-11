@@ -46,6 +46,16 @@ ipcMain.handle('resize-window', (event, { width, height }) => {
     }
 });
 
+ipcMain.handle('minimize-window', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) win.minimize();
+});
+
+ipcMain.handle('close-window', (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win) win.close();
+});
+
 app.whenReady().then(() => {
     createWindow();
 

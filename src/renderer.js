@@ -22,6 +22,22 @@ const volumeThumb = document.getElementById('volume-thumb');
 const panSlider = document.getElementById('pan-slider');
 const panThumb = document.getElementById('pan-thumb');
 const playlistItemsContainer = document.getElementById('playlist-items');
+const btnMinimize = document.getElementById('btn-minimize');
+const btnClose = document.getElementById('btn-close');
+
+// Window Controls
+if (window.electronAPI) {
+    if (btnMinimize) {
+        btnMinimize.addEventListener('click', () => {
+            window.electronAPI.minimizeWindow();
+        });
+    }
+    if (btnClose) {
+        btnClose.addEventListener('click', () => {
+            window.electronAPI.closeWindow();
+        });
+    }
+}
 
 // Custom Playlist Scrollbar Logic
 function initPlaylistScrollbar() {
