@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -7,7 +7,7 @@ if (process.platform === 'darwin') {
     app.setName('Quinamp');
 }
 
-const isDev = !app.isPackaged;
+const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -32,7 +32,108 @@ function createWindow() {
     } else {
         mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
     }
+
+    // Set up Application Menu (essential for macOS)
+    const template = [
+        {
+            label: app.name,
+            submenu: [
+                { label: 'About Quinamp', click: createAboutWindow },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideOthers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' }
+            ]
+        },
+        {
+            label: 'File',
+            submenu: [
+                { role: 'close' }
+            ]
+        },
+        {
+            label: 'Edit',
+            submenu: [
+                { role: 'undo' },
+                { role: 'redo' },
+                { type: 'separator' },
+                { role: 'cut' },
+                { role: 'copy' },
+                { role: 'paste' },
+                { role: 'delete' },
+                { role: 'selectAll' }
+            ]
+        },
+        {
+            label: 'View',
+            submenu: [
+                { role: 'reload' },
+                { role: 'forceReload' },
+                { role: 'toggleDevTools' },
+                { type: 'separator' },
+                { role: 'resetZoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' }
+            ]
+        },
+        {
+            role: 'window',
+            submenu: [
+                { role: 'minimize' },
+                { role: 'zoom' },
+                { type: 'separator' },
+                { role: 'front' }
+            ]
+        },
+        {
+            role: 'help',
+            submenu: [
+                {
+                    label: 'Learn More',
+                    click: async () => {
+                        await shell.openExternal('https://github.com/chrisconnolly/quinamp');
+                    }
+                }
+            ]
+        }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
 }
+
+function createAboutWindow() {
+    const aboutWindow = new BrowserWindow({
+        width: 350,
+        height: 380,
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
+        title: 'About Quinamp',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true
+        },
+        frame: true, // Standard window for About
+        backgroundColor: '#2c2c2c'
+    });
+
+    // Remove menu bar for About window on other platforms if needed
+    aboutWindow.setMenu(null);
+
+    aboutWindow.loadFile('about.html');
+}
+
+ipcMain.handle('open-external', async (event, url) => {
+    await shell.openExternal(url);
+});
 
 ipcMain.handle('resize-window', (event, { width, height }) => {
     const win = BrowserWindow.fromWebContents(event.sender);

@@ -1,12 +1,12 @@
-1. write a script that can be run from the command line that will build the project and then run the electron app.  Place it in a /scripts directory
+1. [x] write a script that can be run from the command line that will build the project and then run the electron app.  Place it in a /scripts directory
 
-2. Write a script that can be run from the command line that will build the .dmg file.  Place it in a /scripts directory.  
+2. [x] Write a script that can be run from the command line that will build the .dmg file.  Place it in a /scripts directory.  
 
-2. The player should move on to the next track when the current track finishes until the items in the playlist have all been played
+2. [x] The player should move on to the next track when the current track finishes until the items in the playlist have all been played
 
-3. The icon.png image should be used as the application icon when the application is run from the command line and when the .dmg file is run.  Place it in an appropriatw location
+3. [x] The icon.png image should be used as the application icon when the application is run from the command line and when the .dmg file is run.  Place it in an appropriatw location
 
-4. An about window should be created that is accessable from the mac application bar.  It should display the version number, the date of the build, a link to the GitHub repository and the author.  
+4. [x] An about window should be created that is accessable from the mac application bar.  It should display the version number, the date of the build, a link to the GitHub repository and the author.  
 
 5. Implement a right click context menu that allows the user to choose a skin from the /skins folder or the default UI and various other functions.  The flow should be:
 

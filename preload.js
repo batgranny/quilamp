@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     minimizeWindow: () => ipcRenderer.invoke('minimize-window'),
     closeWindow: () => ipcRenderer.invoke('close-window'),
     savePlaylist: (trackList) => ipcRenderer.invoke('save-playlist', trackList),
-    loadPlaylist: () => ipcRenderer.invoke('load-playlist')
+    loadPlaylist: () => ipcRenderer.invoke('load-playlist'),
+    openExternal: (url) => ipcRenderer.invoke('open-external', url)
 });

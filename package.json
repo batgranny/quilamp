@@ -2,9 +2,10 @@
   "name": "quinamp",
   "version": "1.2.0-alpha.0",
   "description": "Winamp clone for macOS",
+  "author": "Chris Connolly",
   "main": "main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "NODE_ENV=production electron .",
     "dev": "vite",
     "build": "vite build && electron-builder",
     "pack": "electron-builder --dir",

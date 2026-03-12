@@ -524,6 +524,10 @@ audio.addEventListener('timeupdate', () => {
 audio.addEventListener('ended', () => {
     if (!window.isSeeking) {
         seekControl.setValue(1.0);
+        // Automatic next track logic
+        if (currentTrackIndex < trackList.length - 1) {
+            loadTrack(currentTrackIndex + 1);
+        }
     }
 });
 
