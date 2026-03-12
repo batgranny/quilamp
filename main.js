@@ -210,9 +210,13 @@ app.on('window-all-closed', function () {
 });
 
 ipcMain.handle('dialog:openFile', async () => {
+    return await openFileAndReturnPaths();
+});
+
+async function openFileAndReturnPaths(filters) {
     const result = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections'],
-        filters: [
+        filters: filters || [
             { name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg'] },
             { name: 'Winamp Skins', extensions: ['wsz', 'zip'] }
         ]
@@ -223,6 +227,107 @@ ipcMain.handle('dialog:openFile', async () => {
     } else {
         return result.filePaths;
     }
+}
+
+ipcMain.handle('dialog:openFolder', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openDirectory']
+    });
+
+    if (result.canceled) return null;
+    
+    const folderPath = result.filePaths[0];
+    const files = fs.readdirSync(folderPath);
+    const audioFiles = files
+        .filter(file => /\.(mp3|wav|ogg)$/i.test(file))
+        .map(file => path.join(folderPath, file));
+    
+    return audioFiles;
+});
+
+ipcMain.handle('read-skin-file', async (event, filePath) => {
+    try {
+        return await fs.promises.readFile(filePath);
+    } catch (err) {
+        console.error("Failed to read skin file:", err);
+        return null;
+    }
+});
+
+ipcMain.on('show-context-menu', (event) => {
+    const skinsDir = path.join(__dirname, 'skins');
+    let skinItems = [];
+    if (fs.existsSync(skinsDir)) {
+        const files = fs.readdirSync(skinsDir);
+        skinItems = files.filter(file => {
+            const ext = path.extname(file).toLowerCase();
+            const fullPath = path.join(skinsDir, file);
+            return ext === '.wsz' || ext === '.zip' || fs.statSync(fullPath).isDirectory();
+        });
+    }
+
+    const template = [
+        { 
+            label: 'Open File(s)', 
+            click: async () => {
+                const paths = await openFileAndReturnPaths();
+                if (paths) event.sender.send('add-tracks', paths);
+            } 
+        },
+        { 
+            label: 'Open Folder', 
+            click: async () => {
+                const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+                if (!result.canceled) {
+                    const folderPath = result.filePaths[0];
+                    const files = fs.readdirSync(folderPath);
+                    const audioFiles = files
+                        .filter(file => /\.(mp3|wav|ogg)$/i.test(file))
+                        .map(file => path.join(folderPath, file));
+                    if (audioFiles.length > 0) event.sender.send('add-tracks', audioFiles);
+                }
+            } 
+        },
+        { type: 'separator' },
+        {
+            label: 'Themes',
+            submenu: [
+                { 
+                    label: 'Default', 
+                    click: () => event.sender.send('reset-skin') 
+                },
+                { type: 'separator' },
+                ...skinItems.map(item => ({
+                    label: item,
+                    click: () => event.sender.send('load-skin', { 
+                        name: item, 
+                        path: path.join(skinsDir, item),
+                        isDir: fs.statSync(path.join(skinsDir, item)).isDirectory()
+                    })
+                })),
+                { type: 'separator' },
+                { 
+                    label: 'Load Skin...', 
+                    click: async () => {
+                        const paths = await openFileAndReturnPaths([{ name: 'Winamp Skins', extensions: ['wsz', 'zip'] }]);
+                        if (paths && paths.length > 0) {
+                            event.sender.send('load-skin', { 
+                                name: path.basename(paths[0]), 
+                                path: paths[0],
+                                isDir: false
+                            });
+                        }
+                    } 
+                }
+            ]
+        },
+        { type: 'separator' },
+        { label: 'Quit Quinamp', click: () => app.quit() },
+        { label: 'About Quinamp', click: () => createAboutWindow() }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup(BrowserWindow.fromWebContents(event.sender));
 });
 
 ipcMain.handle('get-metadata', async (event, filePath) => {

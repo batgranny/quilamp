@@ -8,5 +8,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     closeWindow: () => ipcRenderer.invoke('close-window'),
     savePlaylist: (trackList) => ipcRenderer.invoke('save-playlist', trackList),
     loadPlaylist: () => ipcRenderer.invoke('load-playlist'),
-    openExternal: (url) => ipcRenderer.invoke('open-external', url)
+    openExternal: (url) => ipcRenderer.invoke('open-external', url),
+    showContextMenu: () => ipcRenderer.send('show-context-menu'),
+    readSkinFile: (filename) => ipcRenderer.invoke('read-skin-file', filename),
+    onLoadSkin: (callback) => ipcRenderer.on('load-skin', (event, data) => callback(data)),
+    onResetSkin: (callback) => ipcRenderer.on('reset-skin', () => callback()),
+    onAddTracks: (callback) => ipcRenderer.on('add-tracks', (event, paths) => callback(paths))
 });

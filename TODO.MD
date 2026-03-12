@@ -8,7 +8,7 @@
 
 4. [x] An about window should be created that is accessable from the mac application bar.  It should display the version number, the date of the build, a link to the GitHub repository and the author.  
 
-5. Implement a right click context menu that allows the user to choose a skin from the /skins folder or the default UI and various other functions.  The flow should be:
+5. [x] Implement a right click context menu that allows the user to choose a skin from the /skins folder or the default UI and various other functions.  The flow should be:
 
  right click > 
    Open File(s) (Should allow loading of files and playlists)

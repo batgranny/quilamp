@@ -687,6 +687,75 @@ if (window.electronAPI) {
             }
         }
     });
+
+    // Right-click Context Menu
+    window.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        window.electronAPI.showContextMenu();
+    });
+
+    // Handle skin loading from context menu
+    window.electronAPI.onLoadSkin(async (data) => {
+        if (data.isDir) {
+            // Directory skins not fully supported yet in this JSZip-based flow
+            console.warn("Directory skins not yet supported via context menu");
+            return;
+        }
+        const buffer = await window.electronAPI.readSkinFile(data.path);
+        if (buffer) {
+            const blob = new Blob([buffer]);
+            applySkin(blob);
+        }
+    });
+
+    // Handle reset skin
+    window.electronAPI.onResetSkin(() => {
+        document.body.classList.remove('skin-active');
+        // Clear skin variables
+        const props = [
+            '--skin-main-bg', '--skin-titlebar-bg', '--skin-cbuttons-bg', '--skin-pledit-bg',
+            '--skin-shufrep-bg', '--skin-volume-bg', '--skin-balance-bg', '--skin-text-bg',
+            '--skin-numbers-bg', '--skin-posbar-bg', '--skin-gen-bg', '--skin-pledit-left',
+            '--skin-pledit-right', '--skin-pledit-bottom-left', '--skin-pledit-bottom-right',
+            '--skin-pledit-bottom-fill', '--skin-pledit-menu-bg', '--skin-pledit-top-left',
+            '--skin-pledit-top-right', '--skin-pledit-top-fill', '--skin-pledit-scroll-handle'
+        ];
+        props.forEach(p => document.documentElement.style.removeProperty(p));
+        
+        // Reset slider backgrounds
+        const vTrack = document.getElementById('volume-slider');
+        const pTrack = document.getElementById('pan-slider');
+        if (vTrack) vTrack.style.backgroundImage = '';
+        if (pTrack) pTrack.style.backgroundImage = '';
+        
+        // Reset fill displays
+        const vFill = document.getElementById('volume-fill');
+        const pFill = document.getElementById('pan-fill');
+        if (vFill) vFill.style.display = '';
+        if (pFill) pFill.style.display = '';
+
+        // Reset thumbs
+        const vThumb = document.getElementById('volume-thumb');
+        const pThumb = document.getElementById('pan-thumb');
+        if (vThumb) vThumb.style.cssText = '';
+        if (pThumb) pThumb.style.cssText = '';
+        
+        console.log("Skin reset to default");
+    });
+
+    // Handle adding tracks from context menu
+    window.electronAPI.onAddTracks((paths) => {
+        if (paths && paths.length > 0) {
+            const wasEmpty = trackList.length === 0;
+            const newPaths = paths.filter(p => !trackList.includes(p));
+            trackList = trackList.concat(newPaths);
+            renderPlaylist();
+            if (wasEmpty && !audio.src && trackList.length > 0) {
+                loadTrack(0);
+            }
+        }
+    });
+
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }
