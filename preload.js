@@ -13,5 +13,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     readSkinFile: (filename) => ipcRenderer.invoke('read-skin-file', filename),
     onLoadSkin: (callback) => ipcRenderer.on('load-skin', (event, data) => callback(data)),
     onResetSkin: (callback) => ipcRenderer.on('reset-skin', () => callback()),
+    onSetModernTheme: (callback) => ipcRenderer.on('set-modern-theme', () => callback()),
     onAddTracks: (callback) => ipcRenderer.on('add-tracks', (event, paths) => callback(paths))
 });

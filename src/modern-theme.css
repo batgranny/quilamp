@@ -1,0 +1,294 @@
+/* modern-theme.css - Refined Modern redesign for Quillamp */
+
+/* The .modern-theme class is applied to document.body */
+body.modern-theme {
+    --bg-dark: #1e1e2e;
+    --bg-panel: #242436;
+    --neon-green: #88ff88;
+    --muted-green: #4ade80;
+    --text-primary: #e0e0e0;
+    --accent-blue: #3b82f6;
+    --slider-bg: #2d2d3f;
+    --slider-thumb: #88ff88;
+    
+    background-color: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
+body.modern-theme #app-container {
+    background: var(--bg-dark) !important;
+    border: 1px solid #333 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    width: 275px !important;
+}
+
+/* Player Container Refinement */
+body.modern-theme #player-container {
+    height: auto !important;
+    min-height: 160px !important;
+    background: var(--bg-dark) !important;
+    border: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Title Bar */
+body.modern-theme #title-bar,
+body.modern-theme #playlist-title-bar {
+    background: var(--bg-panel) !important;
+    height: 32px !important;
+    border-bottom: 1px solid #333 !important;
+    padding: 0 12px !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+body.modern-theme .title-text {
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    letter-spacing: 0.5px !important;
+    color: var(--text-primary) !important;
+    text-transform: uppercase !important;
+    font-family: inherit !important;
+}
+
+/* Window Controls */
+body.modern-theme .window-controls {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+body.modern-theme .ctrl-btn {
+    background: transparent !important;
+    border: none !important;
+    color: #666 !important;
+    font-size: 16px !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+}
+
+body.modern-theme .ctrl-btn:hover {
+    color: var(--text-primary) !important;
+}
+
+/* Main Display Area */
+body.modern-theme #main-display {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    margin: 10px !important;
+    border-radius: 6px !important;
+    padding: 15px !important;
+    height: auto !important;
+}
+
+body.modern-theme #time-display {
+    color: var(--neon-green) !important;
+    font-family: 'VT323', monospace !important;
+    text-shadow: 0 0 10px rgba(136, 255, 136, 0.5) !important;
+    font-size: 42px !important;
+    line-height: 1 !important;
+}
+
+body.modern-theme .visualizer {
+    width: 30px !important;
+    height: 30px !important;
+    background: rgba(136, 255, 136, 0.1) !important;
+    margin: 0 10px !important;
+}
+
+body.modern-theme #track-info {
+    font-family: inherit !important;
+    flex-grow: 1 !important;
+    text-align: right !important;
+}
+
+body.modern-theme #track-name {
+    color: var(--neon-green) !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+body.modern-theme .audio-stats {
+    color: #666 !important;
+    font-size: 11px !important;
+}
+
+/* Seeker / Sliders */
+body.modern-theme .custom-slider {
+    height: 10px !important;
+    background: var(--slider-bg) !important;
+    border: none !important;
+    border-radius: 5px !important;
+    margin: 10px 0 !important;
+    position: relative !important;
+}
+
+body.modern-theme #seek-slider {
+    margin-top: 15px !important;
+}
+
+body.modern-theme .slider-fill {
+    background: linear-gradient(90deg, #f97316, #88ff88) !important;
+    border-radius: 5px !important;
+    height: 100% !important;
+}
+
+body.modern-theme .slider-thumb {
+    width: 16px !important;
+    height: 16px !important;
+    background: var(--neon-green) !important;
+    border: 2px solid #fff !important;
+    border-radius: 50% !important;
+    top: -3px !important;
+    box-shadow: 0 0 10px rgba(136, 255, 136, 0.8) !important;
+    cursor: pointer !important;
+}
+
+/* Controls Panel */
+body.modern-theme #controls-panel {
+    background: var(--bg-panel) !important;
+    padding: 15px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    border-top: 1px solid #333 !important;
+}
+
+/* Volume and Pan Sliders in Panel */
+body.modern-theme #volume-slider,
+body.modern-theme #pan-slider {
+    width: 100% !important;
+    margin: 5px 0 !important;
+}
+
+/* Playback Controls */
+body.modern-theme .playback-controls {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 6px !important;
+}
+
+body.modern-theme .play-btn {
+    width: 32px !important;
+    height: 32px !important;
+    background: #2d2d3f !important;
+    border: 1px solid #444 !important;
+    color: var(--neon-green) !important;
+    border-radius: 6px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    font-size: 0 !important; /* Hide the text icons */
+    position: relative !important;
+}
+
+body.modern-theme .play-btn:hover {
+    background: #3d3d4f !important;
+    border-color: var(--neon-green) !important;
+}
+
+/* Draw Icons with CSS */
+body.modern-theme #btn-prev::after { content: '«'; font-size: 20px !important; }
+body.modern-theme #btn-play::after { content: '▶'; font-size: 14px !important; }
+body.modern-theme #btn-pause::after { content: '⏸'; font-size: 14px !important; }
+body.modern-theme #btn-stop::after { content: '■'; font-size: 16px !important; }
+body.modern-theme #btn-next::after { content: '»'; font-size: 20px !important; }
+body.modern-theme #btn-eject::after { content: '⏏'; font-size: 16px !important; }
+
+/* Misc Controls (SHUF/REP) */
+body.modern-theme .misc-controls {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 10px !important;
+}
+
+body.modern-theme .toggle-btn {
+    background: #2d2d3f !important;
+    border: 1px solid #444 !important;
+    color: var(--neon-green) !important;
+    border-radius: 4px !important;
+    padding: 6px 14px !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+body.modern-theme .toggle-btn.active {
+    background: var(--neon-green) !important;
+    color: #000 !important;
+    box-shadow: 0 0 10px rgba(136, 255, 136, 0.5) !important;
+}
+
+/* Playlist Window Refinement */
+body.modern-theme #playlist-container {
+    background: var(--bg-dark) !important;
+    border: none !important;
+    flex-grow: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+body.modern-theme #playlist-box {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    margin: 10px !important;
+    border-radius: 6px !important;
+    flex-grow: 1 !important;
+}
+
+body.modern-theme #playlist-items li {
+    font-family: inherit !important;
+    font-size: 13px !important;
+    color: var(--neon-green) !important;
+    padding: 8px 12px !important;
+    border-bottom: 1px solid #222 !important;
+}
+
+body.modern-theme #playlist-items li.selected {
+    background: var(--accent-blue) !important;
+    color: var(--text-primary) !important;
+}
+
+body.modern-theme #playlist-bottom {
+    background: var(--bg-panel) !important;
+    height: 50px !important;
+    padding: 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    border-top: 1px solid #333 !important;
+}
+
+body.modern-theme .pl-action-btn {
+    background: #2d2d3f !important;
+    border: 1px solid #444 !important;
+    color: var(--neon-green) !important;
+    border-radius: 4px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    height: 28px !important;
+    padding: 0 10px !important;
+}
+
+/* Hide Skinned elements if they appear */
+body.modern-theme #playlist-scrollbar {
+    background: #1a1a1a !important;
+    width: 6px !important;
+    right: 5px !important;
+}
+
+body.modern-theme #playlist-scroll-thumb {
+    background: #444 !important;
+    border: none !important;
+    border-radius: 3px !important;
+    width: 100% !important;
+}

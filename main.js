@@ -300,6 +300,10 @@ ipcMain.on('show-context-menu', (event) => {
                     label: 'Default',
                     click: () => event.sender.send('reset-skin')
                 },
+                {
+                    label: 'Modern',
+                    click: () => event.sender.send('set-modern-theme')
+                },
                 { type: 'separator' },
                 ...skinItems.map(item => ({
                     label: item.label,

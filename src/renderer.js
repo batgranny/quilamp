@@ -792,9 +792,9 @@ if (window.electronAPI) {
         }
     });
 
-    // Handle reset skin
-    window.electronAPI.onResetSkin(() => {
+    function clearSkin() {
         document.body.classList.remove('skin-active');
+        document.body.classList.remove('modern-theme');
         // Clear skin variables
         const props = [
             '--skin-main-bg', '--skin-titlebar-bg', '--skin-cbuttons-bg', '--skin-pledit-bg',
@@ -823,8 +823,18 @@ if (window.electronAPI) {
         const pThumb = document.getElementById('pan-thumb');
         if (vThumb) vThumb.style.cssText = '';
         if (pThumb) pThumb.style.cssText = '';
+    }
 
+    // Handle reset skin
+    window.electronAPI.onResetSkin(() => {
+        clearSkin();
         console.log("Skin reset to default");
+    });
+
+    // Handle modern theme
+    window.electronAPI.onSetModernTheme(() => {
+        clearSkin();
+        document.body.classList.add('modern-theme');
     });
 
     // Handle adding tracks from context menu
