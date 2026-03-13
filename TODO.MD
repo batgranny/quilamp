@@ -23,7 +23,7 @@
    About Quillamp (should open the about window)
       
 
-6. The 'repeat' and 'shuffle' buttons should toggle on and off when clicked and they currently do no work
+6. [x] The 'repeat' and 'shuffle' buttons should toggle on and off when clicked and they currently do not perform the functions of repeat and shuffle
 
 7. The track progress slider should proceed across the full length of the progress bar, currently it will stop at the end of the track at around the 60% mark
 

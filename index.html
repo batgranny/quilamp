@@ -7,7 +7,9 @@
     <title>Quillamp</title>
     <!-- We will use a web font for the digital display, and system fonts for others -->
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/style.css">
     <script src="./node_modules/jsmediatags/dist/jsmediatags.min.js"></script>
+    <script src="./node_modules/jszip/dist/jszip.min.js"></script>
 </head>
 
 <body>
@@ -29,21 +31,21 @@
                     <div class="visualizer">
                         <!-- placeholder for visualizer or static lines -->
                     </div>
+
+                    <div id="track-info">
+                        <div id="track-name" class="marquee">
+                            <span>*** QUILLAMP *** WINAMP CLONE ***</span>
+                        </div>
+                        <div class="audio-stats">
+                            <span id="kbps">128</span> kbps
+                            <span id="khz">44</span> kHz
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Custom Seek Slider -->
                 <div id="seek-slider" class="custom-slider no-drag" title="Seek">
                     <div class="slider-thumb" id="seek-thumb"></div>
-                </div>
-
-                <div id="track-info">
-                    <div id="track-name" class="marquee">
-                        <span>*** QUILLAMP *** WINAMP CLONE ***</span>
-                    </div>
-                    <div class="audio-stats">
-                        <span id="kbps">128</span> kbps
-                        <span id="khz">44</span> kHz
-                    </div>
                 </div>
             </div>
 

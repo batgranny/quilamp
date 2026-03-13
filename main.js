@@ -27,7 +27,10 @@ function createWindow() {
         maximizable: false
     });
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173');
+        // Try to load via Vite dev server if running, else load local index.html
+        mainWindow.loadURL('http://localhost:5173').catch(() => {
+            mainWindow.loadFile(path.join(__dirname, 'index.html'));
+        });
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     } else {
         mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
