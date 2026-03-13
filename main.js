@@ -1,13 +1,13 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 // Force application name for macOS menu bar when running unpackaged
 if (process.platform === 'darwin') {
-    app.setName('Quinamp');
+    app.setName('Quillamp');
 }
 
-const isDev = !app.isPackaged;
+const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -27,12 +27,116 @@ function createWindow() {
         maximizable: false
     });
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173');
+        // Try to load via Vite dev server if running, else load local index.html
+        mainWindow.loadURL('http://localhost:5173').catch(() => {
+            mainWindow.loadFile(path.join(__dirname, 'index.html'));
+        });
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     } else {
         mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
     }
+
+    // Set up Application Menu (essential for macOS)
+    const template = [
+        {
+            label: app.name,
+            submenu: [
+                { label: 'About Quillamp', click: createAboutWindow },
+                { type: 'separator' },
+                { role: 'services' },
+                { type: 'separator' },
+                { role: 'hide' },
+                { role: 'hideOthers' },
+                { role: 'unhide' },
+                { type: 'separator' },
+                { role: 'quit' }
+            ]
+        },
+        {
+            label: 'File',
+            submenu: [
+                { role: 'close' }
+            ]
+        },
+        {
+            label: 'Edit',
+            submenu: [
+                { role: 'undo' },
+                { role: 'redo' },
+                { type: 'separator' },
+                { role: 'cut' },
+                { role: 'copy' },
+                { role: 'paste' },
+                { role: 'delete' },
+                { role: 'selectAll' }
+            ]
+        },
+        {
+            label: 'View',
+            submenu: [
+                { role: 'reload' },
+                { role: 'forceReload' },
+                { role: 'toggleDevTools' },
+                { type: 'separator' },
+                { role: 'resetZoom' },
+                { role: 'zoomIn' },
+                { role: 'zoomOut' },
+                { type: 'separator' },
+                { role: 'togglefullscreen' }
+            ]
+        },
+        {
+            role: 'window',
+            submenu: [
+                { role: 'minimize' },
+                { role: 'zoom' },
+                { type: 'separator' },
+                { role: 'front' }
+            ]
+        },
+        {
+            role: 'help',
+            submenu: [
+                {
+                    label: 'Learn More',
+                    click: async () => {
+                        await shell.openExternal('https://github.com/chrisconnolly/quillamp');
+                    }
+                }
+            ]
+        }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
 }
+
+function createAboutWindow() {
+    const aboutWindow = new BrowserWindow({
+        width: 350,
+        height: 380,
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
+        title: 'About Quillamp',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true
+        },
+        frame: true, // Standard window for About
+        backgroundColor: '#2c2c2c'
+    });
+
+    // Remove menu bar for About window on other platforms if needed
+    aboutWindow.setMenu(null);
+
+    aboutWindow.loadFile(path.join(__dirname, 'about.html'));
+}
+
+ipcMain.handle('open-external', async (event, url) => {
+    await shell.openExternal(url);
+});
 
 ipcMain.handle('resize-window', (event, { width, height }) => {
     const win = BrowserWindow.fromWebContents(event.sender);
@@ -109,9 +213,13 @@ app.on('window-all-closed', function () {
 });
 
 ipcMain.handle('dialog:openFile', async () => {
+    return await openFileAndReturnPaths();
+});
+
+async function openFileAndReturnPaths(filters) {
     const result = await dialog.showOpenDialog({
         properties: ['openFile', 'multiSelections'],
-        filters: [
+        filters: filters || [
             { name: 'Audio Files', extensions: ['mp3', 'wav', 'ogg'] },
             { name: 'Winamp Skins', extensions: ['wsz', 'zip'] }
         ]
@@ -122,6 +230,108 @@ ipcMain.handle('dialog:openFile', async () => {
     } else {
         return result.filePaths;
     }
+}
+
+ipcMain.handle('dialog:openFolder', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openDirectory']
+    });
+
+    if (result.canceled) return null;
+
+    const folderPath = result.filePaths[0];
+    const files = fs.readdirSync(folderPath);
+    const audioFiles = files
+        .filter(file => /\.(mp3|wav|ogg)$/i.test(file))
+        .map(file => path.join(folderPath, file));
+
+    return audioFiles;
+});
+
+ipcMain.handle('read-skin-file', async (event, filePath) => {
+    try {
+        return await fs.promises.readFile(filePath);
+    } catch (err) {
+        console.error("Failed to read skin file:", err);
+        return null;
+    }
+});
+
+ipcMain.on('show-context-menu', (event) => {
+    const skinsDir = path.join(__dirname, 'skins');
+    let skinItems = [];
+    if (fs.existsSync(skinsDir)) {
+        const files = fs.readdirSync(skinsDir);
+        skinItems = files
+            .filter(file => path.extname(file).toLowerCase() === '.wsz')
+            .map(file => ({
+                name: file,
+                label: path.basename(file, '.wsz').replace(/_/g, ' ') // Strip extension and prettify
+            }));
+    }
+
+    const template = [
+        {
+            label: 'Open File(s)',
+            click: async () => {
+                const paths = await openFileAndReturnPaths();
+                if (paths) event.sender.send('add-tracks', paths);
+            }
+        },
+        {
+            label: 'Open Folder',
+            click: async () => {
+                const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+                if (!result.canceled) {
+                    const folderPath = result.filePaths[0];
+                    const files = fs.readdirSync(folderPath);
+                    const audioFiles = files
+                        .filter(file => /\.(mp3|wav|ogg)$/i.test(file))
+                        .map(file => path.join(folderPath, file));
+                    if (audioFiles.length > 0) event.sender.send('add-tracks', audioFiles);
+                }
+            }
+        },
+        { type: 'separator' },
+        {
+            label: 'Themes',
+            submenu: [
+                {
+                    label: 'Default',
+                    click: () => event.sender.send('reset-skin')
+                },
+                { type: 'separator' },
+                ...skinItems.map(item => ({
+                    label: item.label,
+                    click: () => event.sender.send('load-skin', {
+                        name: item.name,
+                        path: path.join(skinsDir, item.name),
+                        isDir: false
+                    })
+                })),
+                { type: 'separator' },
+                {
+                    label: 'Load Skin...',
+                    click: async () => {
+                        const paths = await openFileAndReturnPaths([{ name: 'Winamp Skins', extensions: ['wsz', 'zip'] }]);
+                        if (paths && paths.length > 0) {
+                            event.sender.send('load-skin', {
+                                name: path.basename(paths[0]),
+                                path: paths[0],
+                                isDir: false
+                            });
+                        }
+                    }
+                }
+            ]
+        },
+        { type: 'separator' },
+        { label: 'Quit Quillamp', click: () => app.quit() },
+        { label: 'About Quillamp', click: () => createAboutWindow() }
+    ];
+
+    const menu = Menu.buildFromTemplate(template);
+    menu.popup(BrowserWindow.fromWebContents(event.sender));
 });
 
 ipcMain.handle('get-metadata', async (event, filePath) => {

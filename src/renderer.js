@@ -1,11 +1,15 @@
-// Import JSZip for skin parsing
-import JSZip from 'jszip';
-import './style.css';
+// renderer.js - UI logic for Quillamp
+
 
 // Basic audio player state
 const audio = new Audio();
 let trackList = [];
 let currentTrackIndex = -1;
+// Global player state for easier debugging and persistence
+window.playerState = {
+    isShuffle: false,
+    isRepeat: false
+};
 
 // DOM Elements
 const timeDisplay = document.getElementById('time-display');
@@ -24,6 +28,8 @@ const panThumb = document.getElementById('pan-thumb');
 const playlistItemsContainer = document.getElementById('playlist-items');
 const btnMinimize = document.getElementById('btn-minimize');
 const btnClose = document.getElementById('btn-close');
+const btnShuffle = document.getElementById('btn-shuffle');
+const btnRepeat = document.getElementById('btn-repeat');
 
 // Window Controls
 if (window.electronAPI) {
@@ -389,13 +395,14 @@ async function applySkin(file) {
         const pleditLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 42, 12, 29);
         if (pleditLeftUrl) document.documentElement.style.setProperty('--skin-pledit-left', `url("${pleditLeftUrl}")`);
 
-        // Crop 1px off the left side of the right border slice (offset 31 -> 32) to remove the blue scrollbar edge line
-        const pleditRightUrl = await extractSpriteRegion('pledit.bmp', 32, 42, 19, 29);
+        // Right border slice (at x=31 in pledit.bmp, width=20)
+        const pleditRightUrl = await extractSpriteRegion('pledit.bmp', 31, 42, 20, 29);
         if (pleditRightUrl) document.documentElement.style.setProperty('--skin-pledit-right', `url("${pleditRightUrl}")`);
 
         const pleditBottomLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 72, 125, 38);
         if (pleditBottomLeftUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-left', `url("${pleditBottomLeftUrl}")`);
 
+        // Skip 1px potential cyan divider at x=125 in some skins
         const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 126, 72, 149, 38);
         if (pleditBottomRightUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-right', `url("${pleditBottomRightUrl}")`);
 
@@ -524,7 +531,93 @@ audio.addEventListener('timeupdate', () => {
 audio.addEventListener('ended', () => {
     if (!window.isSeeking) {
         seekControl.setValue(1.0);
+        playNextTrack(true); // true means it was an automatic end
     }
+});
+
+function playNextTrack(isAuto = false) {
+    if (trackList.length === 0) return;
+
+    if (window.playerState.isShuffle) {
+        let nextIndex;
+        if (trackList.length > 1) {
+            do {
+                nextIndex = Math.floor(Math.random() * trackList.length);
+            } while (nextIndex === currentTrackIndex);
+        } else {
+            nextIndex = 0;
+        }
+        console.log(`Shuffle: picking track ${nextIndex + 1}`);
+        loadTrack(nextIndex);
+    } else {
+        if (currentTrackIndex < trackList.length - 1) {
+            loadTrack(currentTrackIndex + 1);
+        } else if (window.playerState.isRepeat) {
+            console.log('Repeat: looping to start');
+            loadTrack(0);
+        } else if (!isAuto) {
+            // Manual click on last track loops to start
+            loadTrack(0);
+        }
+    }
+}
+
+function playPrevTrack() {
+    if (trackList.length === 0) return;
+
+    if (audio.currentTime > 3) {
+        audio.currentTime = 0;
+    } else {
+        if (window.playerState.isShuffle) {
+            let prevIndex;
+            if (trackList.length > 1) {
+                do {
+                    prevIndex = Math.floor(Math.random() * trackList.length);
+                } while (prevIndex === currentTrackIndex);
+            } else {
+                prevIndex = 0;
+            }
+            loadTrack(prevIndex);
+        } else {
+            if (currentTrackIndex > 0) {
+                loadTrack(currentTrackIndex - 1);
+            } else {
+                loadTrack(trackList.length - 1);
+            }
+        }
+    }
+}
+
+// Global UI state updater
+function updateToggleButtons() {
+    const sBtn = document.getElementById('btn-shuffle');
+    const rBtn = document.getElementById('btn-repeat');
+    if (sBtn) sBtn.classList.toggle('active', window.playerState.isShuffle);
+    if (rBtn) rBtn.classList.toggle('active', window.playerState.isRepeat);
+}
+
+// Delegated click listener for UI controls
+document.addEventListener('click', (e) => {
+    const toggle = e.target.closest('.toggle-btn');
+    if (toggle) {
+        toggleShuffleRepeat(toggle.id);
+    }
+});
+
+function toggleShuffleRepeat(id) {
+    if (id === 'btn-shuffle') {
+        window.playerState.isShuffle = !window.playerState.isShuffle;
+        console.log('Shuffle toggled:', window.playerState.isShuffle);
+    } else if (id === 'btn-repeat') {
+        window.playerState.isRepeat = !window.playerState.isRepeat;
+        console.log('Repeat toggled:', window.playerState.isRepeat);
+    }
+    updateToggleButtons();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Reserved for future use (e.g. search)
 });
 
 // Actions
@@ -547,20 +640,15 @@ btnStop.addEventListener('click', () => {
 });
 
 btnNext.addEventListener('click', () => {
-    if (currentTrackIndex < trackList.length - 1) {
-        loadTrack(currentTrackIndex + 1);
-    }
+    playNextTrack(false);
 });
 
 btnPrev.addEventListener('click', () => {
-    if (audio.currentTime > 3) {
-        // restart song if > 3s in
-        audio.currentTime = 0;
-    } else if (currentTrackIndex > 0) {
-        // go to previous if <= 3s in
-        loadTrack(currentTrackIndex - 1);
-    }
+    playPrevTrack();
 });
+
+// Ensure initial UI state
+updateToggleButtons();
 
 volumeSlider.addEventListener('click', () => { /* handled by makeDraggableSlider */ });
 
@@ -625,7 +713,7 @@ if (window.electronAPI) {
             trackList = [];
             currentTrackIndex = -1;
             audio.src = '';
-            document.querySelector('.marquee span').textContent = '*** QUINAMP *** WINAMP CLONE ***';
+            document.querySelector('.marquee span').textContent = '*** QUILLAMP *** WINAMP CLONE ***';
             timeDisplay.textContent = '00:00';
             renderPlaylist();
         });
@@ -683,6 +771,75 @@ if (window.electronAPI) {
             }
         }
     });
+
+    // Right-click Context Menu
+    window.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        window.electronAPI.showContextMenu();
+    });
+
+    // Handle skin loading from context menu
+    window.electronAPI.onLoadSkin(async (data) => {
+        if (data.isDir) {
+            // Directory skins not fully supported yet in this JSZip-based flow
+            console.warn("Directory skins not yet supported via context menu");
+            return;
+        }
+        const buffer = await window.electronAPI.readSkinFile(data.path);
+        if (buffer) {
+            const blob = new Blob([buffer]);
+            applySkin(blob);
+        }
+    });
+
+    // Handle reset skin
+    window.electronAPI.onResetSkin(() => {
+        document.body.classList.remove('skin-active');
+        // Clear skin variables
+        const props = [
+            '--skin-main-bg', '--skin-titlebar-bg', '--skin-cbuttons-bg', '--skin-pledit-bg',
+            '--skin-shufrep-bg', '--skin-volume-bg', '--skin-balance-bg', '--skin-text-bg',
+            '--skin-numbers-bg', '--skin-posbar-bg', '--skin-gen-bg', '--skin-pledit-left',
+            '--skin-pledit-right', '--skin-pledit-bottom-left', '--skin-pledit-bottom-right',
+            '--skin-pledit-bottom-fill', '--skin-pledit-menu-bg', '--skin-pledit-top-left',
+            '--skin-pledit-top-right', '--skin-pledit-top-fill', '--skin-pledit-scroll-handle'
+        ];
+        props.forEach(p => document.documentElement.style.removeProperty(p));
+
+        // Reset slider backgrounds
+        const vTrack = document.getElementById('volume-slider');
+        const pTrack = document.getElementById('pan-slider');
+        if (vTrack) vTrack.style.backgroundImage = '';
+        if (pTrack) pTrack.style.backgroundImage = '';
+
+        // Reset fill displays
+        const vFill = document.getElementById('volume-fill');
+        const pFill = document.getElementById('pan-fill');
+        if (vFill) vFill.style.display = '';
+        if (pFill) pFill.style.display = '';
+
+        // Reset thumbs
+        const vThumb = document.getElementById('volume-thumb');
+        const pThumb = document.getElementById('pan-thumb');
+        if (vThumb) vThumb.style.cssText = '';
+        if (pThumb) pThumb.style.cssText = '';
+
+        console.log("Skin reset to default");
+    });
+
+    // Handle adding tracks from context menu
+    window.electronAPI.onAddTracks((paths) => {
+        if (paths && paths.length > 0) {
+            const wasEmpty = trackList.length === 0;
+            const newPaths = paths.filter(p => !trackList.includes(p));
+            trackList = trackList.concat(newPaths);
+            renderPlaylist();
+            if (wasEmpty && !audio.src && trackList.length > 0) {
+                loadTrack(0);
+            }
+        }
+    });
+
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }
