@@ -1,5 +1,5 @@
-// renderer.js - UI logic for Quillamp
-
+import JSZip from 'jszip';
+import 'jsmediatags/dist/jsmediatags.min.js';
 
 // Basic audio player state
 const audio = new Audio();
