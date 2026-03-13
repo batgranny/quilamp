@@ -19,8 +19,8 @@
       /SKINS FOLDER ITEM2
       etc
       Load Skin (should allow the user to browse the computer for a winamp skin file)
-   Quit Quinamp (should exit the application)
-   About Quinamp (should open the about window)
+   Quit Quillamp (should exit the application)
+   About Quillamp (should open the about window)
       
 
 6. The 'repeat' and 'shuffle' buttons should toggle on and off when clicked and they currently do no work

@@ -1,10 +1,10 @@
-# Quinamp — Agent Handoff README
+# Quillamp — Agent Handoff README
 
 > **For AI agents picking up this project.** Last updated: 2026-03-09.
 
-## What is Quinamp?
+## What is Quillamp?
 
-Quinamp is a **macOS-native Winamp 2.x clone** built with **Electron + Vite + Vanilla JS/CSS**. It plays local MP3/WAV/OGG files and supports classic Winamp `.wsz` skins — displaying their sprite graphics exactly as they appeared in the original Winamp 2 player.
+Quillamp is a **macOS-native Winamp 2.x clone** built with **Electron + Vite + Vanilla JS/CSS**. It plays local MP3/WAV/OGG files and supports classic Winamp `.wsz` skins — displaying their sprite graphics exactly as they appeared in the original Winamp 2 player.
 
 ## Technology Stack
 
@@ -21,7 +21,7 @@ Quinamp is a **macOS-native Winamp 2.x clone** built with **Electron + Vite + Va
 ## Project Structure
 
 ```
-quinamp/
+quillamp/
 ├── main.js              # Electron main process — creates BrowserWindow, handles IPC (file dialogs)
 ├── preload.js           # Electron preload — exposes electronAPI to renderer via contextBridge
 ├── index.html           # UI markup — main player + playlist window (both in one page)
@@ -129,7 +129,7 @@ This is a known Chromium VBR (Variable Bit Rate) MP3 metadata bug. Chromium nati
 - ✅ `.wsz` skin loading via drag-and-drop
 - ✅ Skin background maps to `#player-container` via `main.bmp`
 - ✅ Skin titlebar sprite from `titlebar.bmp`
-- ✅ QUINAMP title hidden when skin is active
+- ✅ QUILLAMP title hidden when skin is active
 - ✅ Shuffle/Repeat toggle sprites from `shufrep.bmp`
 - ✅ Play button sprites from `cbuttons.bmp`
 - ✅ Custom div-based volume and pan sliders
@@ -155,7 +155,7 @@ npm start      # Launch Electron, connects to Vite dev server
 For a production build (macOS DMG):
 ```bash
 npm run build
-# outputs to dist/Quinamp-1.0.0-arm64.dmg
+# outputs to dist/Quillamp-1.0.0-arm64.dmg
 ```
 
 ## Sprite Coordinate Reference

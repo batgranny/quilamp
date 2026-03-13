@@ -389,14 +389,14 @@ async function applySkin(file) {
         const pleditLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 42, 12, 29);
         if (pleditLeftUrl) document.documentElement.style.setProperty('--skin-pledit-left', `url("${pleditLeftUrl}")`);
 
-        // Crop 1px off the left side of the right border slice (offset 31 -> 32) to remove the blue scrollbar edge line
-        const pleditRightUrl = await extractSpriteRegion('pledit.bmp', 32, 42, 19, 29);
+        // Right border slice (at x=31 in pledit.bmp, width=20)
+        const pleditRightUrl = await extractSpriteRegion('pledit.bmp', 31, 42, 20, 29);
         if (pleditRightUrl) document.documentElement.style.setProperty('--skin-pledit-right', `url("${pleditRightUrl}")`);
 
         const pleditBottomLeftUrl = await extractSpriteRegion('pledit.bmp', 0, 72, 125, 38);
         if (pleditBottomLeftUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-left', `url("${pleditBottomLeftUrl}")`);
 
-        const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 126, 72, 149, 38);
+        const pleditBottomRightUrl = await extractSpriteRegion('pledit.bmp', 125, 72, 150, 38);
         if (pleditBottomRightUrl) document.documentElement.style.setProperty('--skin-pledit-bottom-right', `url("${pleditBottomRightUrl}")`);
 
         const pleditBottomFillUrl = await extractSpriteRegion('pledit.bmp', 179, 0, 25, 38);
@@ -629,7 +629,7 @@ if (window.electronAPI) {
             trackList = [];
             currentTrackIndex = -1;
             audio.src = '';
-            document.querySelector('.marquee span').textContent = '*** QUINAMP *** WINAMP CLONE ***';
+            document.querySelector('.marquee span').textContent = '*** QUILLAMP *** WINAMP CLONE ***';
             timeDisplay.textContent = '00:00';
             renderPlaylist();
         });

@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Force application name for macOS menu bar when running unpackaged
 if (process.platform === 'darwin') {
-    app.setName('Quinamp');
+    app.setName('Quillamp');
 }
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
@@ -38,7 +38,7 @@ function createWindow() {
         {
             label: app.name,
             submenu: [
-                { label: 'About Quinamp', click: createAboutWindow },
+                { label: 'About Quillamp', click: createAboutWindow },
                 { type: 'separator' },
                 { role: 'services' },
                 { type: 'separator' },
@@ -97,7 +97,7 @@ function createWindow() {
                 {
                     label: 'Learn More',
                     click: async () => {
-                        await shell.openExternal('https://github.com/chrisconnolly/quinamp');
+                        await shell.openExternal('https://github.com/chrisconnolly/quillamp');
                     }
                 }
             ]
@@ -115,7 +115,7 @@ function createAboutWindow() {
         resizable: false,
         minimizable: false,
         maximizable: false,
-        title: 'About Quinamp',
+        title: 'About Quillamp',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -128,7 +128,7 @@ function createAboutWindow() {
     // Remove menu bar for About window on other platforms if needed
     aboutWindow.setMenu(null);
 
-    aboutWindow.loadFile('about.html');
+    aboutWindow.loadFile(path.join(__dirname, 'about.html'));
 }
 
 ipcMain.handle('open-external', async (event, url) => {
@@ -259,11 +259,12 @@ ipcMain.on('show-context-menu', (event) => {
     let skinItems = [];
     if (fs.existsSync(skinsDir)) {
         const files = fs.readdirSync(skinsDir);
-        skinItems = files.filter(file => {
-            const ext = path.extname(file).toLowerCase();
-            const fullPath = path.join(skinsDir, file);
-            return ext === '.wsz' || ext === '.zip' || fs.statSync(fullPath).isDirectory();
-        });
+        skinItems = files
+            .filter(file => path.extname(file).toLowerCase() === '.wsz')
+            .map(file => ({
+                name: file,
+                label: path.basename(file, '.wsz').replace(/_/g, ' ') // Strip extension and prettify
+            }));
     }
 
     const template = [
@@ -298,11 +299,11 @@ ipcMain.on('show-context-menu', (event) => {
                 },
                 { type: 'separator' },
                 ...skinItems.map(item => ({
-                    label: item,
+                    label: item.label,
                     click: () => event.sender.send('load-skin', { 
-                        name: item, 
-                        path: path.join(skinsDir, item),
-                        isDir: fs.statSync(path.join(skinsDir, item)).isDirectory()
+                        name: item.name, 
+                        path: path.join(skinsDir, item.name),
+                        isDir: false
                     })
                 })),
                 { type: 'separator' },
@@ -322,8 +323,8 @@ ipcMain.on('show-context-menu', (event) => {
             ]
         },
         { type: 'separator' },
-        { label: 'Quit Quinamp', click: () => app.quit() },
-        { label: 'About Quinamp', click: () => createAboutWindow() }
+        { label: 'Quit Quillamp', click: () => app.quit() },
+        { label: 'About Quillamp', click: () => createAboutWindow() }
     ];
 
     const menu = Menu.buildFromTemplate(template);

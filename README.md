@@ -1,4 +1,4 @@
-# Quinamp
+# Quillamp
 
 A modern, cross-platform clone of the classic Winamp media player built with Electron, Vite, and Vanilla JS/CSS. Designed to mimic the iconic late 90s digital interface natively on macOS.
 
@@ -15,7 +15,7 @@ Ensure you have [Node.js](https://nodejs.org/) installed, then follow these step
 
 1. Navigate to the repository:
    ```bash
-   cd quinamp
+   cd quillamp
    ```
 
 2. Install dependencies:
@@ -38,7 +38,7 @@ To build a distributable macOS Application (`.app` and `.dmg`), run the followin
 npm run dist
 ```
 
-After the build completes, look in the `dist/` directory for the `Quinamp-1.0.0-mac.zip` or `Quinamp-1.0.0.dmg`. Build uses standard `electron-builder` Mac templates.
+After the build completes, look in the `dist/` directory for the `Quillamp-1.0.0-mac.zip` or `Quillamp-1.0.0.dmg`. Build uses standard `electron-builder` Mac templates.
 
 ## Built With
 - **Electron**

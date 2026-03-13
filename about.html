@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>About Quinamp</title>
+    <title>About Quillamp</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -58,39 +58,37 @@
 </head>
 <body>
     <div class="container">
-        <h1>Quinamp</h1>
+        <h1>Quillamp</h1>
         <div class="tagline">The Ultimate Winamp Clone for macOS</div>
         <div class="info">
             <p>Version: <span id="version">1.2.0-alpha.0</span></p>
             <p>Build Date: <span id="build-date">March 12, 2026</span></p>
             <p>Author: Chris Connolly</p>
-            <p>GitHub: <a href="#" id="github-link">github.com/chrisconnolly/quinamp</a></p>
+            <p>GitHub: <a href="#" id="github-link">github.com/chrisconnolly/quillamp</a></p>
         </div>
         <button class="close-btn" id="close-btn">Close</button>
     </div>
 
     <script>
-        const { ipcRenderer } = require('electron');
+        const closeBtn = document.getElementById('close-btn');
+        const githubLink = document.getElementById('github-link');
 
         // Close button logic
-        document.getElementById('close-btn').addEventListener('click', () => {
-            window.close();
-        });
-
-        // Open GitHub link in system browser
-        document.getElementById('github-link').addEventListener('click', (e) => {
-            e.preventDefault();
-            const url = 'https://github.com/chrisconnolly/quinamp';
-            window.parent.postMessage({ type: 'open-external', url: url }, '*');
-            // Alternatively, if we have shell access in preload:
-            if (window.electronAPI && window.electronAPI.openExternal) {
-                window.electronAPI.openExternal(url);
+        closeBtn.addEventListener('click', () => {
+            if (window.electronAPI && window.electronAPI.closeWindow) {
+                window.electronAPI.closeWindow();
+            } else {
+                window.close();
             }
         });
 
-        // Listen for data from main process if needed
-        window.addEventListener('message', (event) => {
-             // Handle data
+        // Open GitHub link in system browser
+        githubLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            const url = 'https://github.com/chrisconnolly/quillamp';
+            if (window.electronAPI && window.electronAPI.openExternal) {
+                window.electronAPI.openExternal(url);
+            }
         });
     </script>
 </body>
