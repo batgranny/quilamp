@@ -35,4 +35,4 @@
 
 10. [x] Replace the font for the time elapsed display for something closer to the original Winamp font
 
-11. when resizing the playlist window upward at a certain point the whole playlist window starts to move upward and ends up over the main player window (although the transport controls remain in place). The playlist window should not move beyond the bottom of the main player window and resizing upward should stop when the playlist window is around the equivilent of four track titles high
+11. [x] when resizing the playlist window upward at a certain point the whole playlist window starts to move upward and ends up over the main player window (although the transport controls remain in place). The playlist window should not move beyond the bottom of the main player window and resizing upward should stop when the playlist window is around the equivilent of four track titles high

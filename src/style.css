@@ -55,6 +55,8 @@ body:not(.skin-active) {
 #player-container {
     width: 275px;
     height: 116px;
+    flex-shrink: 0;
+    min-height: 116px;
     background: var(--skin-main-bg, linear-gradient(to bottom, #3a3a45, var(--bg-dark)));
     background-position: 0 0;
     border: 1px solid var(--border-dark);
@@ -97,7 +99,7 @@ body.skin-active #title-bar {
     width: 275px;
     flex-grow: 1;
     min-height: 116px;
-    /* Base height */
+    max-height: 100%;
     background: linear-gradient(to bottom, #3a3a45, var(--bg-dark));
     border: 1px solid var(--border-dark);
     border-top: none;

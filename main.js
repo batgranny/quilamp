@@ -15,6 +15,7 @@ function createWindow() {
         minWidth: 413,
         maxWidth: 413,
         height: 696,
+        minHeight: 348, // 116px player + 116px playlist scaled by 1.5
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
