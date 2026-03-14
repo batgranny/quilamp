@@ -65,7 +65,7 @@ body:not(.skin-active) {
 
 #player-container {
     width: 275px;
-    height: 116px;
+    height: auto;
     flex-shrink: 0;
     min-height: 116px;
     background: var(--skin-main-bg, linear-gradient(to bottom, #3a3a45, var(--bg-dark)));
@@ -123,15 +123,14 @@ body.skin-active #title-bar {
 }
 
 #playlist-title-bar {
-    height: 12px;
-    background: linear-gradient(to right, #0000a0, #202020);
-    /* Classic active titlebar */
+    height: 14px;
+    background: #1d1d1d;
     display: flex;
     align-items: center;
     padding: 0 4px;
     font-size: 8px;
-    color: #fff;
-    border-bottom: 1px solid #000;
+    color: #f1f1f1;
+    border-bottom: 1px solid #111;
     margin-bottom: 4px;
 }
 
@@ -298,37 +297,42 @@ body:not(.skin-active) #playlist-scrollbar {
 }
 
 .pl-action-btn {
-    background: linear-gradient(to bottom, #eeeeee, #aaaaaa);
-    border: inset 2px #cccccc;
+    background: #141414;
+    border: none;
+    border-radius: 2px;
     font-size: 8px;
     font-weight: bold;
     height: 18px;
     min-width: 32px;
     padding: 0;
     cursor: pointer;
-    color: #333;
+    color: #7be65c;
     outline: none;
     user-select: none;
+    transition: background 0.1s ease;
 }
 
 .pl-list-btn {
-    background: linear-gradient(to bottom, #eeeeee, #aaaaaa);
-    border: inset 2px #cccccc;
-    font-size: 6px;
+    background: #141414;
+    border: none;
+    border-radius: 2px;
+    font-size: 7px;
     font-weight: bold;
-    height: 11px;
-    min-width: 28px;
-    padding: 0;
+    height: 14px;
+    min-width: 40px;
+    padding: 0 4px;
     cursor: pointer;
-    color: #333;
+    color: #7be65c;
     outline: none;
     user-select: none;
-    line-height: 1;
+    line-height: 14px;
+    white-space: nowrap;
+    transition: background 0.1s ease;
 }
 
+.pl-action-btn:active,
 .pl-list-btn:active {
-    border: inset 2px #aaaaaa;
-    background: linear-gradient(to bottom, #aaaaaa, #cccccc);
+    background: #222222;
 }
 
 .pl-right-actions {
@@ -342,8 +346,8 @@ body:not(.skin-active) #playlist-scrollbar {
     bottom: 100%;
     right: 0;
     margin-bottom: 2px;
-    background: #2a2a35;
-    border: inset 1px #555;
+    background: #141414;
+    border: 1px solid #333;
     padding: 2px;
     z-index: 50;
     display: flex;
@@ -475,23 +479,22 @@ body.skin-active .pl-list-btn:active {
 
 /* Title Bar */
 #title-bar {
-    height: 14px;
-    background: var(--skin-titlebar-bg, linear-gradient(to right, #0000a0, #202020));
+    height: 16px;
+    background: var(--skin-titlebar-bg, #1d1d1d);
     background-position: 0 0;
-    /* Classic active titlebar */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 4px;
+    padding: 0 6px;
     font-size: 9px;
-    color: #fff;
-    border-bottom: 1px solid #000;
+    color: #f1f1f1;
+    border-bottom: 1px solid #111;
 }
 
 .title-text {
     font-weight: bold;
     letter-spacing: 1px;
-    text-shadow: 1px 1px 0 #000;
+    /* text-shadow removed for flat look */
 }
 
 body.skin-active .title-text {
@@ -510,19 +513,28 @@ body.skin-active .window-controls {
 
 /* Base button defaults */
 .ctrl-btn {
-    background: var(--skin-titlebar-bg, #ccc);
-    border: inset 1px #fff;
-    border-right-color: #666;
-    border-bottom-color: #666;
-    font-size: 8px;
-    height: 10px;
-    width: 10px;
+    background: transparent;
+    border: none;
+    font-size: 10px;
+    height: 14px;
+    width: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     padding: 0;
     line-height: 1;
+    color: #f1f1f1;
+    transition: background 0.1s ease;
+}
+
+.ctrl-btn:hover {
+    background: #333;
+}
+
+#btn-close:hover {
+    background: #e81123;
+    color: white;
 }
 
 /* If a skin is active, remove our default css borders and let the skin sprites show */
@@ -609,7 +621,8 @@ body.skin-active #main-display {
     border-radius: 3px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     cursor: pointer;
-    pointer-events: auto; /* Ensure it receives clicks even if parent has pointer-events: none */
+    pointer-events: auto;
+    /* Ensure it receives clicks even if parent has pointer-events: none */
 }
 
 body.skin-active #time-display {
@@ -634,7 +647,8 @@ body.skin-active #time-display {
     color: #4dfd48;
     text-shadow: 0 0 8px rgba(77, 253, 72, 0.8);
     cursor: pointer;
-    z-index: 100; /* Ensure it's above other elements */
+    z-index: 100;
+    /* Ensure it's above other elements */
     pointer-events: auto;
 }
 
@@ -665,33 +679,35 @@ body.skin-active #time-display {
 #seek-slider::before {
     content: '';
     position: absolute;
-    top: 4px;
-    /* (18 - 10) / 2 */
+    top: 50%;
+    transform: translateY(-50%);
     left: 0;
     width: 100%;
     height: 5px;
-    background: #333;
-    border: inset 1px #222;
+    background: #7be65c;
+    border: none;
     z-index: -1;
 }
 
 #seek-thumb {
-    width: 29px;
-    height: 10px;
-    background: #ccc;
+    width: 8px;
+    height: 7px;
+    background: #888;
     position: absolute;
-    top: 4px; /* Centered in 18px hitbox (18-10)/2=4 */
+    top: 50%;
+    transform: translateY(-50%);
     left: 0;
     z-index: 101;
     cursor: grab;
+    border: none;
 }
 
 body.skin-active #seek-slider {
     position: absolute;
     left: 13.5px;
     /* (275 - 248) / 2 = 13.5 */
-    top: 60px;
-    /* Adjusted to align better with main.bmp groove at 1.5x zoom */
+    top: 56px;
+    /* Adjusted to align better with main.bmp groove and clear controls */
     width: 248px;
     height: 18px;
     background: transparent !important;
@@ -706,9 +722,11 @@ body.skin-active #seek-slider::before {
 body.skin-active #seek-thumb {
     background: var(--skin-posbar-bg, #999) !important;
     background-position: -248px 0 !important;
-    width: 29px;
-    height: 10px;
-    top: 4px;
+    width: 29px !important;
+    height: 10px !important;
+    top: 2px !important;
+    transform: none !important;
+    background-color: transparent !important;
 }
 
 /* Track Info */
@@ -820,7 +838,9 @@ body.skin-active .audio-stats span {
     margin-top: auto;
     margin-bottom: 2px;
     flex-wrap: wrap;
-    gap: 4px;
+    row-gap: 8px;
+    /* Increased for vertical separation */
+    column-gap: 4px;
 }
 
 body.skin-active #controls-panel {
@@ -835,7 +855,8 @@ body.skin-active #controls-panel {
 /* Playback buttons */
 .playback-controls {
     display: flex;
-    gap: 1px;
+    gap: 6px;
+    /* Increased for horizontal separation */
 }
 
 body.skin-active .playback-controls {
@@ -848,8 +869,9 @@ body.skin-active .playback-controls {
 /* Base button defaults */
 .play-btn,
 #btn-eject {
-    background: var(--skin-cbuttons-bg, linear-gradient(to bottom, #eeeeee, #aaaaaa));
-    border: inset 2px #cccccc;
+    background: var(--skin-cbuttons-bg, #141414);
+    border: none;
+    border-radius: 2px;
     font-size: 10px;
     height: 18px;
     min-width: 22px;
@@ -858,18 +880,18 @@ body.skin-active .playback-controls {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #333;
+    color: #7be65c;
     font-weight: bold;
     outline: none !important;
     appearance: none;
     -webkit-appearance: none;
     vertical-align: top;
+    transition: background 0.1s ease;
 }
 
 .play-btn:active,
 #btn-eject:active {
-    border: inset 2px #aaaaaa;
-    background: var(--skin-cbuttons-bg, linear-gradient(to bottom, #aaaaaa, #cccccc));
+    background: var(--skin-cbuttons-bg, #222222);
 }
 
 /* Specific Winamp Sprite Slicing for Playback Controls (from cbuttons.bmp) */
@@ -992,13 +1014,12 @@ body.skin-active #btn-eject:active {
 .custom-slider {
     position: relative;
     width: 68px;
-    height: 7px;
+    height: 5px;
+    /* Thinner groove */
     background: #0a1a0a;
-    /* Visible dark green groove, not blending with player bg */
-    border: 1px inset #004400;
+    border: 1px solid #003300;
     cursor: pointer;
     flex-shrink: 0;
-    /* No overflow:hidden — it breaks transform centering on the thumb child */
 }
 
 /* Pan slider slightly wider in default mode for better usability */
@@ -1008,13 +1029,16 @@ body.skin-active #btn-eject:active {
 
 .slider-thumb {
     position: absolute;
-    top: 40%;
+    top: 50%;
+    /* Centered vertically on thinner slider */
     transform: translateY(-50%);
     left: 0;
-    width: 14px;
-    height: 11px;
+    width: 8px;
+    /* Slightly larger than groove width 5 */
+    height: 7px;
+    /* Slightly larger than groove height 5 */
     background: #888;
-    border: 1px solid #ccc;
+    border: none;
     cursor: grab;
     background-repeat: no-repeat;
     background-size: auto auto;
@@ -1057,11 +1081,21 @@ body.skin-active .slider-fill {
 body.skin-active .custom-slider {
     background-color: transparent;
     border: none;
+    height: 13px !important;
+    /* Original height for skin sprites */
 }
 
 body.skin-active .slider-thumb {
     background-color: transparent;
     border: none;
+    width: 14px !important;
+    /* Original width for skin sprites */
+    height: 11px !important;
+    /* Original height for skin sprites */
+    top: 0 !important;
+    /* Align to top in skin mode */
+    transform: none !important;
+    /* Remove centering transform for skin mode */
 }
 
 /* Volume slider position (inside controls-panel which is at left:16, top:88 in window) */
@@ -1087,16 +1121,20 @@ body.skin-active #pan-slider {
 }
 
 .toggle-btn {
-    background: #444;
-    color: #aaa;
-    border: inset 1px #222;
+    background: #141414;
+    color: #7be65c;
+    border: none;
+    border-radius: 2px;
     font-size: 8px;
-    padding: 2px 4px;
+    padding: 2px 6px;
     cursor: pointer;
+    transition: background 0.1s ease;
 }
 
 .toggle-btn.active {
-    color: #0f0;
+    background: #252525;
+    color: #7be65c;
+    box-shadow: inset 0 0 2px rgba(123, 230, 92, 0.3);
 }
 
 /* Specific Winamp Sprite Slicing for Shuf / Rep (from shufrep.bmp) */
