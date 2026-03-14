@@ -36,3 +36,7 @@
 10. [x] Replace the font for the time elapsed display for something closer to the original Winamp font
 
 11. [x] when resizing the playlist window upward at a certain point the whole playlist window starts to move upward and ends up over the main player window (although the transport controls remain in place). The playlist window should not move beyond the bottom of the main player window and resizing upward should stop when the playlist window is around the equivilent of four track titles high
+
+12. In the default UI decrease the front size of the kbps and mhz display on the main player window
+
+13. The List Opts button should just say "list".  modify the button to display just "list' and modify the padding and size to match that of the ADD REM SEL buttons.  ALso, the popup options should be modified to remove the word 'list' from each option so they just saw 'new', 'save' 'load' etc

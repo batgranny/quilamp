@@ -545,6 +545,11 @@ body.skin-active .ctrl-btn {
     /* hide our text */
 }
 
+body.skin-active .ctrl-btn:hover {
+    color: transparent !important;
+    background-color: transparent !important;
+}
+
 /* Specific button offsets from titlebar.bmp (standard winamp spec) */
 body.skin-active #btn-minimize {
     background-position: -275px -18px !important;
