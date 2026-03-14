@@ -142,6 +142,7 @@ const CSS_ZOOM = 1.5;
 function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEnd) {
     let dragging = false;
     let value = initialValue;
+    let dragOffset = 0; // Relative offset from mouse to thumb's left edge (in CSS pixels)
 
     function positionThumb(ratio) {
         const trackWidth = track.offsetWidth;
@@ -154,11 +155,14 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
         const trackWidth = track.offsetWidth;
         const thumbWidth = thumb.offsetWidth;
 
-        // Calculate mouse position relative to track in CSS pixels
-        let mouseX = (e.clientX - rect.left) / CSS_ZOOM;
+        // Calculate dynamic zoom: screen pixels vs CSS pixels
+        const zoom = rect.width / trackWidth;
 
-        // Standard slider behavior: center knob on mouse click, but clamp to bounds
-        let targetLeft = mouseX - (thumbWidth / 2);
+        // Calculate mouse position relative to track in CSS pixels
+        let mouseX = (e.clientX - rect.left) / zoom;
+
+        // Calculate new target left using normalized mouse and preserved drag offset
+        let targetLeft = mouseX - dragOffset;
         let maxLeft = trackWidth - thumbWidth;
         let clampedLeft = Math.max(0, Math.min(maxLeft, targetLeft));
 
@@ -174,16 +178,27 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
     // And again after a short delay in case of font/layout shifts
     setTimeout(() => positionThumb(value), 150);
 
-    // Thumb mousedown: start drag, prevent bubbling to track
+    // Thumb mousedown: start drag, calculate offset within thumb
     thumb.addEventListener('mousedown', (e) => {
+        const thumbRect = thumb.getBoundingClientRect();
+        const rect = track.getBoundingClientRect();
+        const zoom = rect.width / track.offsetWidth;
+
+        // Store how far into the thumb we clicked (in CSS pixels)
+        dragOffset = (e.clientX - thumbRect.left) / zoom;
+
         dragging = true;
         if (onStart) onStart();
         e.preventDefault();
         e.stopPropagation();
     });
 
-    // Track mousedown: click on track to jump there, then allow drag
+    // Track mousedown: click on track to jump there (center knob), then allow drag
     track.addEventListener('mousedown', (e) => {
+        const thumbWidth = thumb.offsetWidth;
+        // When clicking the track directly, we center the thumb on the mouse
+        dragOffset = thumbWidth / 2;
+
         dragging = true;
         if (onStart) onStart();
         e.preventDefault();
