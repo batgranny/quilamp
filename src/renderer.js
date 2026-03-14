@@ -142,67 +142,77 @@ const CSS_ZOOM = 1.5;
 function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEnd) {
     let dragging = false;
     let value = initialValue;
-    let dragOffset = 0; // Relative offset from mouse to thumb's left edge (in CSS pixels)
+    let startX = 0;
+    let startLeftCSS = 0;
 
     function positionThumb(ratio) {
-        const trackWidth = track.offsetWidth;
-        const thumbWidth = thumb.offsetWidth;
-        thumb.style.left = `${Math.round(ratio * (trackWidth - thumbWidth))}px`;
+        const logicalTrackWidth = parseFloat(getComputedStyle(track).width);
+        const logicalThumbWidth = parseFloat(getComputedStyle(thumb).width);
+        thumb.style.left = `${ratio * (logicalTrackWidth - logicalThumbWidth)}px`;
+    }
+
+    function getLogicalWidth(el) {
+        return parseFloat(getComputedStyle(el).width);
     }
 
     function update(e) {
-        const rect = track.getBoundingClientRect();
-        const trackWidth = track.offsetWidth;
-        const thumbWidth = thumb.offsetWidth;
+        if (!dragging) return;
+        const logicalTrackWidth = getLogicalWidth(track);
+        const logicalThumbWidth = getLogicalWidth(thumb);
 
-        // Calculate dynamic zoom: screen pixels vs CSS pixels
-        const zoom = rect.width / trackWidth;
-
-        // Calculate mouse position relative to track in CSS pixels
-        let mouseX = (e.clientX - rect.left) / zoom;
-
-        // Calculate new target left using normalized mouse and preserved drag offset
-        let targetLeft = mouseX - dragOffset;
-        let maxLeft = trackWidth - thumbWidth;
-        let clampedLeft = Math.max(0, Math.min(maxLeft, targetLeft));
-
-        // Ratio is for the onChange callback (0 to 1)
-        value = maxLeft > 0 ? clampedLeft / maxLeft : 0;
-
-        thumb.style.left = `${Math.round(clampedLeft)}px`;
+        // Explicitly use the 1.5 zoom constant for screen -> logical conversion
+        // This is much more robust than detecting it from getBoundingClientRect
+        const deltaX = (e.clientX - startX) / CSS_ZOOM;
+        let targetLeftCSS = startLeftCSS + deltaX;
+        
+        let maxLeftCSS = logicalTrackWidth - logicalThumbWidth;
+        let clampedLeftCSS = Math.max(0, Math.min(maxLeftCSS, targetLeftCSS));
+        
+        value = maxLeftCSS > 0 ? clampedLeftCSS / maxLeftCSS : 0;
+        thumb.style.left = `${clampedLeftCSS}px`;
         onChange(value);
     }
 
-    // Set initially
     positionThumb(value);
-    // And again after a short delay in case of font/layout shifts
     setTimeout(() => positionThumb(value), 150);
 
-    // Thumb mousedown: start drag, calculate offset within thumb
     thumb.addEventListener('mousedown', (e) => {
-        const thumbRect = thumb.getBoundingClientRect();
-        const rect = track.getBoundingClientRect();
-        const zoom = rect.width / track.offsetWidth;
-
-        // Store how far into the thumb we clicked (in CSS pixels)
-        dragOffset = (e.clientX - thumbRect.left) / zoom;
-
+        if (onStart) onStart(); // Call immediately to lock UI feedback
+        
         dragging = true;
-        if (onStart) onStart();
+        startX = e.clientX;
+        startLeftCSS = parseFloat(thumb.style.left) || 0;
+
+        document.body.classList.add('dragging');
         e.preventDefault();
         e.stopPropagation();
     });
 
-    // Track mousedown: click on track to jump there (center knob), then allow drag
     track.addEventListener('mousedown', (e) => {
-        const thumbWidth = thumb.offsetWidth;
-        // When clicking the track directly, we center the thumb on the mouse
-        dragOffset = thumbWidth / 2;
+        if (onStart) onStart(); // Call immediately
+        
+        const rect = track.getBoundingClientRect();
+        const logicalTrackWidth = getLogicalWidth(track);
+        const logicalThumbWidth = getLogicalWidth(thumb);
+        
+        // Use the hardcoded zoom for calculating click position relative to logical pixels
+        // We assume rect.left is in the same coordinate space as clientX (Physical/Viewport)
+        // If it's not, the browser will likely report them both as CSS which also works.
+        let mouseXCSS = (e.clientX - rect.left) / CSS_ZOOM;
+        let targetLeftCSS = mouseXCSS - (logicalThumbWidth / 2);
+        let maxLeftCSS = logicalTrackWidth - logicalThumbWidth;
+        let clampedLeftCSS = Math.max(0, Math.min(maxLeftCSS, targetLeftCSS));
+        
+        value = maxLeftCSS > 0 ? clampedLeftCSS / maxLeftCSS : 0;
+        thumb.style.left = `${clampedLeftCSS}px`;
+        onChange(value);
 
         dragging = true;
-        if (onStart) onStart();
+        startX = e.clientX;
+        startLeftCSS = clampedLeftCSS;
+
+        document.body.classList.add('dragging');
         e.preventDefault();
-        update(e);
     });
 
     document.addEventListener('mousemove', (e) => {
@@ -210,7 +220,10 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
     });
 
     document.addEventListener('mouseup', () => {
-        if (dragging && onEnd) onEnd();
+        if (dragging) {
+            document.body.classList.remove('dragging');
+            if (onEnd) onEnd();
+        }
         dragging = false;
     });
 

@@ -8,6 +8,17 @@
     outline: none !important;
 }
 
+/* Dragging state for smooth slider experience */
+body.dragging * {
+    cursor: grabbing !important;
+    user-select: none !important;
+}
+
+body.dragging .slider-thumb,
+body.dragging #seek-thumb {
+    transition: none !important;
+}
+
 html,
 body {
     margin: 0;
@@ -664,11 +675,10 @@ body.skin-active #time-display {
     height: 10px;
     background: #ccc;
     position: absolute;
-    top: 8.5px;
-    /* (18 - 10) / 2 */
+    top: 4px; /* Centered in 18px hitbox (18-10)/2=4 */
     left: 0;
     z-index: 101;
-    pointer-events: none;
+    cursor: grab;
 }
 
 body.skin-active #seek-slider {
