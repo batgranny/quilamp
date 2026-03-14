@@ -330,9 +330,18 @@ body:not(.skin-active) #playlist-scrollbar {
     transition: background 0.1s ease;
 }
 
-.pl-action-btn:active,
-.pl-list-btn:active {
+.pl-action-btn:active {
     background: #222222;
+}
+
+.pl-list-btn:hover {
+    background: #7be65c;
+    color: #141414;
+}
+
+.pl-list-btn:active {
+    background: #5ab343;
+    color: #141414;
 }
 
 .pl-right-actions {
