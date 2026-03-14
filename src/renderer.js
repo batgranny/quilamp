@@ -8,7 +8,8 @@ let currentTrackIndex = -1;
 // Global player state for easier debugging and persistence
 window.playerState = {
     isShuffle: false,
-    isRepeat: false
+    isRepeat: false,
+    displayRemaining: false
 };
 
 // DOM Elements
@@ -263,9 +264,36 @@ function formatTime(seconds) {
 }
 
 // Update time display
-audio.addEventListener('timeupdate', () => {
-    timeDisplay.textContent = formatTime(audio.currentTime);
-});
+function updateTimeDisplay() {
+    let seconds = audio.currentTime;
+    if (window.playerState.displayRemaining) {
+        const duration = audio.duration || window.currentTrackDuration;
+        if (duration) {
+            seconds = -(duration - audio.currentTime);
+        }
+    }
+    
+    if (isNaN(seconds)) {
+        timeDisplay.textContent = "00:00";
+        return;
+    }
+    
+    const isNegative = seconds < 0;
+    const absSeconds = Math.abs(seconds);
+    const m = Math.floor(absSeconds / 60).toString().padStart(2, '0');
+    const s = Math.floor(absSeconds % 60).toString().padStart(2, '0');
+    timeDisplay.textContent = `${isNegative ? '-' : ''}${m}:${s}`;
+}
+
+audio.addEventListener('timeupdate', updateTimeDisplay);
+
+// Toggle time display mode
+if (timeDisplay) {
+    timeDisplay.addEventListener('click', () => {
+        window.playerState.displayRemaining = !window.playerState.displayRemaining;
+        updateTimeDisplay();
+    });
+}
 
 // Read ID3 tags from a file path using jsmediatags (browser-compatible)
 function readID3Tags(filePath) {
