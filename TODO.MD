@@ -29,10 +29,10 @@
 
 7. [x] The track progress slider should proceed across the full length of the progress bar, currently it will stop at the end of the track at around the 60% mark
 
-8. The volume slider does not currently follow the mouse when clicked and dragged. When dragging left the slider will not move until kthe mouse has moved beyond the slider runner. I will then start to slide to the left. The same issue occurs with the pan slider
+8. [x] ensure volume and pan sliders follow mouse correctly during drags (don't "jump" to center when clicked)
 
 9. [x] In non-skinned mode the track title is not displayed. It is displayed in skinned mode
 
-10. Replace the font for the time elapsed display for something closer to the original Winamp font
+10. [x] Replace the font for the time elapsed display for something closer to the original Winamp font
 
 11. when resizing the playlist window upward at a certain point the whole playlist window starts to move upward and ends up over the main player window (although the transport controls remain in place). The playlist window should not move beyond the bottom of the main player window and resizing upward should stop when the playlist window is around the equivilent of four track titles high
