@@ -420,10 +420,12 @@ body.skin-active #pl-btn-misc {
 }
 
 body.skin-active #pl-btn-list-opts {
-    width: 22px;
+    width: 26px;
+    /* slightly wider to match skin button area */
     height: 18px;
-    margin-right: 18px;
-    top: auto;
+    margin-right: 14px;
+    top: 0px;
+    /* relative to parent, which is flex-centered */
     right: auto;
     left: auto;
     position: relative;
@@ -612,13 +614,13 @@ body.skin-active #main-display {
 #time-display {
     font-family: 'SF Digital Readout', sans-serif;
     font-weight: 400;
-    font-size: 26px;
+    font-size: 22px;
     color: #4dfd48;
     /* Brighter neon green */
-    line-height: 28px;
+    line-height: 24px;
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(77, 253, 72, 0.9), 0 0 4px rgba(77, 253, 72, 0.4);
-    width: 90px;
+    width: 80px;
     text-align: right;
     padding-right: 4px;
     margin-top: 0px;
@@ -638,7 +640,7 @@ body.skin-active #time-display {
     height: 16px;
     font-family: 'SF Digital Readout', sans-serif;
     font-weight: 400;
-    font-size: 20px;
+    font-size: 18px;
     /* Fit within the skinned container */
     letter-spacing: 0.5px;
     line-height: 16px;
@@ -688,15 +690,15 @@ body.skin-active #time-display {
     transform: translateY(-50%);
     left: 0;
     width: 100%;
-    height: 5px;
+    height: 3px;
     background: #7be65c;
     border: none;
     z-index: -1;
 }
 
 #seek-thumb {
-    width: 8px;
-    height: 7px;
+    width: 7px;
+    height: 6px;
     background: #888;
     position: absolute;
     top: 50%;
@@ -807,7 +809,7 @@ body.skin-active #track-name {
 }
 
 .audio-stats {
-    font-size: 10px;
+    font-size: 7px;
     margin-top: auto;
     color: #88aa88;
 }

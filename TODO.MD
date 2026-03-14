@@ -39,4 +39,4 @@
 
 12. In the default UI decrease the front size of the kbps and mhz display on the main player window
 
-13. The List Opts button should just say "list".  modify the button to display just "list' and modify the padding and size to match that of the ADD REM SEL buttons.  ALso, the popup options should be modified to remove the word 'list' from each option so they just saw 'new', 'save' 'load' etc
+13. The List Opts button should just say "LIST".  modify the button to display just "LIST' and modify the padding and size to match that of the ADD REM SEL buttons.  ALso, the popup options should be modified to remove the word 'list' from each option so they just saw 'new', 'save' 'load' etc
