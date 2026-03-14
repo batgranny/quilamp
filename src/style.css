@@ -689,6 +689,8 @@ body.skin-active #time-display {
     pointer-events: auto !important;
     display: flex;
     align-items: center;
+    background: transparent;
+    border: none;
 }
 
 /* Visual bar "groove" inside the larger hitbox */
