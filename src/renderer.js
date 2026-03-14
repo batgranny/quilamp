@@ -144,15 +144,15 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
     let value = initialValue;
 
     function positionThumb(ratio) {
-        const trackWidth = track.getBoundingClientRect().width / CSS_ZOOM;
-        const thumbWidth = thumb.getBoundingClientRect().width / CSS_ZOOM;
+        const trackWidth = track.offsetWidth;
+        const thumbWidth = thumb.offsetWidth;
         thumb.style.left = `${Math.round(ratio * (trackWidth - thumbWidth))}px`;
     }
 
     function update(e) {
         const rect = track.getBoundingClientRect();
-        const trackWidth = rect.width / CSS_ZOOM;
-        const thumbWidth = thumb.getBoundingClientRect().width / CSS_ZOOM;
+        const trackWidth = track.offsetWidth;
+        const thumbWidth = thumb.offsetWidth;
 
         // Calculate mouse position relative to track in CSS pixels
         let mouseX = (e.clientX - rect.left) / CSS_ZOOM;
@@ -511,7 +511,7 @@ const seekControl = makeDraggableSlider(
     seekThumb,
     0,
     (ratio) => {
-        const duration = window.currentTrackDuration || audio.duration;
+        const duration = audio.duration || window.currentTrackDuration;
         if (duration) {
             audio.currentTime = ratio * duration;
         }
@@ -522,7 +522,7 @@ const seekControl = makeDraggableSlider(
 
 // Audio element event listeners
 audio.addEventListener('timeupdate', () => {
-    const duration = window.currentTrackDuration || audio.duration;
+    const duration = audio.duration || window.currentTrackDuration;
     if (!window.isSeeking && duration) {
         seekControl.setValue(audio.currentTime / duration);
     }

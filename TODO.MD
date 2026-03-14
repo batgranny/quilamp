@@ -23,11 +23,11 @@
       Load Skin (should allow the user to browse the computer for a winamp skin file)
    Quit Quinamp (should exit the application)
    About Quinamp (should open the about window)
-      
+
 
 6. [x] The 'repeat' and 'shuffle' buttons should toggle on and off when clicked and they currently do no work
 
-7. The track progress slider should proceed across the full length of the progress bar, currently it will stop at the end of the track at around the 60% mark
+7. [x] The track progress slider should proceed across the full length of the progress bar, currently it will stop at the end of the track at around the 60% mark
 
 8. The volume slider does not currently follow the mouse when clicked and dragged. When dragging left the slider will not move until kthe mouse has moved beyond the slider runner. I will then start to slide to the left. The same issue occurs with the pan slider
 
