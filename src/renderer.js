@@ -32,6 +32,132 @@ const btnClose = document.getElementById('btn-close');
 const btnShuffle = document.getElementById('btn-shuffle');
 const btnRepeat = document.getElementById('btn-repeat');
 
+// --- Web Audio API & Visualizer State ---
+let audioCtx = null;
+let analyser = null;
+let source = null;
+let visualizerCanvas = null;
+let visualizerCtx = null;
+let animationId = null;
+
+// Built-in default Winamp spectrum colors (from bottom up: 17 to 2)
+let visColors = new Array(24).fill('rgb(0,0,0)');
+// Default palette values (approximate classic Winamp colors)
+for (let i = 2; i <= 17; i++) {
+    const green = Math.floor((17 - i) * (255 / 15));
+    visColors[i] = `rgb(0, ${green}, 0)`;
+}
+visColors[23] = 'rgb(255, 255, 255)'; // Peak indicator
+visColors[0] = 'rgb(0, 0, 0)';       // Background
+
+// Peak tracking
+const numBars = 18;
+let peaks = new Array(numBars).fill(0);
+let barHeights = new Array(numBars).fill(0);
+
+function initVisualizer() {
+    const container = document.querySelector('.visualizer');
+    if (!container) return;
+    
+    visualizerCanvas = document.createElement('canvas');
+    visualizerCanvas.width = 76;
+    visualizerCanvas.height = 16;
+    container.innerHTML = '';
+    container.appendChild(visualizerCanvas);
+    visualizerCtx = visualizerCanvas.getContext('2d');
+}
+
+function startVisualizer() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        source = audioCtx.createMediaElementSource(audio);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+    }
+    
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    
+    if (!animationId) {
+        animate();
+    }
+}
+
+function animate() {
+    animationId = requestAnimationFrame(animate);
+    if (!analyser || !visualizerCtx) return;
+
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
+
+    const ctx = visualizerCtx;
+    const w = visualizerCanvas.width;
+    const h = visualizerCanvas.height;
+
+    // Clear background (Background color is usually color index 0 in viscolor.txt, which is 0,0,0)
+    ctx.fillStyle = visColors[0] || 'rgb(0,0,0)';
+    ctx.fillRect(0, 0, w, h);
+
+    const barWidth = 2; // Fixed winamp style bar width
+    const gap = 1;
+    const totalBarWidth = barWidth + gap;
+    
+    for (let i = 0; i < numBars; i++) {
+        // Group frequency bins into bars. We focus on the lower/mid frequencies mostly.
+        const binStart = Math.floor(i * (bufferLength / 2) / numBars);
+        const binEnd = Math.floor((i + 1) * (bufferLength / 2) / numBars);
+        let val = 0;
+        for (let j = binStart; j < binEnd; j++) {
+            val += dataArray[j];
+        }
+        val /= (binEnd - binStart);
+        
+        // Scale to canvas height
+        let targetHeight = (val / 255) * h;
+        
+        // Gravity effect for bars
+        if (targetHeight > barHeights[i]) {
+            barHeights[i] = targetHeight;
+        } else {
+            barHeights[i] -= 1.2; // Fall speed
+        }
+        if (barHeights[i] < 0) barHeights[i] = 0;
+
+        let drawHeight = Math.round(barHeights[i]);
+        const x = i * totalBarWidth + 4; // Horizontal offset
+
+        // Draw segmented bar (classic winamp style)
+        for (let segment = 0; segment < drawHeight; segment += 2) {
+            // Index 17 is bottom, index 2 is top
+            const colorIndex = 17 - Math.floor((segment / h) * 15);
+            ctx.fillStyle = visColors[colorIndex] || 'rgb(0,255,0)';
+            ctx.fillRect(x, h - segment - 1, barWidth, 1);
+        }
+
+        // Peaks logic
+        if (targetHeight >= peaks[i]) {
+            peaks[i] = targetHeight;
+        } else {
+            peaks[i] -= 0.4; // Peaks fall slower
+        }
+        if (peaks[i] < 0) peaks[i] = 0;
+
+        // Draw peak (standard Winamp uses index 23 for peak indicator)
+        if (peaks[i] > 0) {
+            ctx.fillStyle = visColors[23] || 'rgb(255,255,255)';
+            ctx.fillRect(x, Math.round(h - peaks[i] - 1), barWidth, 1);
+        }
+    }
+}
+
+initVisualizer();
+
+// --- End Visualizer State ---
+
 // Window Controls
 if (window.electronAPI) {
     if (btnMinimize) {
@@ -352,6 +478,7 @@ async function loadTrack(index) {
         // Load local file
         audio.src = `file://${filePath}`;
         audio.play();
+        startVisualizer();
         renderPlaylist();
 
         // Try to read metadata via IPC
@@ -451,10 +578,23 @@ async function applySkin(file) {
                 .map(line => line.split('//')[0].trim())
                 .filter(line => line.length > 0);
             
+            if (lines.length >= 24) {
+                // Winamp viscolor.txt has 24 colors
+                const newVisColors = lines.slice(0, 24).map(line => {
+                    const rgb = line.split(',').map(c => c.trim());
+                    return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                });
+                visColors = newVisColors;
+            }
+
             if (lines[0]) {
                 const rgb = lines[0].split(',').map(c => c.trim());
-                if (rgb.length >= 3 && !document.documentElement.style.getPropertyValue('--skin-display-color')) {
-                    document.documentElement.style.setProperty('--skin-display-color', `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+                if (rgb.length >= 3) {
+                    document.documentElement.style.setProperty('--skin-vis-bg', `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+                    // Use index 0 as display fallback if PLEDIT didn't provide one
+                    if (!document.documentElement.style.getPropertyValue('--skin-display-color')) {
+                        document.documentElement.style.setProperty('--skin-display-color', `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+                    }
                 }
             }
         }
@@ -726,6 +866,7 @@ document.addEventListener('keydown', (e) => {
 btnPlay.addEventListener('click', () => {
     if (audio.src) {
         audio.play();
+        startVisualizer();
     } else if (trackList.length > 0) {
         loadTrack(0);
     }
@@ -739,6 +880,9 @@ btnStop.addEventListener('click', () => {
     audio.pause();
     audio.currentTime = 0;
     timeDisplay.textContent = "00:00";
+    // Clear visualizer heights
+    barHeights.fill(0);
+    peaks.fill(0);
 });
 
 btnNext.addEventListener('click', () => {
