@@ -800,7 +800,7 @@ body.skin-active #track-name {
     margin: 0;
     padding: 0;
     display: block;
-    text-shadow: 0 0 3px rgba(77, 253, 72, 0.8);
+    text-shadow: 0 0 3px var(--skin-display-color, rgba(77, 253, 72, 0.8));
 }
 
 .marquee span {
