@@ -937,7 +937,9 @@ body.skin-active .playback-controls {
 
 .play-btn:active,
 #btn-eject:active {
-    background: var(--skin-cbuttons-bg, #222222);
+    background: #333333;
+    color: #a0ff90;
+    box-shadow: inset 0 0 4px rgba(123, 230, 92, 0.4);
 }
 
 /* Specific Winamp Sprite Slicing for Playback Controls (from cbuttons.bmp) */
