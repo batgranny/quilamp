@@ -25,7 +25,8 @@ function createWindow() {
         frame: false,
         transparent: true,
         resizable: true, // OS window resizable vertically
-        maximizable: false
+        maximizable: false,
+        icon: path.join(__dirname, 'build/icon.png')
     });
     if (isDev) {
         // Try to load via Vite dev server if running, else load local index.html
@@ -126,7 +127,8 @@ function createAboutWindow() {
             contextIsolation: true
         },
         frame: true, // Standard window for About
-        backgroundColor: '#2c2c2c'
+        backgroundColor: '#2c2c2c',
+        icon: path.join(__dirname, 'build/icon.png')
     });
 
     // Remove menu bar for About window on other platforms if needed
