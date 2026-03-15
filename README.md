@@ -9,6 +9,10 @@ A modern, cross-platform clone of the classic Winamp media player built with Ele
 - **Volume & Panning**: Volume slider (panning UI included, backend to be expanded).
 - **Draggable Frameless Windows**: Fully native feel with invisible borders and a custom draggable titlebar.
 - **ProjectM Visualization**: Immersive MilkDrop-compatible visualizer window (powered by [Butterchurn](https://github.com/jberg/butterchurn)).
+    - **Controls**:
+        - `Space` / `Right Arrow`: Next Preset
+        - `Left Arrow`: Previous Preset
+        - `L`: Lock/Unlock Preset Rotation
 
 ## Quick Start (Development)
 
