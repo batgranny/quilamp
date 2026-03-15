@@ -16,6 +16,30 @@ let lastAudioData = null;
 let lastAudioTime = 0;
 let frameCount = 0;
 let isLocked = false;
+let displayTimeout = null;
+
+const presetDisplayEl = document.getElementById('preset-display');
+
+function showPresetName(name) {
+    if (!presetDisplayEl) return;
+    
+    if (displayTimeout) {
+        clearTimeout(displayTimeout);
+        presetDisplayEl.classList.remove('show');
+    }
+    
+    presetDisplayEl.innerText = name;
+    
+    // Small delay to allow opacity transition to reset if it was already showing
+    setTimeout(() => {
+        presetDisplayEl.classList.add('show');
+    }, 50);
+
+    displayTimeout = setTimeout(() => {
+        presetDisplayEl.classList.remove('show');
+        displayTimeout = null;
+    }, 4000); // Show for 4 seconds
+}
 
 // Trap global errors for console
 window.onerror = (msg, url, line, col, error) => {
@@ -87,6 +111,7 @@ async function start() {
         
         const initialPreset = presets[presetKeys[currentPresetIndex]];
         visualizer.loadPreset(initialPreset, 0.0);
+        showPresetName(presetKeys[currentPresetIndex]);
     } catch (e) {
         console.error('ProjectM Init Error:', e);
         return;
@@ -115,22 +140,27 @@ async function start() {
         
         if (e.code === 'Space' || e.code === 'ArrowRight') {
             currentPresetIndex = (currentPresetIndex + 1) % presetKeys.length;
-            visualizer.loadPreset(presets[presetKeys[currentPresetIndex]], 2.0);
+            const name = presetKeys[currentPresetIndex];
+            visualizer.loadPreset(presets[name], 2.0);
+            showPresetName(name);
         } else if (e.code === 'ArrowLeft') {
             currentPresetIndex = (currentPresetIndex - 1 + presetKeys.length) % presetKeys.length;
-            visualizer.loadPreset(presets[presetKeys[currentPresetIndex]], 2.0);
+            const name = presetKeys[currentPresetIndex];
+            visualizer.loadPreset(presets[name], 2.0);
+            showPresetName(name);
         } else if (e.code === 'KeyL') {
             isLocked = !isLocked;
             console.log(`Preset rotation ${isLocked ? 'locked' : 'unlocked'}`);
         }
     });
 
-    // Cycle presets
     setInterval(() => {
         if (visualizer && !isLocked) {
             currentPresetIndex = (currentPresetIndex + 1) % presetKeys.length;
-            const nextPreset = presets[presetKeys[currentPresetIndex]];
+            const nextPresetName = presetKeys[currentPresetIndex];
+            const nextPreset = presets[nextPresetName];
             visualizer.loadPreset(nextPreset, 5.7);
+            showPresetName(nextPresetName);
         }
     }, 15000);
 
