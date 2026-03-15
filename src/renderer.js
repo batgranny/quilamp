@@ -60,8 +60,8 @@ function initVisualizer() {
     if (!container) return;
     
     visualizerCanvas = document.createElement('canvas');
-    visualizerCanvas.width = 60;
-    visualizerCanvas.height = 32;
+    visualizerCanvas.width = 76;
+    visualizerCanvas.height = 16;
     container.innerHTML = '';
     container.appendChild(visualizerCanvas);
     visualizerCtx = visualizerCanvas.getContext('2d');

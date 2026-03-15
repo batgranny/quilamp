@@ -684,9 +684,9 @@ body.skin-active #time-display {
 body.skin-active .visualizer {
     position: absolute;
     left: 24px;
-    top: 43px;
+    top: 29px; /* Absolute Y 43px (14+29) */
     width: 76px;
-    height: 36px;
+    height: 16px;
     background: transparent;
     border: none;
     margin: 0;
