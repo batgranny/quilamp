@@ -11,6 +11,7 @@ window.playerState = {
     isRepeat: false,
     displayRemaining: false
 };
+const trackMetadata = {}; // Cache for metadata { title, artist }
 
 // DOM Elements
 const timeDisplay = document.getElementById('time-display');
@@ -442,13 +443,47 @@ function readID3Tags(filePath) {
     });
 }
 
+// Debounced playlist rendering to avoid flickering when metadata is fetched in bulk
+let renderTimeout = null;
+function debouncedRenderPlaylist() {
+    if (renderTimeout) clearTimeout(renderTimeout);
+    renderTimeout = setTimeout(() => {
+        renderPlaylist();
+    }, 50);
+}
+
+async function fetchMetadata(filePath) {
+    if (trackMetadata[filePath]) return;
+    
+    let tags = null;
+    if (window.electronAPI && window.electronAPI.getMetadata) {
+        tags = await window.electronAPI.getMetadata(filePath);
+    } else {
+        tags = await readID3Tags(filePath);
+    }
+
+    if (tags && (tags.title || tags.artist)) {
+        trackMetadata[filePath] = {
+            title: tags.title,
+            artist: tags.artist
+        };
+        debouncedRenderPlaylist();
+    }
+}
+
 // Render Playlist
 function renderPlaylist() {
     playlistItemsContainer.innerHTML = '';
     trackList.forEach((filePath, index) => {
-        const fileName = filePath.split('/').pop().split('\\').pop();
+        const metadata = trackMetadata[filePath];
+        let displayName = filePath.split('/').pop().split('\\').pop(); // Default to filename
+        
+        if (metadata && metadata.title) {
+            displayName = metadata.title;
+        }
+
         const li = document.createElement('li');
-        li.textContent = `${index + 1}. ${fileName}`;
+        li.textContent = `${index + 1}. ${displayName}`;
 
         if (index === currentTrackIndex) {
             li.classList.add('active');
@@ -481,26 +516,48 @@ async function loadTrack(index) {
         startVisualizer();
         renderPlaylist();
 
-        // Try to read metadata via IPC
+        // Try to read metadata via IPC if not already cached
         window.currentTrackDuration = 0;
+        
+        const cached = trackMetadata[filePath];
+        if (cached && cached.title) {
+            if (cached.artist) {
+                trackNameDisplay.textContent = `${cached.artist} - ${cached.title}`;
+            } else {
+                trackNameDisplay.textContent = cached.title;
+            }
+        }
+
         if (window.electronAPI && window.electronAPI.getMetadata) {
             const tags = await window.electronAPI.getMetadata(filePath);
             if (tags) {
                 if (tags.duration) window.currentTrackDuration = tags.duration;
+                
+                // Update cache if missing or new info found
+                if (!trackMetadata[filePath] || !trackMetadata[filePath].title) {
+                    trackMetadata[filePath] = { title: tags.title, artist: tags.artist };
+                    renderPlaylist();
+                }
+
                 if (tags.artist && tags.title) {
                     trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
                 } else if (tags.title) {
                     trackNameDisplay.textContent = tags.title;
                 }
-                // else keep the filename
             }
         } else {
             // Fallback for browser testing
             const tags = await readID3Tags(filePath);
-            if (tags.artist && tags.title) {
-                trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
-            } else if (tags.title) {
-                trackNameDisplay.textContent = tags.title;
+            if (tags.title) {
+                if (!trackMetadata[filePath]) {
+                    trackMetadata[filePath] = { title: tags.title, artist: tags.artist };
+                    renderPlaylist();
+                }
+                if (tags.artist) {
+                    trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
+                } else {
+                    trackNameDisplay.textContent = tags.title;
+                }
             }
         }
     }
@@ -905,6 +962,7 @@ if (window.electronAPI) {
         const filePaths = await window.electronAPI.openFileDialog();
         if (filePaths && filePaths.length > 0) {
             trackList = filePaths;
+            filePaths.forEach(fetchMetadata);
             loadTrack(0);
         }
     });
@@ -919,6 +977,7 @@ if (window.electronAPI) {
                 // Avoid duplicates by filtering (optional, but good practice)
                 const newPaths = filePaths.filter(p => !trackList.includes(p));
                 trackList = trackList.concat(newPaths);
+                newPaths.forEach(fetchMetadata);
 
                 renderPlaylist();
 
@@ -978,6 +1037,7 @@ if (window.electronAPI) {
             const loadedTracks = await window.electronAPI.loadPlaylist();
             if (loadedTracks && loadedTracks.length > 0) {
                 trackList = loadedTracks;
+                loadedTracks.forEach(fetchMetadata);
                 renderPlaylist();
                 loadTrack(0);
             }
@@ -1010,6 +1070,7 @@ if (window.electronAPI) {
 
             if (audioPaths.length > 0) {
                 trackList = trackList.concat(audioPaths);
+                audioPaths.forEach(fetchMetadata);
                 if (!audio.src) {
                     loadTrack(trackList.length - audioPaths.length); // Play first newly added track
                 }
@@ -1079,6 +1140,7 @@ if (window.electronAPI) {
             const wasEmpty = trackList.length === 0;
             const newPaths = paths.filter(p => !trackList.includes(p));
             trackList = trackList.concat(newPaths);
+            newPaths.forEach(fetchMetadata);
             renderPlaylist();
             if (wasEmpty && !audio.src && trackList.length > 0) {
                 loadTrack(0);
