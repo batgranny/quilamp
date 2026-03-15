@@ -9,7 +9,8 @@
     "dev": "vite",
     "build": "vite build && electron-builder",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "test": "vitest run"
   },
   "dependencies": {
     "butterchurn": "^2.6.7",
@@ -21,7 +22,8 @@
   "devDependencies": {
     "electron": "^29.1.5",
     "electron-builder": "^24.13.3",
-    "vite": "^5.2.0"
+    "vite": "^5.2.0",
+    "vitest": "^4.1.0"
   },
   "build": {
     "appId": "com.chrisconnolly.quilamp",
