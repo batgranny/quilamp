@@ -8,6 +8,7 @@ A modern, cross-platform clone of the classic Winamp media player built with Ele
 - **Playlist Management**: Eject (Open Dialog) to add `.mp3`, `.wav`, or `.ogg` files or drag & drop files directly onto the player.
 - **Volume & Panning**: Volume slider (panning UI included, backend to be expanded).
 - **Draggable Frameless Windows**: Fully native feel with invisible borders and a custom draggable titlebar.
+- **ProjectM Visualization**: Immersive MilkDrop-compatible visualizer window (powered by [Butterchurn](https://github.com/jberg/butterchurn)).
 
 ## Quick Start (Development)
 
@@ -58,4 +59,5 @@ After the build completes, look in the `dist/` directory for the `Quinamp-1.0.0-
 ## Built With
 - **Electron**
 - **Vite**
+- **Butterchurn** (MilkDrop 2 WebGL implementation)
 - **Vanilla web tech**

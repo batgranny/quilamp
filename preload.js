@@ -13,5 +13,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     readSkinFile: (filename) => ipcRenderer.invoke('read-skin-file', filename),
     onLoadSkin: (callback) => ipcRenderer.on('load-skin', (event, data) => callback(data)),
     onResetSkin: (callback) => ipcRenderer.on('reset-skin', () => callback()),
-    onAddTracks: (callback) => ipcRenderer.on('add-tracks', (event, paths) => callback(paths))
+    onAddTracks: (callback) => ipcRenderer.on('add-tracks', (event, paths) => callback(paths)),
+    sendAudioData: (data) => ipcRenderer.send('audio-data', data),
+    onAudioData: (callback) => ipcRenderer.on('audio-data', (event, data) => callback(data))
 });
