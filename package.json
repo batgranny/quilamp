@@ -2,7 +2,7 @@
   "name": "quilmp",
   "version": "1.1.0",
   "description": "Winamp clone for macOS",
-  "author": "Chris Connolly",
+  "author": "Batgranny",
   "main": "main.js",
   "scripts": {
     "start": "NODE_ENV=production electron .",
@@ -25,7 +25,7 @@
   },
   "build": {
     "appId": "com.chrisconnolly.quilmp",
-    "productName": "Quilmp",
+    "productName": "Quilamp",
     "mac": {
       "category": "public.app-category.music"
     },

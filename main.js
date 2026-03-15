@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Force application name for macOS menu bar when running unpackaged
 if (process.platform === 'darwin') {
-    app.setName('Quilmp');
+    app.setName('Quilamp');
 }
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
@@ -44,7 +44,7 @@ function createWindow() {
         {
             label: app.name,
             submenu: [
-                { label: 'About Quilmp', click: createAboutWindow },
+                { label: 'About Quilamp', click: createAboutWindow },
                 { type: 'separator' },
                 { role: 'services' },
                 { type: 'separator' },
@@ -121,7 +121,7 @@ function createAboutWindow() {
         resizable: false,
         minimizable: false,
         maximizable: false,
-        title: 'About Quilmp',
+        title: 'About Quilamp',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -147,7 +147,7 @@ function createVisualizerWindow() {
     visualizerWindow = new BrowserWindow({
         width: 800,
         height: 600,
-        title: 'Quilmp ProjectM Visualizer',
+        title: 'Quilamp ProjectM Visualizer',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -375,8 +375,8 @@ ipcMain.on('show-context-menu', (event) => {
             ]
         },
         { type: 'separator' },
-        { label: 'Quit Quilmp', click: () => app.quit() },
-        { label: 'About Quilmp', click: () => createAboutWindow() }
+        { label: 'Quit Quilamp', click: () => app.quit() },
+        { label: 'About Quilamp', click: () => createAboutWindow() }
     ];
 
     const menu = Menu.buildFromTemplate(template);

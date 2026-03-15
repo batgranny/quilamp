@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <title>Quilmp Visualizer</title>
+    <title>Quilamp Visualizer</title>
     <style>
         body {
             margin: 0;
@@ -10,11 +11,13 @@
             overflow: hidden;
             background-color: #000;
         }
+
         canvas {
             display: block;
             width: 100vw;
             height: 100vh;
         }
+
         #preset-display {
             position: absolute;
             bottom: 20px;
@@ -27,17 +30,20 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 1s ease-in-out;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             z-index: 100;
         }
+
         #preset-display.show {
             opacity: 1;
         }
     </style>
 </head>
+
 <body>
     <div id="preset-display"></div>
     <canvas id="canvas"></canvas>
     <script type="module" src="./src/visualizer.js"></script>
 </body>
+
 </html>

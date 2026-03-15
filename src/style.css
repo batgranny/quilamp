@@ -167,7 +167,7 @@ body.skin-active #playlist-title-bar {
     border: none !important;
     margin: 0 !important;
     padding: 0 25px !important;
-    /* Padding keeps the Quilmp text out of the corner graphics */
+    /* Padding keeps the Quilamp text out of the corner graphics */
 }
 
 body.skin-active #playlist-box {
@@ -684,7 +684,8 @@ body.skin-active #time-display {
 body.skin-active .visualizer {
     position: absolute;
     left: 24px;
-    top: 29px; /* Absolute Y 43px (14+29) */
+    top: 29px;
+    /* Absolute Y 43px (14+29) */
     width: 76px;
     height: 16px;
     background: transparent;
