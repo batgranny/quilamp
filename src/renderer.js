@@ -59,7 +59,7 @@ let barHeights = new Array(numBars).fill(0);
 function initVisualizer() {
     const container = document.querySelector('.visualizer');
     if (!container) return;
-    
+
     visualizerCanvas = document.createElement('canvas');
     visualizerCanvas.width = 76;
     visualizerCanvas.height = 16;
@@ -77,11 +77,11 @@ function startVisualizer() {
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
     }
-    
+
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
-    
+
     if (!animationId) {
         animate();
     }
@@ -116,7 +116,7 @@ function animate() {
     const barWidth = 2; // Fixed winamp style bar width
     const gap = 1;
     const totalBarWidth = barWidth + gap;
-    
+
     for (let i = 0; i < numBars; i++) {
         // Group frequency bins into bars. We focus on the lower/mid frequencies mostly.
         const binStart = Math.floor(i * (bufferLength / 2) / numBars);
@@ -126,10 +126,10 @@ function animate() {
             val += dataArray[j];
         }
         val /= (binEnd - binStart);
-        
+
         // Scale to canvas height
         let targetHeight = (val / 255) * h;
-        
+
         // Gravity effect for bars
         if (targetHeight > barHeights[i]) {
             barHeights[i] = targetHeight;
@@ -464,7 +464,7 @@ function debouncedRenderPlaylist() {
 
 async function fetchMetadata(filePath) {
     if (trackMetadata[filePath]) return;
-    
+
     let tags = null;
     if (window.electronAPI && window.electronAPI.getMetadata) {
         tags = await window.electronAPI.getMetadata(filePath);
@@ -487,7 +487,7 @@ function renderPlaylist() {
     trackList.forEach((filePath, index) => {
         const metadata = trackMetadata[filePath];
         let displayName = filePath.split('/').pop().split('\\').pop(); // Default to filename
-        
+
         if (metadata && metadata.title) {
             displayName = metadata.title;
         }
@@ -528,7 +528,7 @@ async function loadTrack(index) {
 
         // Try to read metadata via IPC if not already cached
         window.currentTrackDuration = 0;
-        
+
         const cached = trackMetadata[filePath];
         if (cached && cached.title) {
             if (cached.artist) {
@@ -542,7 +542,7 @@ async function loadTrack(index) {
             const tags = await window.electronAPI.getMetadata(filePath);
             if (tags) {
                 if (tags.duration) window.currentTrackDuration = tags.duration;
-                
+
                 // Update cache if missing or new info found
                 if (!trackMetadata[filePath] || !trackMetadata[filePath].title) {
                     trackMetadata[filePath] = { title: tags.title, artist: tags.artist };
@@ -644,7 +644,7 @@ async function applySkin(file) {
             const lines = viscolorTxt.split('\n')
                 .map(line => line.split('//')[0].trim())
                 .filter(line => line.length > 0);
-            
+
             if (lines.length >= 24) {
                 // Winamp viscolor.txt has 24 colors
                 const newVisColors = lines.slice(0, 24).map(line => {
@@ -1028,7 +1028,7 @@ if (window.electronAPI) {
             trackList = [];
             currentTrackIndex = -1;
             audio.src = '';
-            document.querySelector('.marquee span').textContent = '*** QUILLAMP *** WINAMP CLONE ***';
+            document.querySelector('.marquee span').textContent = '*** QUILAMP *** WINAMP CLONE ***';
             timeDisplay.textContent = '00:00';
             renderPlaylist();
         });

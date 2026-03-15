@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Quillamp</title>
+    <title>Quilamp</title>
     <!-- We will use a web font for the digital display, and system fonts for others -->
     <link
         href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap"
@@ -19,7 +19,7 @@
         <!-- The main winamp player UI -->
         <div id="player-container">
             <div id="title-bar" class="drag-region">
-                <div class="title-text">QUILLAMP</div>
+                <div class="title-text">QUILAMP</div>
                 <div class="window-controls no-drag">
                     <button id="btn-minimize" class="ctrl-btn">_</button>
                     <button id="btn-close" class="ctrl-btn">x</button>
@@ -36,7 +36,7 @@
 
                     <div id="track-info">
                         <div id="track-name" class="marquee">
-                            <span>*** QUILLAMP *** WINAMP CLONE ***</span>
+                            <span>*** QUILAMP *** WINAMP CLONE ***</span>
                         </div>
                         <div class="audio-stats">
                             <span id="kbps">128</span> kbps
@@ -64,14 +64,41 @@
                 </div>
 
                 <div class="playback-controls no-drag">
-                    <button id="btn-prev" class="play-btn" title="Previous"><svg viewBox="0 0 10 10"><rect x="1" y="2" width="1.5" height="6"/><polygon points="2.5,5 8,2 8,8"/></svg></button>
-                    <button id="btn-play" class="play-btn" title="Play"><svg viewBox="0 0 10 10"><polygon points="2,2 8,5 2,8"/></svg></button>
-                    <button id="btn-pause" class="play-btn" title="Pause"><svg viewBox="0 0 10 10"><rect x="2" y="2" width="2" height="6"/><rect x="6" y="2" width="2" height="6"/></svg></button>
-                    <button id="btn-stop" class="play-btn" title="Stop"><svg viewBox="0 0 10 10"><rect x="2" y="2" width="6" height="6"/></svg></button>
-                    <button id="btn-next" class="play-btn" title="Next"><svg viewBox="0 0 10 10"><polygon points="2,2 7.5,5 2,8"/><rect x="7.5" y="2" width="1.5" height="6"/></svg></button>
-                    <button id="btn-eject" class="play-btn" title="Open File(s)"><svg viewBox="0 0 10 10"><polygon points="5,2 8,5 2,5"/><rect x="2" y="6" width="6" height="1.5"/></svg></button>
-                    <button id="btn-shuffle" class="toggle-btn" title="Shuffle"><svg viewBox="0 0 10 10"><path d="M1,2.5 L3,2.5 L7,7.5 L9,7.5" fill="none" stroke="currentColor" stroke-width="1"/><path d="M1,7.5 L3,7.5 L4.2,6.3 M5.8,3.7 L7,2.5 L9,2.5" fill="none" stroke="currentColor" stroke-width="1"/><polygon points="9,7.5 7,6.5 7,8.5" fill="currentColor"/><polygon points="9,2.5 7,1.5 7,3.5" fill="currentColor"/></svg></button>
-                    <button id="btn-repeat" class="toggle-btn" title="Repeat"><svg viewBox="0 0 10 10"><path d="M2,3 L8,3 A2,2 0 0,1 10,5 A2,2 0 0,1 8,7 L2,7 A2,2 0 0,1 0,5 A2,2 0 0,1 2,3" fill="none" stroke="currentColor" stroke-width="1"/><polygon points="4,2 6,3 4,4" fill="currentColor"/><polygon points="6,6 4,7 6,8" fill="currentColor"/></svg></button>
+                    <button id="btn-prev" class="play-btn" title="Previous"><svg viewBox="0 0 10 10">
+                            <rect x="1" y="2" width="1.5" height="6" />
+                            <polygon points="2.5,5 8,2 8,8" />
+                        </svg></button>
+                    <button id="btn-play" class="play-btn" title="Play"><svg viewBox="0 0 10 10">
+                            <polygon points="2,2 8,5 2,8" />
+                        </svg></button>
+                    <button id="btn-pause" class="play-btn" title="Pause"><svg viewBox="0 0 10 10">
+                            <rect x="2" y="2" width="2" height="6" />
+                            <rect x="6" y="2" width="2" height="6" />
+                        </svg></button>
+                    <button id="btn-stop" class="play-btn" title="Stop"><svg viewBox="0 0 10 10">
+                            <rect x="2" y="2" width="6" height="6" />
+                        </svg></button>
+                    <button id="btn-next" class="play-btn" title="Next"><svg viewBox="0 0 10 10">
+                            <polygon points="2,2 7.5,5 2,8" />
+                            <rect x="7.5" y="2" width="1.5" height="6" />
+                        </svg></button>
+                    <button id="btn-eject" class="play-btn" title="Open File(s)"><svg viewBox="0 0 10 10">
+                            <polygon points="5,2 8,5 2,5" />
+                            <rect x="2" y="6" width="6" height="1.5" />
+                        </svg></button>
+                    <button id="btn-shuffle" class="toggle-btn" title="Shuffle"><svg viewBox="0 0 10 10">
+                            <path d="M1,2.5 L3,2.5 L7,7.5 L9,7.5" fill="none" stroke="currentColor" stroke-width="1" />
+                            <path d="M1,7.5 L3,7.5 L4.2,6.3 M5.8,3.7 L7,2.5 L9,2.5" fill="none" stroke="currentColor"
+                                stroke-width="1" />
+                            <polygon points="9,7.5 7,6.5 7,8.5" fill="currentColor" />
+                            <polygon points="9,2.5 7,1.5 7,3.5" fill="currentColor" />
+                        </svg></button>
+                    <button id="btn-repeat" class="toggle-btn" title="Repeat"><svg viewBox="0 0 10 10">
+                            <path d="M2,3 L8,3 A2,2 0 0,1 10,5 A2,2 0 0,1 8,7 L2,7 A2,2 0 0,1 0,5 A2,2 0 0,1 2,3"
+                                fill="none" stroke="currentColor" stroke-width="1" />
+                            <polygon points="4,2 6,3 4,4" fill="currentColor" />
+                            <polygon points="6,6 4,7 6,8" fill="currentColor" />
+                        </svg></button>
                 </div>
             </div>
         </div>
@@ -79,7 +106,7 @@
         <!-- Playlist Window -->
         <div id="playlist-container">
             <div id="playlist-title-bar" class="drag-region">
-                <div class="title-text">QUILLAMP PLAYLIST</div>
+                <div class="title-text">QUILAMP PLAYLIST</div>
             </div>
             <div id="playlist-box">
                 <ul id="playlist-items" class="no-drag">

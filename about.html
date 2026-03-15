@@ -1,46 +1,43 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
-    <title>About Quinamp</title>
+    <title>About Quilamp</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #2c2c2c;
             color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 30px;
             text-align: center;
-            -webkit-app-region: drag;
         }
-        .container {
-            border: 1px solid #444;
-            padding: 20px;
-            background-color: #333;
-            border-radius: 8px;
-        }
-        h1 {
-            font-size: 24px;
+
+        .logo {
+            font-size: 48px;
+            font-weight: 800;
             margin-bottom: 5px;
-            color: #00ffd0;
+            letter-spacing: -1px;
         }
-        .tagline {
-            font-size: 14px;
-            color: #aaa;
-            margin-bottom: 20px;
+
+        .version {
+            opacity: 0.6;
+            margin-bottom: 30px;
         }
-        .info {
+
+        .credits {
             font-size: 14px;
             line-height: 1.6;
+            opacity: 0.8;
         }
-        a {
-            color: #00ffd0;
+
+        .link {
+            color: #4facfe;
             text-decoration: none;
-            -webkit-app-region: no-drag;
+            cursor: pointer;
         }
-        a:hover {
-            text-decoration: underline;
-        }
+
         .close-btn {
             margin-top: 20px;
             padding: 8px 20px;
@@ -51,47 +48,33 @@
             cursor: pointer;
             -webkit-app-region: no-drag;
         }
+
         .close-btn:hover {
             background-color: #555;
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>Quinamp</h1>
-        <div class="tagline">The Ultimate Winamp Clone for macOS</div>
-        <div class="info">
-            <p>Version: <span id="version">1.2.0-alpha.0</span></p>
-            <p>Build Date: <span id="build-date">March 12, 2026</span></p>
-            <p>Author: Chris Connolly</p>
-            <p>GitHub: <a href="#" id="github-link">github.com/chrisconnolly/quinamp</a></p>
-        </div>
-        <button class="close-btn" id="close-btn">Close</button>
+    <div class="logo">Quilamp</div>
+    <div class="version">Version 1.1.0</div>
+    <div class="credits">
+        A modern, cross-platform media player inspired by the classic Winamp.<br><br>
+        Developed by <strong>Batgranny</strong><br>
+        Built with Electron, Vite, and Vanilla JS.<br><br>
+        <div class="link" id="github-link">GitHub Repository</div>
     </div>
 
     <script>
-        const { ipcRenderer } = require('electron');
-
-        // Close button logic
-        document.getElementById('close-btn').addEventListener('click', () => {
-            window.close();
-        });
-
         // Open GitHub link in system browser
         document.getElementById('github-link').addEventListener('click', (e) => {
             e.preventDefault();
             const url = 'https://github.com/chrisconnolly/quinamp';
-            window.parent.postMessage({ type: 'open-external', url: url }, '*');
-            // Alternatively, if we have shell access in preload:
             if (window.electronAPI && window.electronAPI.openExternal) {
                 window.electronAPI.openExternal(url);
             }
         });
-
-        // Listen for data from main process if needed
-        window.addEventListener('message', (event) => {
-             // Handle data
-        });
     </script>
 </body>
+
 </html>

@@ -1,4 +1,4 @@
-# TODO LIST QUINAMP
+# TODO LIST QUILAMP
 
 1. [x] write a script that can be run from the command line that will build the project and then run the electron app.  Place it in a /scripts directory
 
@@ -15,14 +15,14 @@
  right click > 
    Open File(s) (Should allow loading of files and playlists)
    Open Folder (Should allow loading of a folder of files)
-   Themes >  
+   Themes >
       Default
       /SKINS FOLDER ITEM1
       /SKINS FOLDER ITEM2
       etc
       Load Skin (should allow the user to browse the computer for a winamp skin file)
-   Quit Quinamp (should exit the application)
-   About Quinamp (should open the about window)
+   Quit Quilamp (should exit the application)
+   About Quilamp (should open the about window)
 
 
 6. [x] The 'repeat' and 'shuffle' buttons should toggle on and off when clicked and they currently do no work
