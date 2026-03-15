@@ -32,6 +32,14 @@
       "category": "public.app-category.music"
     },
     "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "executableName": "Quilamp"
     },
     "nsis": {
@@ -40,7 +48,8 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "Quilamp"
+      "shortcutName": "Quilamp",
+      "uninstallDisplayName": "Quilamp"
     },
     "directories": {
       "buildResources": "build",
