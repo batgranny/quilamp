@@ -2,7 +2,6 @@ import butterchurn from 'butterchurn';
 import butterchurnPresets from 'butterchurn-presets';
 
 const canvas = document.getElementById('canvas');
-const infoEl = document.getElementById('info');
 
 let visualizer = null;
 let presets = null;
@@ -11,30 +10,16 @@ let currentPresetIndex = 0;
 
 let audioContext = null;
 let analyser = null;
-let silentSource = null;
 let scriptNode = null;
 
 let lastAudioData = null;
 let lastAudioTime = 0;
 let frameCount = 0;
+let isLocked = false;
 
-function updateStatus(text, isError = false) {
-    console.log(`[Visualizer] ${text}`);
-    if (infoEl) {
-        infoEl.innerText = text;
-        if (isError) {
-            infoEl.style.color = '#ff9090';
-            infoEl.style.fontWeight = 'bold';
-        } else {
-            infoEl.style.color = 'rgba(255, 255, 255, 0.5)';
-            infoEl.style.fontWeight = 'normal';
-        }
-    }
-}
-
-// Global error handling
+// Trap global errors for console
 window.onerror = (msg, url, line, col, error) => {
-    updateStatus(`JS Error: ${msg} (${line}:${col})`, true);
+    console.error(`[Visualizer] JS Error: ${msg} (${line}:${col})`);
     return false;
 };
 
@@ -45,16 +30,13 @@ function initAudioBridge() {
         analyser.fftSize = 1024;
 
         // Use a ScriptProcessor to inject audio data arriving via IPC
-        // 1024 buffer size, 0 inputs, 1 output (mono is fine for viz)
         scriptNode = audioContext.createScriptProcessor(1024, 0, 1);
         
         scriptNode.onaudioprocess = (e) => {
             const output = e.outputBuffer.getChannelData(0);
             if (lastAudioData && lastAudioData.timeData) {
-                // Convert Uint8 (0-255) to Float32 (-1.0 to 1.0)
                 const data = lastAudioData.timeData;
                 for (let i = 0; i < output.length; i++) {
-                    // Safety check: if our IPC buffer is smaller than block size
                     if (i < data.length) {
                         output[i] = (data[i] - 128) / 128.0;
                     } else {
@@ -66,7 +48,6 @@ function initAudioBridge() {
             }
         };
 
-        // Connect everything: Script -> Analyser -> Destination (muted)
         const gain = audioContext.createGain();
         gain.gain.value = 0; // Mute local output
 
@@ -74,15 +55,14 @@ function initAudioBridge() {
         analyser.connect(gain);
         gain.connect(audioContext.destination);
 
-        updateStatus('Audio bridge initialized');
         return true;
     } catch (e) {
-        updateStatus(`Audio Bridge Error: ${e.message}`, true);
+        console.error(`Audio Bridge Error: ${e.message}`);
         return false;
     }
 }
 
-function start() {
+async function start() {
     try {
         presets = butterchurnPresets.getPresets();
         presetKeys = Object.keys(presets);
@@ -129,8 +109,25 @@ function start() {
         }
     });
 
+    // Keyboard controls
+    window.addEventListener('keydown', (e) => {
+        if (!visualizer) return;
+        
+        if (e.code === 'Space' || e.code === 'ArrowRight') {
+            currentPresetIndex = (currentPresetIndex + 1) % presetKeys.length;
+            visualizer.loadPreset(presets[presetKeys[currentPresetIndex]], 2.0);
+        } else if (e.code === 'ArrowLeft') {
+            currentPresetIndex = (currentPresetIndex - 1 + presetKeys.length) % presetKeys.length;
+            visualizer.loadPreset(presets[presetKeys[currentPresetIndex]], 2.0);
+        } else if (e.code === 'KeyL') {
+            isLocked = !isLocked;
+            console.log(`Preset rotation ${isLocked ? 'locked' : 'unlocked'}`);
+        }
+    });
+
+    // Cycle presets
     setInterval(() => {
-        if (visualizer) {
+        if (visualizer && !isLocked) {
             currentPresetIndex = (currentPresetIndex + 1) % presetKeys.length;
             const nextPreset = presets[presetKeys[currentPresetIndex]];
             visualizer.loadPreset(nextPreset, 5.7);
