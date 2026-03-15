@@ -8,6 +8,7 @@ if (process.platform === 'darwin') {
 }
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
+let visualizerWindow = null;
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
@@ -137,6 +138,40 @@ function createAboutWindow() {
     aboutWindow.loadFile(path.join(__dirname, 'about.html'));
 }
 
+function createVisualizerWindow() {
+    if (visualizerWindow) {
+        visualizerWindow.focus();
+        return;
+    }
+
+    visualizerWindow = new BrowserWindow({
+        width: 800,
+        height: 600,
+        title: 'Quillamp ProjectM Visualizer',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
+            webSecurity: false
+        },
+        backgroundColor: '#000000',
+        icon: path.join(__dirname, 'build/icon.png')
+    });
+
+    if (isDev) {
+        visualizerWindow.loadURL('http://localhost:5173/visualizer.html').catch(() => {
+            visualizerWindow.loadFile(path.join(__dirname, 'visualizer.html'));
+        });
+        visualizerWindow.webContents.openDevTools({ mode: 'detach' });
+    } else {
+        visualizerWindow.loadFile(path.join(__dirname, 'dist/visualizer.html'));
+    }
+
+    visualizerWindow.on('closed', () => {
+        visualizerWindow = null;
+    });
+}
+
 ipcMain.handle('open-external', async (event, url) => {
     await shell.openExternal(url);
 });
@@ -162,6 +197,12 @@ ipcMain.handle('minimize-window', (event) => {
 ipcMain.handle('close-window', (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win) win.close();
+});
+
+ipcMain.on('audio-data', (event, data) => {
+    if (visualizerWindow && !visualizerWindow.isDestroyed()) {
+        visualizerWindow.webContents.send('audio-data', data);
+    }
 });
 
 ipcMain.handle('save-playlist', async (event, trackList) => {
@@ -294,6 +335,11 @@ ipcMain.on('show-context-menu', (event) => {
                     if (audioFiles.length > 0) event.sender.send('add-tracks', audioFiles);
                 }
             }
+        },
+        { type: 'separator' },
+        {
+            label: 'ProjectM Visualizer',
+            click: () => createVisualizerWindow()
         },
         { type: 'separator' },
         {

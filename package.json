@@ -12,6 +12,8 @@
     "dist": "electron-builder"
   },
   "dependencies": {
+    "butterchurn": "^2.6.7",
+    "butterchurn-presets": "^2.4.7",
     "jsmediatags": "^3.9.7",
     "jszip": "^3.10.1",
     "music-metadata": "^11.12.1"

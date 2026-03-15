@@ -72,7 +72,7 @@ function startVisualizer() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
+        analyser.fftSize = 1024;
         source = audioCtx.createMediaElementSource(audio);
         source.connect(analyser);
         analyser.connect(audioCtx.destination);
@@ -93,7 +93,17 @@ function animate() {
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
+    const timeDataArray = new Uint8Array(analyser.fftSize);
     analyser.getByteFrequencyData(dataArray);
+    analyser.getByteTimeDomainData(timeDataArray);
+
+    // Stream to visualizer window if active
+    if (window.electronAPI && window.electronAPI.sendAudioData) {
+        window.electronAPI.sendAudioData({
+            timeData: timeDataArray,
+            freqData: dataArray
+        });
+    }
 
     const ctx = visualizerCtx;
     const w = visualizerCanvas.width;
