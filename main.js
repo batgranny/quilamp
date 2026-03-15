@@ -103,7 +103,7 @@ function createWindow() {
                 {
                     label: 'Learn More',
                     click: async () => {
-                        await shell.openExternal('https://github.com/chrisconnolly/quilmp');
+                        await shell.openExternal('https://github.com/chrisconnolly/quilamp');
                     }
                 }
             ]

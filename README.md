@@ -20,7 +20,7 @@ Ensure you have [Node.js](https://nodejs.org/) installed, then follow these step
 
 1. Navigate to the repository:
    ```bash
-   cd quilmp
+   cd quilamp
    ```
 
 2. Install dependencies:
