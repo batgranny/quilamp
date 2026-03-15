@@ -4,7 +4,7 @@ const fs = require('fs');
 
 // Force application name for macOS menu bar when running unpackaged
 if (process.platform === 'darwin') {
-    app.setName('Quillamp');
+    app.setName('Quilmp');
 }
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
@@ -44,7 +44,7 @@ function createWindow() {
         {
             label: app.name,
             submenu: [
-                { label: 'About Quillamp', click: createAboutWindow },
+                { label: 'About Quilmp', click: createAboutWindow },
                 { type: 'separator' },
                 { role: 'services' },
                 { type: 'separator' },
@@ -103,7 +103,7 @@ function createWindow() {
                 {
                     label: 'Learn More',
                     click: async () => {
-                        await shell.openExternal('https://github.com/chrisconnolly/quillamp');
+                        await shell.openExternal('https://github.com/chrisconnolly/quilmp');
                     }
                 }
             ]
@@ -121,7 +121,7 @@ function createAboutWindow() {
         resizable: false,
         minimizable: false,
         maximizable: false,
-        title: 'About Quillamp',
+        title: 'About Quilmp',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -147,7 +147,7 @@ function createVisualizerWindow() {
     visualizerWindow = new BrowserWindow({
         width: 800,
         height: 600,
-        title: 'Quillamp ProjectM Visualizer',
+        title: 'Quilmp ProjectM Visualizer',
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -375,8 +375,8 @@ ipcMain.on('show-context-menu', (event) => {
             ]
         },
         { type: 'separator' },
-        { label: 'Quit Quillamp', click: () => app.quit() },
-        { label: 'About Quillamp', click: () => createAboutWindow() }
+        { label: 'Quit Quilmp', click: () => app.quit() },
+        { label: 'About Quilmp', click: () => createAboutWindow() }
     ];
 
     const menu = Menu.buildFromTemplate(template);

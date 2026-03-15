@@ -1,5 +1,5 @@
 {
-  "name": "quillamp",
+  "name": "quilmp",
   "version": "1.1.0",
   "description": "Winamp clone for macOS",
   "author": "Chris Connolly",
@@ -24,8 +24,8 @@
     "vite": "^5.2.0"
   },
   "build": {
-    "appId": "com.chrisconnolly.quillamp",
-    "productName": "Quillamp",
+    "appId": "com.chrisconnolly.quilmp",
+    "productName": "Quilmp",
     "mac": {
       "category": "public.app-category.music"
     },

@@ -1028,7 +1028,7 @@ if (window.electronAPI) {
             trackList = [];
             currentTrackIndex = -1;
             audio.src = '';
-            document.querySelector('.marquee span').textContent = '*** QUILLAMP *** WINAMP CLONE ***';
+            document.querySelector('.marquee span').textContent = '*** QUILMP *** WINAMP CLONE ***';
             timeDisplay.textContent = '00:00';
             renderPlaylist();
         });
