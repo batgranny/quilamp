@@ -165,10 +165,10 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
         // This is much more robust than detecting it from getBoundingClientRect
         const deltaX = (e.clientX - startX) / CSS_ZOOM;
         let targetLeftCSS = startLeftCSS + deltaX;
-        
+
         let maxLeftCSS = logicalTrackWidth - logicalThumbWidth;
         let clampedLeftCSS = Math.max(0, Math.min(maxLeftCSS, targetLeftCSS));
-        
+
         value = maxLeftCSS > 0 ? clampedLeftCSS / maxLeftCSS : 0;
         thumb.style.left = `${clampedLeftCSS}px`;
         onChange(value);
@@ -179,7 +179,7 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
 
     thumb.addEventListener('mousedown', (e) => {
         if (onStart) onStart(); // Call immediately to lock UI feedback
-        
+
         dragging = true;
         startX = e.clientX;
         startLeftCSS = parseFloat(thumb.style.left) || 0;
@@ -191,11 +191,11 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
 
     track.addEventListener('mousedown', (e) => {
         if (onStart) onStart(); // Call immediately
-        
+
         const rect = track.getBoundingClientRect();
         const logicalTrackWidth = getLogicalWidth(track);
         const logicalThumbWidth = getLogicalWidth(thumb);
-        
+
         // Use the hardcoded zoom for calculating click position relative to logical pixels
         // We assume rect.left is in the same coordinate space as clientX (Physical/Viewport)
         // If it's not, the browser will likely report them both as CSS which also works.
@@ -203,7 +203,7 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
         let targetLeftCSS = mouseXCSS - (logicalThumbWidth / 2);
         let maxLeftCSS = logicalTrackWidth - logicalThumbWidth;
         let clampedLeftCSS = Math.max(0, Math.min(maxLeftCSS, targetLeftCSS));
-        
+
         value = maxLeftCSS > 0 ? clampedLeftCSS / maxLeftCSS : 0;
         thumb.style.left = `${clampedLeftCSS}px`;
         onChange(value);
@@ -272,12 +272,12 @@ function updateTimeDisplay() {
             seconds = -(duration - audio.currentTime);
         }
     }
-    
+
     if (isNaN(seconds)) {
         timeDisplay.textContent = "00:00";
         return;
     }
-    
+
     const isNegative = seconds < 0;
     const absSeconds = Math.abs(seconds);
     const m = Math.floor(absSeconds / 60).toString().padStart(2, '0');
@@ -412,6 +412,52 @@ async function applySkin(file) {
                 img.src = url;
             });
         };
+
+        // Extract and parse PLEDIT.TXT and VISCOLOR.TXT for colors
+        const extractText = async (filename) => {
+            const fileKey = Object.keys(contents.files).find(
+                key => key.toLowerCase() === filename.toLowerCase()
+            );
+            if (fileKey) {
+                return await contents.files[fileKey].async("text");
+            }
+            return null;
+        };
+
+        const pleditTxt = await extractText('pledit.txt');
+        if (pleditTxt) {
+            const colors = {};
+            pleditTxt.split('\n').forEach(line => {
+                const parts = line.split('=');
+                if (parts.length >= 2) {
+                    const key = parts[0].trim().toLowerCase();
+                    const value = parts[1].trim();
+                    colors[key] = value;
+                }
+            });
+
+            if (colors.normal) {
+                document.documentElement.style.setProperty('--skin-playlist-text-normal', colors.normal);
+                document.documentElement.style.setProperty('--skin-display-color', colors.normal);
+            }
+            if (colors.current) document.documentElement.style.setProperty('--skin-playlist-text-current', colors.current);
+            if (colors.normalbg) document.documentElement.style.setProperty('--skin-playlist-bg-normal', colors.normalbg);
+            if (colors.selectedbg) document.documentElement.style.setProperty('--skin-playlist-bg-selected', colors.selectedbg);
+        }
+
+        const viscolorTxt = await extractText('viscolor.txt');
+        if (viscolorTxt) {
+            const lines = viscolorTxt.split('\n')
+                .map(line => line.split('//')[0].trim())
+                .filter(line => line.length > 0);
+            
+            if (lines[0]) {
+                const rgb = lines[0].split(',').map(c => c.trim());
+                if (rgb.length >= 3 && !document.documentElement.style.getPropertyValue('--skin-display-color')) {
+                    document.documentElement.style.setProperty('--skin-display-color', `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`);
+                }
+            }
+        }
 
         // Extract all skin images
         const mainBmpUrl = await extractImage('main.bmp');

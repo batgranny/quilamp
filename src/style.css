@@ -145,8 +145,8 @@ body.skin-active #title-bar {
 body.skin-active #playlist-container {
     padding: 0 !important;
     border: none !important;
-    background: #000 !important;
-    /* The skin usually tiled PLEDIT.BMP but we'll leave it black for now or user can provide tiling logic */
+    background-color: var(--skin-playlist-bg-normal, #000) !important;
+    background-image: none !important;
     box-shadow: none !important;
 }
 
@@ -217,7 +217,7 @@ body.skin-active #playlist-container::after {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 10px;
-    color: var(--text-primary);
+    color: var(--skin-playlist-text-normal, var(--text-primary));
 }
 
 /* Skinned Playlist Custom Scrollbar */
@@ -267,8 +267,8 @@ body:not(.skin-active) #playlist-scrollbar {
 }
 
 #playlist-items li.active {
-    background: #0000a0;
-    color: #fff;
+    background: var(--skin-playlist-bg-selected, #0000a0);
+    color: var(--skin-playlist-text-current, #ffffff);
 }
 
 #playlist-bottom {
@@ -660,8 +660,8 @@ body.skin-active #time-display {
     justify-content: flex-end;
     background: transparent;
     box-shadow: none;
-    color: #4dfd48;
-    text-shadow: 0 0 8px rgba(77, 253, 72, 0.8);
+    color: var(--skin-display-color, #4dfd48);
+    text-shadow: 0 0 8px var(--skin-display-color, rgba(77, 253, 72, 0.8));
     cursor: pointer;
     z-index: 100;
     /* Ensure it's above other elements */
@@ -793,7 +793,7 @@ body.skin-active #track-name {
     font-weight: 700;
     background: transparent;
     border: none;
-    color: #4dfd48;
+    color: var(--skin-display-color, #4dfd48);
     width: 154px;
     height: 10px;
     line-height: 10px;
