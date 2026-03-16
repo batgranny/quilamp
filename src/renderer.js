@@ -32,6 +32,9 @@ const btnMinimize = document.getElementById('btn-minimize');
 const btnClose = document.getElementById('btn-close');
 const btnShuffle = document.getElementById('btn-shuffle');
 const btnRepeat = document.getElementById('btn-repeat');
+const playlistToggleBtn = document.getElementById('pl-btn-close');
+const playlistInner = document.getElementById('playlist-inner');
+const playlistContainer = document.getElementById('playlist-container');
 
 // --- Web Audio API & Visualizer State ---
 let audioCtx = null;
@@ -181,6 +184,28 @@ if (window.electronAPI) {
             window.electronAPI.closeWindow();
         });
     }
+
+    if (playlistToggleBtn) {
+        playlistToggleBtn.addEventListener('click', togglePlaylist);
+    }
+
+    window.electronAPI.onTogglePlaylist(() => {
+        togglePlaylist();
+    });
+}
+
+function togglePlaylist() {
+    console.log('Toggling playlist visibility...');
+    playlistContainer.classList.toggle('hidden');
+    const isHidden = playlistContainer.classList.contains('hidden');
+
+    if (isHidden) {
+        // Player height: (116px + 2px borders) * 1.5 = 177px. 180px for safety.
+        window.electronAPI.resizeWindow(413, 180);
+    } else {
+        // Default height with playlist
+        window.electronAPI.resizeWindow(413, 696);
+    }
 }
 
 // Custom Playlist Scrollbar Logic
@@ -271,7 +296,7 @@ function initPlaylistScrollbar() {
 initPlaylistScrollbar();
 
 // Custom slider state
-let volumeValue = 1.0; // 0-1
+let volumeValue = 0.7; // 0-1 (70%)
 let panValue = 0.5;    // 0-1 (0.5 = center)
 
 // CSS zoom factor applied to the body — needed to correct getBoundingClientRect coordinates
@@ -371,7 +396,7 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
     };
 }
 
-const volumeControl = makeDraggableSlider(volumeSlider, volumeThumb, 1.0, (ratio) => {
+const volumeControl = makeDraggableSlider(volumeSlider, volumeThumb, 0.7, (ratio) => {
     volumeValue = ratio;
     audio.volume = ratio;
     // Update track background row if skin is active
@@ -385,6 +410,9 @@ const panControl = makeDraggableSlider(panSlider, panThumb, 0.5, (ratio) => {
     const bmpUrl = getSkinUrl('--skin-balance-bg');
     if (bmpUrl) updatePanTrack(ratio, bmpUrl);
 });
+
+// Sync initial audio volume
+audio.volume = volumeValue;
 
 // Helper – extract raw URL from a CSS custom property containing url("...")
 function getSkinUrl(prop) {

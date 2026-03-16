@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onResetSkin: (callback) => ipcRenderer.on('reset-skin', () => callback()),
     onAddTracks: (callback) => ipcRenderer.on('add-tracks', (event, paths) => callback(paths)),
     sendAudioData: (data) => ipcRenderer.send('audio-data', data),
-    onAudioData: (callback) => ipcRenderer.on('audio-data', (event, data) => callback(data))
+    onAudioData: (callback) => ipcRenderer.on('audio-data', (event, data) => callback(data)),
+    onTogglePlaylist: (callback) => ipcRenderer.on('toggle-playlist', () => callback())
 });

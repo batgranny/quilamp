@@ -10,37 +10,27 @@ if (process.platform === 'darwin') {
 const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
 let visualizerWindow = null;
 
-function createWindow() {
-    const mainWindow = new BrowserWindow({
-        width: 413,
-        minWidth: 413,
-        maxWidth: 413,
-        height: 696,
-        minHeight: 348, // 116px player + 116px playlist scaled by 1.5
-        webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            nodeIntegration: false,
-            contextIsolation: true,
-            webSecurity: false
-        },
-        frame: false,
-        transparent: true,
-        resizable: true, // OS window resizable vertically
-        maximizable: false,
-        icon: path.join(__dirname, 'build/icon.png')
-    });
-    if (isDev) {
-        // Try to load via Vite dev server if running, else load local index.html
-        mainWindow.loadURL('http://localhost:5173').catch(() => {
-            mainWindow.loadFile(path.join(__dirname, 'index.html'));
-        });
-        mainWindow.webContents.openDevTools({ mode: 'detach' });
-    } else {
-        mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+// Helper to get skin items for menus
+function getSkinItems() {
+    const skinsDir = path.join(__dirname, 'skins');
+    if (fs.existsSync(skinsDir)) {
+        const files = fs.readdirSync(skinsDir);
+        return files
+            .filter(file => path.extname(file).toLowerCase() === '.wsz')
+            .map(file => ({
+                name: file,
+                label: path.basename(file, '.wsz').replace(/_/g, ' ')
+            }));
     }
+    return [];
+}
 
-    // Set up Application Menu (essential for macOS)
-    const template = [
+// Shared menu template builder
+function getMenuTemplate(focusedWindow) {
+    const skinItems = getSkinItems();
+    const skinsDir = path.join(__dirname, 'skins');
+
+    return [
         {
             label: app.name,
             submenu: [
@@ -58,6 +48,29 @@ function createWindow() {
         {
             label: 'File',
             submenu: [
+                {
+                    label: 'Open File(s)',
+                    accelerator: 'CmdOrCtrl+O',
+                    click: async () => {
+                        const paths = await openFileAndReturnPaths();
+                        if (paths && focusedWindow) focusedWindow.webContents.send('add-tracks', paths);
+                    }
+                },
+                {
+                    label: 'Open Folder',
+                    click: async () => {
+                        const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+                        if (!result.canceled && focusedWindow) {
+                            const folderPath = result.filePaths[0];
+                            const files = fs.readdirSync(folderPath);
+                            const audioFiles = files
+                                .filter(file => /\.(mp3|wav|ogg)$/i.test(file))
+                                .map(file => path.join(folderPath, file));
+                            if (audioFiles.length > 0) focusedWindow.webContents.send('add-tracks', audioFiles);
+                        }
+                    }
+                },
+                { type: 'separator' },
                 { role: 'close' }
             ]
         },
@@ -77,6 +90,58 @@ function createWindow() {
         {
             label: 'View',
             submenu: [
+                {
+                    label: 'Playlist',
+                    accelerator: 'CmdOrCtrl+L',
+                    click: () => {
+                        if (focusedWindow) focusedWindow.webContents.send('toggle-playlist');
+                    }
+                },
+                {
+                    label: 'Visualizer',
+                    accelerator: 'CmdOrCtrl+V',
+                    click: () => createVisualizerWindow()
+                },
+                { type: 'separator' },
+                {
+                    label: 'Themes',
+                    submenu: [
+                        {
+                            label: 'Default',
+                            click: () => {
+                                if (focusedWindow) focusedWindow.webContents.send('reset-skin');
+                            }
+                        },
+                        { type: 'separator' },
+                        ...skinItems.map(item => ({
+                            label: item.label,
+                            click: () => {
+                                if (focusedWindow) {
+                                    focusedWindow.webContents.send('load-skin', {
+                                        name: item.name,
+                                        path: path.join(skinsDir, item.name),
+                                        isDir: false
+                                    });
+                                }
+                            }
+                        })),
+                        { type: 'separator' },
+                        {
+                            label: 'Load Skin...',
+                            click: async () => {
+                                const paths = await openFileAndReturnPaths([{ name: 'Winamp Skins', extensions: ['wsz', 'zip'] }]);
+                                if (paths && paths.length > 0 && focusedWindow) {
+                                    focusedWindow.webContents.send('load-skin', {
+                                        name: path.basename(paths[0]),
+                                        path: paths[0],
+                                        isDir: false
+                                    });
+                                }
+                            }
+                        }
+                    ]
+                },
+                { type: 'separator' },
                 { role: 'reload' },
                 { role: 'forceReload' },
                 { role: 'toggleDevTools' },
@@ -109,8 +174,39 @@ function createWindow() {
             ]
         }
     ];
+}
 
-    const menu = Menu.buildFromTemplate(template);
+function createWindow() {
+    const mainWindow = new BrowserWindow({
+        width: 413,
+        minWidth: 413,
+        maxWidth: 413,
+        height: 696,
+        minHeight: 174, // 116px player scaled by 1.5
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
+            webSecurity: false
+        },
+        frame: false,
+        transparent: true,
+        resizable: true, // OS window resizable vertically
+        maximizable: false,
+        icon: path.join(__dirname, 'build/icon.png')
+    });
+    if (isDev) {
+        // Try to load via Vite dev server if running, else load local index.html
+        mainWindow.loadURL('http://localhost:5173').catch(() => {
+            mainWindow.loadFile(path.join(__dirname, 'index.html'));
+        });
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
+    } else {
+        mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
+    }
+
+    // Set up initial Application Menu
+    const menu = Menu.buildFromTemplate(getMenuTemplate(mainWindow));
     Menu.setApplicationMenu(menu);
 }
 
@@ -181,10 +277,10 @@ ipcMain.handle('resize-window', (event, { width, height }) => {
     if (win) {
         const bounds = win.getBounds();
         win.setBounds({
-            x: bounds.x,
-            y: bounds.y,
-            width: width,
-            height: height
+            x: Math.round(bounds.x),
+            y: Math.round(bounds.y),
+            width: Math.round(width),
+            height: Math.round(height)
         });
     }
 });
@@ -302,85 +398,25 @@ ipcMain.handle('read-skin-file', async (event, filePath) => {
 });
 
 ipcMain.on('show-context-menu', (event) => {
-    const skinsDir = path.join(__dirname, 'skins');
-    let skinItems = [];
-    if (fs.existsSync(skinsDir)) {
-        const files = fs.readdirSync(skinsDir);
-        skinItems = files
-            .filter(file => path.extname(file).toLowerCase() === '.wsz')
-            .map(file => ({
-                name: file,
-                label: path.basename(file, '.wsz').replace(/_/g, ' ') // Strip extension and prettify
-            }));
-    }
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const template = getMenuTemplate(win);
 
-    const template = [
-        {
-            label: 'Open File(s)',
-            click: async () => {
-                const paths = await openFileAndReturnPaths();
-                if (paths) event.sender.send('add-tracks', paths);
-            }
-        },
-        {
-            label: 'Open Folder',
-            click: async () => {
-                const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-                if (!result.canceled) {
-                    const folderPath = result.filePaths[0];
-                    const files = fs.readdirSync(folderPath);
-                    const audioFiles = files
-                        .filter(file => /\.(mp3|wav|ogg)$/i.test(file))
-                        .map(file => path.join(folderPath, file));
-                    if (audioFiles.length > 0) event.sender.send('add-tracks', audioFiles);
-                }
-            }
-        },
+    // Filter out top-level roles that don't make sense in context menu if needed
+    // But for simplicity, we'll just extract the specific ones requested
+    const contextTemplate = [
+        template.find(m => m.label === 'File').submenu[0], // Open File
+        template.find(m => m.label === 'File').submenu[1], // Open Folder
         { type: 'separator' },
-        {
-            label: 'ProjectM Visualizer',
-            click: () => createVisualizerWindow()
-        },
-        { type: 'separator' },
-        {
-            label: 'Themes',
-            submenu: [
-                {
-                    label: 'Default',
-                    click: () => event.sender.send('reset-skin')
-                },
-                { type: 'separator' },
-                ...skinItems.map(item => ({
-                    label: item.label,
-                    click: () => event.sender.send('load-skin', {
-                        name: item.name,
-                        path: path.join(skinsDir, item.name),
-                        isDir: false
-                    })
-                })),
-                { type: 'separator' },
-                {
-                    label: 'Load Skin...',
-                    click: async () => {
-                        const paths = await openFileAndReturnPaths([{ name: 'Winamp Skins', extensions: ['wsz', 'zip'] }]);
-                        if (paths && paths.length > 0) {
-                            event.sender.send('load-skin', {
-                                name: path.basename(paths[0]),
-                                path: paths[0],
-                                isDir: false
-                            });
-                        }
-                    }
-                }
-            ]
-        },
+        template.find(m => m.label === 'View').submenu[0], // Playlist
+        template.find(m => m.label === 'View').submenu[1], // Visualizer
+        template.find(m => m.label === 'View').submenu[3], // Themes (at index 3 after separator)
         { type: 'separator' },
         { label: 'Quit Quilamp', click: () => app.quit() },
         { label: 'About Quilamp', click: () => createAboutWindow() }
     ];
 
-    const menu = Menu.buildFromTemplate(template);
-    menu.popup(BrowserWindow.fromWebContents(event.sender));
+    const menu = Menu.buildFromTemplate(contextTemplate);
+    menu.popup(win);
 });
 
 ipcMain.handle('get-metadata', async (event, filePath) => {
