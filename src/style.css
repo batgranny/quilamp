@@ -281,6 +281,19 @@ body:not(.skin-active) #playlist-scrollbar {
 }
 
 #playlist-items li.active {
+    color: #fff;
+    background: #000080;
+}
+
+#playlist-items li.dragging {
+    opacity: 0.5;
+}
+
+#playlist-items li.drag-over {
+    border-top: 2px solid #fff;
+}
+
+#playlist-items li.active {
     background: var(--skin-playlist-bg-selected, #0000a0);
     color: var(--skin-playlist-text-current, #ffffff);
 }
@@ -673,6 +686,7 @@ body.skin-active #main-display {
     cursor: pointer;
     pointer-events: auto;
     /* Ensure it receives clicks even if parent has pointer-events: none */
+    flex-shrink: 0;
 }
 
 body.skin-active #time-display {
@@ -713,6 +727,7 @@ body.skin-active #time-display {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 body.skin-active .visualizer {
@@ -806,7 +821,8 @@ body.skin-active #seek-thumb {
 
 /* Track Info */
 #track-info {
-    flex-grow: 1;
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     margin-left: 4px;

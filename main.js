@@ -426,7 +426,9 @@ ipcMain.handle('get-metadata', async (event, filePath) => {
         return {
             title: metadata.common.title || null,
             artist: metadata.common.artist || null,
-            duration: metadata.format.duration || null
+            duration: metadata.format.duration || null,
+            bitrate: metadata.format.bitrate || null,
+            sampleRate: metadata.format.sampleRate || null
         };
     } catch (err) {
         console.error("Failed to read metadata:", err);

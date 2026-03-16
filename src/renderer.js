@@ -35,6 +35,8 @@ const btnRepeat = document.getElementById('btn-repeat');
 const playlistToggleBtn = document.getElementById('pl-btn-close');
 const playlistInner = document.getElementById('playlist-inner');
 const playlistContainer = document.getElementById('playlist-container');
+const kbpsDisplay = document.getElementById('kbps');
+const khzDisplay = document.getElementById('khz');
 
 // --- Web Audio API & Visualizer State ---
 let audioCtx = null;
@@ -522,6 +524,7 @@ function renderPlaylist() {
 
         const li = document.createElement('li');
         li.textContent = `${index + 1}. ${displayName}`;
+        li.draggable = true;
 
         if (index === currentTrackIndex) {
             li.classList.add('active');
@@ -530,12 +533,59 @@ function renderPlaylist() {
         li.addEventListener('dblclick', () => {
             loadTrack(index);
         });
+
+        // Drag and Drop events
+        li.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', index);
+            li.classList.add('dragging');
+        });
+
+        li.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            li.classList.add('drag-over');
+        });
+
+        li.addEventListener('dragleave', () => {
+            li.classList.remove('drag-over');
+        });
+
+        li.addEventListener('drop', (e) => {
+            e.preventDefault();
+            li.classList.remove('drag-over');
+            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIndex = index;
+
+            if (fromIndex !== toIndex) {
+                moveTrack(fromIndex, toIndex);
+            }
+        });
+
+        li.addEventListener('dragend', () => {
+            li.classList.remove('dragging');
+        });
+
         playlistItemsContainer.appendChild(li);
     });
 
     // Notify scrollbar that heights may have changed
     const box = document.getElementById('playlist-box');
     if (box) box.dispatchEvent(new Event('playlistUpdated'));
+}
+
+function moveTrack(fromIndex, toIndex) {
+    const item = trackList.splice(fromIndex, 1)[0];
+    trackList.splice(toIndex, 0, item);
+
+    // Update currentTrackIndex to follow the playing song
+    if (currentTrackIndex === fromIndex) {
+        currentTrackIndex = toIndex;
+    } else if (fromIndex < currentTrackIndex && toIndex >= currentTrackIndex) {
+        currentTrackIndex--;
+    } else if (fromIndex > currentTrackIndex && toIndex <= currentTrackIndex) {
+        currentTrackIndex++;
+    }
+
+    renderPlaylist();
 }
 
 // Update track name and play
@@ -581,6 +631,14 @@ async function loadTrack(index) {
                     trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
                 } else if (tags.title) {
                     trackNameDisplay.textContent = tags.title;
+                }
+
+                // Update bitrate and sample rate
+                if (tags.bitrate && kbpsDisplay) {
+                    kbpsDisplay.textContent = Math.round(tags.bitrate / 1000);
+                }
+                if (tags.sampleRate && khzDisplay) {
+                    khzDisplay.textContent = Math.round(tags.sampleRate / 1000);
                 }
             }
         } else {
