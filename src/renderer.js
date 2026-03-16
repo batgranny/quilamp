@@ -67,7 +67,7 @@ function initVisualizer() {
 
     visualizerCanvas = document.createElement('canvas');
     visualizerCanvas.width = 76;
-    visualizerCanvas.height = 16;
+    visualizerCanvas.height = 32;
     container.innerHTML = '';
     container.appendChild(visualizerCanvas);
     visualizerCtx = visualizerCanvas.getContext('2d');
@@ -144,7 +144,7 @@ function animate() {
         if (barHeights[i] < 0) barHeights[i] = 0;
 
         let drawHeight = Math.round(barHeights[i]);
-        const x = i * totalBarWidth + 4; // Horizontal offset
+        const x = i * totalBarWidth; // Removed horizontal offset to align flush left
 
         // Draw segmented bar (classic winamp style)
         for (let segment = 0; segment < drawHeight; segment += 2) {

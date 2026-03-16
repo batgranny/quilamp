@@ -635,7 +635,7 @@ body.skin-active #pl-btn-close:active {
     display: flex;
     flex-direction: column;
     padding: 4px;
-    height: 72px;
+    height: 76px;
     background: #000;
     margin: 4px;
     border: inset 2px #444;
@@ -643,7 +643,7 @@ body.skin-active #pl-btn-close:active {
 
 .main-top-row {
     display: block;
-    height: 44px;
+    height: 52px;
     position: relative;
 }
 
@@ -665,8 +665,8 @@ body.skin-active #main-display {
 /* Digital Time */
 #time-display {
     position: absolute;
-    left: 6px;
-    top: 2px;
+    left: 4px;
+    top: 0;
     font-family: 'SF Digital Readout', sans-serif;
     font-weight: 400;
     font-size: 18px;
@@ -674,9 +674,9 @@ body.skin-active #main-display {
     line-height: 20px;
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(77, 253, 72, 0.9), 0 0 4px rgba(77, 253, 72, 0.4);
-    width: 60px;
+    width: 76px;
     text-align: left;
-    padding-left: 2px;
+    padding: 0;
     background: rgba(0, 0, 0, 0.4);
     border-radius: 3px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
@@ -714,15 +714,15 @@ body.skin-active #time-display {
 /* Visualizer Placeholder */
 .visualizer {
     position: absolute;
-    left: 6px;
-    top: 26px;
+    left: 4px;
+    top: 20px;
     width: 76px;
-    height: 16px;
+    height: 32px;
     border: 1px solid #0a0a0a;
     background: #001100;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
 }
 
@@ -818,8 +818,8 @@ body.skin-active #seek-thumb {
 /* Track Info */
 #track-info {
     position: absolute;
-    left: 86px;
-    top: 2px;
+    left: 80px;
+    top: 0;
     width: 154px;
     display: flex;
     flex-direction: column;
