@@ -1230,7 +1230,6 @@ if (window.electronAPI) {
         console.log("Skin reset to default");
     });
 
-    // Handle adding tracks from context menu
     window.electronAPI.onAddTracks((paths) => {
         if (paths && paths.length > 0) {
             const wasEmpty = trackList.length === 0;

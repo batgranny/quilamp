@@ -281,8 +281,8 @@ body:not(.skin-active) #playlist-scrollbar {
 }
 
 #playlist-items li.active {
-    color: #fff;
-    background: #000080;
+    background: var(--skin-playlist-bg-selected, #0000a0);
+    color: var(--skin-playlist-text-current, #ffffff);
 }
 
 #playlist-items li.dragging {
@@ -291,11 +291,6 @@ body:not(.skin-active) #playlist-scrollbar {
 
 #playlist-items li.drag-over {
     border-top: 2px solid #fff;
-}
-
-#playlist-items li.active {
-    background: var(--skin-playlist-bg-selected, #0000a0);
-    color: var(--skin-playlist-text-current, #ffffff);
 }
 
 #playlist-bottom {
@@ -626,7 +621,8 @@ body.skin-active #pl-btn-close {
 }
 
 body.skin-active #pl-btn-close:active {
-    background: rgba(255, 255, 255, 0.1) !important; /* Subtle feedback */
+    background: rgba(255, 255, 255, 0.1) !important;
+    /* Subtle feedback */
 }
 
 .ctrl-btn:not(.skin-active):active {
@@ -639,16 +635,16 @@ body.skin-active #pl-btn-close:active {
     display: flex;
     flex-direction: column;
     padding: 4px;
-    height: 60px;
-    /* increased to fit seek bar */
+    height: 72px;
     background: #000;
     margin: 4px;
     border: inset 2px #444;
 }
 
 .main-top-row {
-    display: flex;
-    height: 32px;
+    display: block;
+    height: 44px;
+    position: relative;
 }
 
 body.skin-active #main-display {
@@ -668,25 +664,24 @@ body.skin-active #main-display {
 
 /* Digital Time */
 #time-display {
+    position: absolute;
+    left: 6px;
+    top: 2px;
     font-family: 'SF Digital Readout', sans-serif;
     font-weight: 400;
-    font-size: 22px;
+    font-size: 18px;
     color: #4dfd48;
-    /* Brighter neon green */
-    line-height: 24px;
+    line-height: 20px;
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(77, 253, 72, 0.9), 0 0 4px rgba(77, 253, 72, 0.4);
-    width: 80px;
-    text-align: right;
-    padding-right: 4px;
-    margin-top: 0px;
+    width: 60px;
+    text-align: left;
+    padding-left: 2px;
     background: rgba(0, 0, 0, 0.4);
     border-radius: 3px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     cursor: pointer;
     pointer-events: auto;
-    /* Ensure it receives clicks even if parent has pointer-events: none */
-    flex-shrink: 0;
 }
 
 body.skin-active #time-display {
@@ -718,16 +713,17 @@ body.skin-active #time-display {
 
 /* Visualizer Placeholder */
 .visualizer {
-    width: 60px;
-    height: 100%;
+    position: absolute;
+    left: 6px;
+    top: 26px;
+    width: 76px;
+    height: 16px;
     border: 1px solid #0a0a0a;
     background: #001100;
-    margin-left: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    flex-shrink: 0;
 }
 
 body.skin-active .visualizer {
@@ -821,16 +817,18 @@ body.skin-active #seek-thumb {
 
 /* Track Info */
 #track-info {
-    flex: 1;
-    min-width: 0;
+    position: absolute;
+    left: 86px;
+    top: 2px;
+    width: 154px;
     display: flex;
     flex-direction: column;
-    margin-left: 4px;
     color: var(--text-primary);
     font-family: 'VT323', monospace;
-    font-size: 14px;
+    font-size: 13px;
     overflow: hidden;
     padding: 2px 0;
+    box-sizing: border-box;
 }
 
 body.skin-active #track-info {
