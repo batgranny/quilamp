@@ -181,8 +181,8 @@ function createWindow() {
         width: 413,
         minWidth: 413,
         maxWidth: 413,
-        height: 696,
-        minHeight: 477, // Height for player + 9 playlist tracks (initial state)
+        height: 464, // 116(P) + 193(PL) = 309 logicalpx * 1.5 = 463.5 -> 464
+        minHeight: 210, // Min height for just player (116 + 24 titlebar padding = 140 logicalpx * 1.5 = 210)
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,

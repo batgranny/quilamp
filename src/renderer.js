@@ -219,7 +219,9 @@ function togglePlaylist() {
         window.electronAPI.resizeWindow(413, 210);
     } else {
         // Default height with 9 tracks (scaled 1.5x)
-        window.electronAPI.resizeWindow(413, 477);
+        // 116 (player) + 20 (pl-title) + 9 * 15 (tracks) + 38 (pl-bottom) = 309 logical px
+        // 309 * 1.5 = 463.5, rounded to 464
+        window.electronAPI.resizeWindow(413, 464);
     }
 }
 
@@ -1270,7 +1272,7 @@ if (window.electronAPI) {
     });
     
     // Initial sync of window constraints for the default state (player + playlist)
-    window.electronAPI.resizeWindow(413, 477);
+    window.electronAPI.resizeWindow(413, 464);
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }

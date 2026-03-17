@@ -80,6 +80,8 @@ body:not(.skin-active) {
 
 /* When skin is active, remove our default CSS styling that interferes with the 1:1 image mapping */
 body.skin-active #player-container {
+    height: 116px !important;
+    flex: none !important;
     border: none;
     border-radius: 0;
     box-shadow: none;
@@ -161,6 +163,8 @@ body.skin-active #playlist-inner {
     background-color: var(--skin-playlist-bg-normal, #000) !important;
     background-image: none !important;
     box-shadow: none !important;
+    overflow: hidden !important;
+    height: auto !important;
 }
 
 body.skin-active #playlist-title-bar {
@@ -413,6 +417,7 @@ body.skin-active #playlist-bottom {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    z-index: 10 !important;
 }
 
 /* Skinned Mode transparent buttons overlay */
