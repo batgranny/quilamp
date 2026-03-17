@@ -1,21 +1,24 @@
 # Quilamp
 
-![Quilamp Default View](img/default.png)
-![Quilamp Skin View](img/winamp.png)
-
-A modern, cross-platform clone of the classic Winamp media player built with Electron, Vite, and Vanilla JS/CSS. Designed to mimic the iconic late 90s digital interface natively on macOS.
+A modern, cross-platform clone of the classic Winamp media player built with Electron, Vite, and Vanilla JS/CSS. Designed to mimic the iconic late 90s interface.
 
 ## Features
-- **Accurate Classic UI**: Mimics the classic layout (Main player and Playlist window).
-- **Core Playback Controls**: Play, Pause, Stop, Previous, Next.
+- **Modern UI**: Clean, modern interface with a dark theme inspired by the classic Winamp UI.
+- **Classic UI**: The original Winamp 2.x UI, with the classic layout is available as a skin.
+- **Skins**: Supports loading Winamp 2.x skins. (Mostly)
 - **Playlist Management**: Eject (Open Dialog) to add `.mp3`, `.wav`, or `.ogg` files or drag & drop files directly onto the player.
-- **Volume & Panning**: Volume slider (panning UI included, backend to be expanded).
-- **Draggable Frameless Windows**: Fully native feel with invisible borders and a custom draggable titlebar.
 - **ProjectM Visualization**: Immersive MilkDrop-compatible visualizer window (powered by [Butterchurn](https://github.com/jberg/butterchurn)).
     - **Controls**:
         - `Space` / `Right Arrow`: Next Preset
         - `Left Arrow`: Previous Preset
         - `L`: Lock/Unlock Preset Rotation
+
+## Screenshots
+![Quilamp Default View](img/default.png)
+![Quilamp Skin View](img/classic.png)
+
+## Installation
+Go to the latest release page [here](https://github.com/chrisconnolly/quinamp/releases) and download the .dmg or .exe file. Double click to install.
 
 ## Quick Start (Development)
 
@@ -68,3 +71,7 @@ After the build completes, look in the `dist/` directory for the `Quilamp-1.1.0-
 - **Vite**
 - **Butterchurn** (MilkDrop 2 WebGL implementation)
 - **Vanilla web tech**
+
+![Quilamp Default View](img/default.png)
+![Quilamp Skin View](img/classic.png)
+![Nucleo Skin View](img/nucleo.png)
