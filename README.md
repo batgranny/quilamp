@@ -18,7 +18,7 @@ A modern, cross-platform clone of the classic Winamp media player built with Ele
 ![Quilamp Skin View](img/classic.png)
 
 ## Installation
-Go to the latest release page [here](https://github.com/chrisconnolly/quinamp/releases) and download the .dmg or .exe file. Double click to install.
+Go to the latest release page [here](https://github.com/batgranny/quilamp/releases) and download the .dmg or .exe file. Double click to install.
 
 ## Quick Start (Development)
 
