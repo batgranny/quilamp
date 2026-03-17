@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onAddTracks: (callback) => ipcRenderer.on('add-tracks', (event, paths) => callback(paths)),
     sendAudioData: (data) => ipcRenderer.send('audio-data', data),
     onAudioData: (callback) => ipcRenderer.on('audio-data', (event, data) => callback(data)),
-    onTogglePlaylist: (callback) => ipcRenderer.on('toggle-playlist', () => callback())
+    onTogglePlaylist: (callback) => ipcRenderer.on('toggle-playlist', () => callback()),
+    moveWindow: (deltaX, deltaY) => ipcRenderer.send('move-window', { deltaX, deltaY })
 });
