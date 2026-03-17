@@ -41,6 +41,7 @@ const khzDisplay = document.getElementById('khz');
 // --- Web Audio API & Visualizer State ---
 let audioCtx = null;
 let analyser = null;
+let panner = null;
 let source = null;
 let visualizerCanvas = null;
 let visualizerCtx = null;
@@ -82,9 +83,16 @@ function startVisualizer() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 1024;
+        panner = audioCtx.createStereoPanner();
         source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
+        
+        // Connect source -> panner -> analyser -> destination
+        source.connect(panner);
+        panner.connect(analyser);
         analyser.connect(audioCtx.destination);
+        
+        // Initial pan value sync
+        panner.pan.value = (panValue * 2) - 1;
     }
 
     if (audioCtx.state === 'suspended') {
@@ -412,6 +420,10 @@ const volumeControl = makeDraggableSlider(volumeSlider, volumeThumb, 0.7, (ratio
 
 const panControl = makeDraggableSlider(panSlider, panThumb, 0.5, (ratio) => {
     panValue = ratio;
+    if (panner) {
+        // Map 0-1 to -1 to 1
+        panner.pan.value = (ratio * 2) - 1;
+    }
     // Update track background row if skin is active
     const bmpUrl = getSkinUrl('--skin-balance-bg');
     if (bmpUrl) updatePanTrack(ratio, bmpUrl);

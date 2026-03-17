@@ -257,7 +257,7 @@ body:not(.skin-active) #playlist-scrollbar {
 #playlist-scroll-thumb {
     position: absolute;
     top: 0;
-    left: 1px;
+    left: 4px;
     width: 8px;
     /* Sprite width */
     height: 18px;
@@ -1087,7 +1087,7 @@ body.skin-active #btn-next:active {
 }
 
 body.skin-active #btn-eject {
-    background-position: -114px 0 !important;
+    background-position: -114px 0px !important;
 }
 
 body.skin-active #btn-eject:active {
@@ -1209,10 +1209,10 @@ body.skin-active #volume-slider {
 /* Pan slider position */
 body.skin-active #pan-slider {
     position: absolute;
-    left: 161px;
+    left: 151px;
     /* 177px from window left - 16px controls-panel left */
     top: -31px;
-    width: 56px;
+    width: 47px;
     /* wider than spec 38px for better usability at 1.5x zoom */
     height: 13px;
 }
