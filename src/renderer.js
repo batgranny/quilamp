@@ -105,10 +105,17 @@ function startVisualizer() {
     }
 }
 
+const CSS_ZOOM = 1.5;
+
+function initWindowDragging() {
+    // Reverting to native -webkit-app-region: drag as manual dragging
+    // has inconsistent hitbox detection in zoomed frameless windows.
+    console.log('Window dragging initialized (Native Mode)');
+}
+
 function animate() {
     animationId = requestAnimationFrame(animate);
     if (!analyser || !visualizerCtx) return;
-
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
     const timeDataArray = new Uint8Array(analyser.fftSize);
@@ -212,15 +219,40 @@ if (window.electronAPI) {
 function togglePlaylist() {
     console.log('Toggling playlist visibility...');
     playlistContainer.classList.toggle('hidden');
-    const isHidden = playlistContainer.classList.contains('hidden');
+    syncWindowSize();
+}
 
-    if (isHidden) {
-        // Player height: adjusted from 180 to 210 to prevent clipping with larger layout elements
-        window.electronAPI.resizeWindow(413, 210);
+function syncWindowSize() {
+    const isSkin = document.body.classList.contains('skin-active');
+    const isHidden = playlistContainer.classList.contains('hidden');
+    
+    let logicalH;
+    let logicalW = 275;
+
+    if (isSkin) {
+        if (isHidden) {
+            logicalH = 116;
+        } else {
+            const trackCount = trackList.length;
+            const playerH = 116;
+            const titleH = 20; 
+            const bottomH = 38;
+            const trackH = 14;  
+            const contentH = playerH + titleH + (Math.min(trackCount, 18) * trackH) + bottomH;
+            // Floor all heights to exact multiples of 4 to ensure physical pixel alignment
+            // 400 logical px fits player (116) + title (20) + 16 tracks (224) + bottom (38) = 398
+            logicalH = Math.max(400, Math.ceil(contentH / 4) * 4);
+        }
+        logicalW = 275; 
     } else {
-        // Default height with 9 tracks (scaled 1.5x)
-        window.electronAPI.resizeWindow(413, 477);
+        // Default UI
+        // fits 116 player + 14 title + 256 content (16 * 16) + 38 bottom = 424
+        logicalH = isHidden ? 140 : 424;
+        logicalW = 275;
     }
+
+    // Precise physical scale + 2px "Bleed" buffer to prevent layout compression jitter
+    window.electronAPI.resizeWindow(Math.round(logicalW * 1.5), Math.round(logicalH * 1.5) + 2);
 }
 
 // Custom Playlist Scrollbar Logic
@@ -313,9 +345,6 @@ initPlaylistScrollbar();
 // Custom slider state
 let volumeValue = 0.7; // 0-1 (70%)
 let panValue = 0.5;    // 0-1 (0.5 = center)
-
-// CSS zoom factor applied to the body — needed to correct getBoundingClientRect coordinates
-const CSS_ZOOM = 1.5;
 
 function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEnd) {
     let dragging = false;
@@ -587,6 +616,10 @@ function renderPlaylist() {
     // Notify scrollbar that heights may have changed
     const box = document.getElementById('playlist-box');
     if (box) box.dispatchEvent(new Event('playlistUpdated'));
+
+    if (document.body.classList.contains('skin-active')) {
+        syncWindowSize();
+    }
 }
 
 function moveTrack(fromIndex, toIndex) {
@@ -874,6 +907,7 @@ async function applySkin(file) {
         }
 
         console.log("Skin applied successfully!");
+        syncWindowSize();
     } catch (e) {
         console.error("Failed to parse skin:", e);
         if (playlistItemsContainer) {
@@ -1230,6 +1264,7 @@ if (window.electronAPI) {
 
         // Reset visualizer colors
         setDefaultVisColors();
+        syncWindowSize();
 
         // Reset slider backgrounds
         const vTrack = document.getElementById('volume-slider');
@@ -1269,8 +1304,10 @@ if (window.electronAPI) {
         }
     });
     
-    // Initial sync of window constraints for the default state (player + playlist)
-    window.electronAPI.resizeWindow(413, 477);
+    // Initial sync of window constraints
+    initWindowDragging();
+    initPlaylistScrollbar();
+    syncWindowSize();
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }

@@ -1,5 +1,8 @@
 # Quilamp
 
+![Quilamp Default View](img/default.png)
+![Quilamp Skin View](img/winamp.png)
+
 A modern, cross-platform clone of the classic Winamp media player built with Electron, Vite, and Vanilla JS/CSS. Designed to mimic the iconic late 90s digital interface natively on macOS.
 
 ## Features

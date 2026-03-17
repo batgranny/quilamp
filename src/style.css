@@ -19,6 +19,33 @@ body.dragging #seek-thumb {
     transition: none !important;
 }
 
+/* Disable built-in dragging on children by default */
+* {
+    -webkit-app-region: no-drag;
+}
+
+/* Enable native dragging on title bars and specific areas */
+#title-bar,
+#playlist-title-bar,
+#playlist-bottom {
+    -webkit-app-region: drag !important;
+    width: 100% !important;
+}
+
+/* Exclude buttons and interactive elements from dragging */
+button, 
+.pl-action-btn, 
+.ctrl-btn, 
+.pl-close,
+.playlist-window-controls,
+#playlist-scrollbar,
+#playlist-scroll-thumb,
+#playlist-items,
+.slider-thumb,
+#seek-thumb {
+    -webkit-app-region: no-drag !important;
+}
+
 html,
 body {
     margin: 0;
@@ -41,21 +68,28 @@ body {
 body {
     zoom: 1.5;
     background-color: transparent;
-    width: 275px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-dark);
-    /* Solid background for default state */
 }
 
 #app-container {
-    width: 275px;
+    width: 100%;
     height: 100%;
-    /* Flexes to OS window height natively */
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
     overflow: hidden;
     position: relative;
     background-color: var(--bg-dark);
+}
+
+body.skin-active #app-container {
+    width: 276px;
+    margin: 0 auto;
 }
 
 /* Make body transparent if we are dragging so frameless window shows well, or just let #player-container handle it? Actually let's set the main app background to black #000 temporarily to see if that fixes the global transparency issue, wait, no, electron requires body color. */
@@ -80,6 +114,8 @@ body:not(.skin-active) {
 
 /* When skin is active, remove our default CSS styling that interferes with the 1:1 image mapping */
 body.skin-active #player-container {
+    height: 116px !important;
+    flex: none !important;
     border: none;
     border-radius: 0;
     box-shadow: none;
@@ -120,7 +156,6 @@ body.skin-active #title-bar {
 }
 
 #playlist-inner {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     background: linear-gradient(to bottom, #3a3a45, var(--bg-dark));
@@ -144,7 +179,10 @@ body.skin-active #title-bar {
     font-size: 8px;
     color: #f1f1f1;
     border-bottom: 1px solid #111;
-    margin-bottom: 4px;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 100;
+    width: 100%;
 }
 
 #playlist-box {
@@ -161,6 +199,10 @@ body.skin-active #playlist-inner {
     background-color: var(--skin-playlist-bg-normal, #000) !important;
     background-image: none !important;
     box-shadow: none !important;
+    overflow: hidden !important;
+    display: block !important;
+    position: relative;
+    height: 100%;
 }
 
 body.skin-active #playlist-title-bar {
@@ -179,9 +221,15 @@ body.skin-active #playlist-title-bar {
         repeat-x !important;
     border: none !important;
     margin: 0 !important;
-    padding: 0 25px !important;
+    padding: 0 !important;
     position: relative;
-    /* Padding keeps the Quilamp text out of the corner graphics */
+    z-index: 100 !important;
+    width: 100% !important;
+}
+
+body.skin-active .title-text,
+body.skin-active #playlist-title-bar .title-text {
+    display: none !important;
 }
 
 body.skin-active #playlist-box {
@@ -189,10 +237,11 @@ body.skin-active #playlist-box {
     padding: 0 20px 0 12px !important;
     background-color: transparent !important;
     position: relative;
+    height: calc(100% - 58px) !important; /* 20 + 38 = 58 */
+    width: 100% !important;
     box-sizing: border-box;
-    z-index: 1;
+    z-index: 10;
     overflow-y: scroll !important;
-    /* Keep content and scrollbar above border backgrounds */
 }
 
 body.skin-active #playlist-inner::before {
@@ -207,7 +256,7 @@ body.skin-active #playlist-inner::before {
     background-image: var(--skin-pledit-left);
     background-position: left top;
     background-repeat: repeat-y;
-    z-index: 0;
+    z-index: 5;
 }
 
 body.skin-active #playlist-inner::after {
@@ -222,7 +271,7 @@ body.skin-active #playlist-inner::after {
     background-image: var(--skin-pledit-right);
     background-position: right top;
     background-repeat: repeat-y;
-    z-index: 0;
+    z-index: 5;
 }
 
 #playlist-items {
@@ -302,7 +351,7 @@ body:not(.skin-active) #playlist-scrollbar {
     padding: 0 14px 0 12px;
     background: #2a2a35;
     border-top: inset 1px #555;
-    margin-top: 2px;
+    margin-top: 0;
     position: relative;
 }
 
@@ -413,6 +462,7 @@ body.skin-active #playlist-bottom {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
+    z-index: 10;
 }
 
 /* Skinned Mode transparent buttons overlay */
@@ -522,6 +572,8 @@ body.skin-active .pl-list-btn:active {
     font-size: 9px;
     color: #f1f1f1;
     border-bottom: 1px solid #111;
+    position: relative;
+    z-index: 100;
 }
 
 .title-text {
@@ -530,9 +582,7 @@ body.skin-active .pl-list-btn:active {
     /* text-shadow removed for flat look */
 }
 
-body.skin-active .title-text {
-    display: none;
-}
+/* Handled in skin-active blocks */
 
 .window-controls {
     display: flex;
@@ -912,7 +962,8 @@ body.skin-active .audio-stats {
 body.skin-active .audio-stats span {
     font-size: 9px !important;
     /* show the numbers */
-    color: #00ff00;
+    color: var(--skin-display-color, #00ff00);
+    text-shadow: 0 0 3px var(--skin-display-color, rgba(0, 255, 0, 0.8));
     font-family: 'Arial Narrow', sans-serif;
     /* more like winamp digits */
     margin-right: 32px;

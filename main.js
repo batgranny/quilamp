@@ -178,11 +178,11 @@ function getMenuTemplate(focusedWindow) {
 
 function createWindow() {
     const mainWindow = new BrowserWindow({
-        width: 413,
-        minWidth: 413,
-        maxWidth: 413,
-        height: 696,
-        minHeight: 477, // Height for player + 9 playlist tracks (initial state)
+        width: 414,
+        minWidth: 414,
+        maxWidth: 414,
+        height: 465, // 310 logical px * 1.5
+        minHeight: 210, // 140 logical px * 1.5
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -397,6 +397,13 @@ ipcMain.handle('read-skin-file', async (event, filePath) => {
         console.error("Failed to read skin file:", err);
         return null;
     }
+});
+
+ipcMain.on('move-window', (event, { deltaX, deltaY }) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return;
+    const [x, y] = win.getPosition();
+    win.setPosition(Math.round(x + deltaX), Math.round(y + deltaY));
 });
 
 ipcMain.on('show-context-menu', (event) => {
