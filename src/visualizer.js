@@ -111,14 +111,19 @@ async function start() {
 
     if (!initAudioBridge()) return;
 
+    // Explicitly set canvas dimensions to physical pixels for stable rendering
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+
     try {
         visualizer = butterchurn.createVisualizer(audioContext, canvas, {
             width: window.innerWidth,
             height: window.innerHeight,
-            pixelRatio: window.devicePixelRatio || 1,
-            textureRatio: 2,
-            meshWidth: 64,
-            meshHeight: 48
+            pixelRatio: dpr,
+            textureRatio: 1, // Using 1 for better compatibility on high-DPI
+            meshWidth: 48,   // High resolution but more stable
+            meshHeight: 36
         });
         
         visualizer.connectAudio(analyser);
@@ -144,6 +149,9 @@ async function start() {
 
     window.addEventListener('resize', () => {
         if (visualizer) {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
             visualizer.setInternalCanvasSize(window.innerWidth, window.innerHeight);
         }
     });
