@@ -209,8 +209,8 @@ function togglePlaylist() {
         // Player height: adjusted from 180 to 210 to prevent clipping with larger layout elements
         window.electronAPI.resizeWindow(413, 210);
     } else {
-        // Default height with playlist
-        window.electronAPI.resizeWindow(413, 696);
+        // Default height with 9 tracks (scaled 1.5x)
+        window.electronAPI.resizeWindow(413, 477);
     }
 }
 
@@ -1255,7 +1255,9 @@ if (window.electronAPI) {
             }
         }
     });
-
+    
+    // Initial sync of window constraints for the default state (player + playlist)
+    window.electronAPI.resizeWindow(413, 477);
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }

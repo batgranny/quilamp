@@ -182,7 +182,7 @@ function createWindow() {
         minWidth: 413,
         maxWidth: 413,
         height: 696,
-        minHeight: 174, // 116px player scaled by 1.5
+        minHeight: 477, // Height for player + 9 playlist tracks (initial state)
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,
@@ -276,6 +276,8 @@ ipcMain.handle('resize-window', (event, { width, height }) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     if (win) {
         const bounds = win.getBounds();
+        // Update both boundaries and minimum size constraints so resizing respects the layout
+        win.setMinimumSize(Math.round(width), Math.round(height));
         win.setBounds({
             x: Math.round(bounds.x),
             y: Math.round(bounds.y),
