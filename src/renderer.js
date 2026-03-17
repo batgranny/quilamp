@@ -48,13 +48,17 @@ let animationId = null;
 
 // Built-in default Winamp spectrum colors (from bottom up: 17 to 2)
 let visColors = new Array(24).fill('rgb(0,0,0)');
-// Default palette values (approximate classic Winamp colors)
-for (let i = 2; i <= 17; i++) {
-    const green = Math.floor((17 - i) * (255 / 15));
-    visColors[i] = `rgb(0, ${green}, 0)`;
+function setDefaultVisColors() {
+    visColors.fill('rgb(0,0,0)');
+    // Default palette values (approximate classic Winamp colors)
+    for (let i = 2; i <= 17; i++) {
+        const green = Math.floor((17 - i) * (255 / 15));
+        visColors[i] = `rgb(0, ${green}, 0)`;
+    }
+    visColors[23] = 'rgb(255, 255, 255)'; // Peak indicator
+    visColors[0] = 'rgb(0, 0, 0)';       // Background
 }
-visColors[23] = 'rgb(255, 255, 255)'; // Peak indicator
-visColors[0] = 'rgb(0, 0, 0)';       // Background
+setDefaultVisColors();
 
 // Peak tracking
 const numBars = 18;
@@ -1205,9 +1209,14 @@ if (window.electronAPI) {
             '--skin-numbers-bg', '--skin-posbar-bg', '--skin-gen-bg', '--skin-pledit-left',
             '--skin-pledit-right', '--skin-pledit-bottom-left', '--skin-pledit-bottom-right',
             '--skin-pledit-bottom-fill', '--skin-pledit-menu-bg', '--skin-pledit-top-left',
-            '--skin-pledit-top-right', '--skin-pledit-top-fill', '--skin-pledit-scroll-handle'
+            '--skin-pledit-top-right', '--skin-pledit-top-fill', '--skin-pledit-scroll-handle',
+            '--skin-playlist-text-normal', '--skin-playlist-text-current', '--skin-playlist-bg-normal',
+            '--skin-playlist-bg-selected', '--skin-vis-bg', '--skin-display-color'
         ];
         props.forEach(p => document.documentElement.style.removeProperty(p));
+
+        // Reset visualizer colors
+        setDefaultVisColors();
 
         // Reset slider backgrounds
         const vTrack = document.getElementById('volume-slider');
