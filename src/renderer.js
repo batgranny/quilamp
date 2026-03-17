@@ -3,6 +3,7 @@ import 'jsmediatags/dist/jsmediatags.min.js';
 
 // Basic audio player state
 const audio = new Audio();
+audio.crossOrigin = 'anonymous';
 let trackList = [];
 let currentTrackIndex = -1;
 // Global player state for easier debugging and persistence
