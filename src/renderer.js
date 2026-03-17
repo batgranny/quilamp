@@ -1227,6 +1227,10 @@ if (window.electronAPI) {
         if (vThumb) vThumb.style.cssText = '';
         if (pThumb) pThumb.style.cssText = '';
 
+        // Re-sync UI positions
+        if (volumeControl) volumeControl.setValue(volumeValue);
+        if (panControl) panControl.setValue(panValue);
+
         console.log("Skin reset to default");
     });
 
