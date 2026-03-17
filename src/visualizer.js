@@ -90,8 +90,20 @@ async function start() {
     try {
         presets = butterchurnPresets.getPresets();
         presetKeys = Object.keys(presets);
+        console.log(`[Visualizer] Loaded ${presetKeys.length} presets from butterchurn-presets`);
+        
         if (presetKeys.length === 0) throw new Error('No presets found');
-        currentPresetIndex = Math.floor(Math.random() * presetKeys.length);
+        
+        // Initial preset selection: Try to start with user favorite, else random
+        const favorite = "Goody - The Wild Vort";
+        const favoriteIndex = presetKeys.findIndex(k => k.toLowerCase().includes(favorite.toLowerCase()));
+        
+        if (favoriteIndex !== -1) {
+            currentPresetIndex = favoriteIndex;
+            console.log(`[Visualizer] Starting with preferred preset: ${presetKeys[currentPresetIndex]}`);
+        } else {
+            currentPresetIndex = Math.floor(Math.random() * presetKeys.length);
+        }
     } catch (e) {
         console.error('Fatal: Preset load failed', e);
         return;
@@ -104,7 +116,9 @@ async function start() {
             width: window.innerWidth,
             height: window.innerHeight,
             pixelRatio: window.devicePixelRatio || 1,
-            textureRatio: 1,
+            textureRatio: 2,
+            meshWidth: 64,
+            meshHeight: 48
         });
         
         visualizer.connectAudio(analyser);
@@ -139,7 +153,7 @@ async function start() {
         if (!visualizer) return;
         
         if (e.code === 'Space' || e.code === 'ArrowRight') {
-            currentPresetIndex = (currentPresetIndex + 1) % presetKeys.length;
+            currentPresetIndex = Math.floor(Math.random() * presetKeys.length);
             const name = presetKeys[currentPresetIndex];
             visualizer.loadPreset(presets[name], 2.0);
             showPresetName(name);
@@ -156,7 +170,7 @@ async function start() {
 
     setInterval(() => {
         if (visualizer && !isLocked) {
-            currentPresetIndex = (currentPresetIndex + 1) % presetKeys.length;
+            currentPresetIndex = Math.floor(Math.random() * presetKeys.length);
             const nextPresetName = presetKeys[currentPresetIndex];
             const nextPreset = presets[nextPresetName];
             visualizer.loadPreset(nextPreset, 5.7);
