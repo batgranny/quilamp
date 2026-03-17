@@ -202,8 +202,8 @@ function togglePlaylist() {
     const isHidden = playlistContainer.classList.contains('hidden');
 
     if (isHidden) {
-        // Player height: (116px + 2px borders) * 1.5 = 177px. 180px for safety.
-        window.electronAPI.resizeWindow(413, 180);
+        // Player height: adjusted from 180 to 210 to prevent clipping with larger layout elements
+        window.electronAPI.resizeWindow(413, 210);
     } else {
         // Default height with playlist
         window.electronAPI.resizeWindow(413, 696);
