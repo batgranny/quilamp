@@ -111,6 +111,10 @@ async function start() {
 
     if (!initAudioBridge()) return;
 
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     try {
         visualizer = butterchurn.createVisualizer(audioContext, canvas, {
             width: window.innerWidth,
