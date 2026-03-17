@@ -1,0 +1,94 @@
+name: Build and Upload Release Artifacts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Vite
+        run: npx vite build
+
+      - name: Build Silicon App (Dir)
+        run: npx electron-builder --mac dir --arm64
+
+      - name: Ad-hoc Sign Silicon App
+        run: |
+          xattr -cr release/mac-arm64/Quilamp.app
+          codesign --force --deep --sign - release/mac-arm64/Quilamp.app
+
+      - name: Create Silicon DMG (User-Friendly)
+        run: |
+          mkdir -p release/dmg_staging
+          cp -R release/mac-arm64/Quilamp.app release/dmg_staging/
+          ln -s /Applications release/dmg_staging/Applications
+          hdiutil create -volname "Quilamp" -srcfolder release/dmg_staging -ov -format UDZO release/Quilamp-Silicon.dmg
+
+      - name: Build Intel DMG
+        run: npx electron-builder --mac dmg --x64
+
+      - name: Find Latest Release
+        id: latest_release
+        run: echo "TAG=$(gh release list -L 1 --json tagName -q '.[0].tagName')" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.latest_release.outputs.TAG }}
+          files: |
+            release/Quilamp-Silicon.dmg
+            release/Quilamp-*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Vite
+        run: npx vite build
+
+      - name: Build Windows App
+        run: npx electron-builder --win
+
+      - name: Find Latest Release
+        id: latest_release
+        run: echo "TAG=$(gh release list -L 1 --json tagName -q '.[0].tagName')" >> $GITHUB_OUTPUT
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.latest_release.outputs.TAG }}
+          files: release/Quilamp Setup *.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
