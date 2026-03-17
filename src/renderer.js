@@ -108,45 +108,9 @@ function startVisualizer() {
 const CSS_ZOOM = 1.5;
 
 function initWindowDragging() {
-    let isDragging = false;
-    let startX, startY;
-
-    const dragSelectors = ['#title-bar', '#playlist-title-bar', '#playlist-bottom'];
-    
-    window.addEventListener('mousedown', (e) => {
-        const isDragArea = dragSelectors.some(selector => {
-            const el = document.querySelector(selector);
-            if (!el) return false;
-            // Precise hitbox check
-            const rect = el.getBoundingClientRect();
-            return (e.clientX >= rect.left && e.clientX <= rect.right &&
-                e.clientY >= rect.top && e.clientY <= rect.bottom);
-        });
-
-        if (isDragArea && e.button === 0) {
-            isDragging = true;
-            startX = e.screenX;
-            startY = e.screenY;
-            e.preventDefault();
-        }
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        
-        const deltaX = e.screenX - startX;
-        const deltaY = e.screenY - startY;
-        
-        if (deltaX !== 0 || deltaY !== 0) {
-            window.electronAPI.moveWindow(deltaX, deltaY);
-            startX = e.screenX;
-            startY = e.screenY;
-        }
-    });
-
-    window.addEventListener('mouseup', () => {
-        isDragging = false;
-    });
+    // Reverting to native -webkit-app-region: drag as manual dragging
+    // has inconsistent hitbox detection in zoomed frameless windows.
+    console.log('Window dragging initialized (Native Mode)');
 }
 
 function animate() {

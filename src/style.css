@@ -19,8 +19,30 @@ body.dragging #seek-thumb {
     transition: none !important;
 }
 
-/* Disable built-in dragging to fix zoom-induced drift */
+/* Disable built-in dragging on children by default */
 * {
+    -webkit-app-region: no-drag;
+}
+
+/* Enable native dragging on title bars and specific areas */
+#title-bar,
+#playlist-title-bar,
+#playlist-bottom {
+    -webkit-app-region: drag !important;
+    width: 100% !important;
+}
+
+/* Exclude buttons and interactive elements from dragging */
+button, 
+.pl-action-btn, 
+.ctrl-btn, 
+.pl-close,
+.playlist-window-controls,
+#playlist-scrollbar,
+#playlist-scroll-thumb,
+#playlist-items,
+.slider-thumb,
+#seek-thumb {
     -webkit-app-region: no-drag !important;
 }
 
@@ -134,7 +156,8 @@ body.skin-active #title-bar {
 }
 
 #playlist-inner {
-    display: block !important;
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(to bottom, #3a3a45, var(--bg-dark));
     border: 1px solid var(--border-dark);
     border-top: none;
@@ -159,11 +182,12 @@ body.skin-active #title-bar {
     margin-bottom: 0;
     position: relative;
     z-index: 100;
+    width: 100%;
 }
 
 #playlist-box {
-    display: block !important;
-    height: calc(100% - 52px); /* 14 + 38 = 52 */
+    flex-grow: 1;
+    min-height: 0;
     background: #000;
     border: inset 2px #444;
     overflow-y: auto;
@@ -197,10 +221,15 @@ body.skin-active #playlist-title-bar {
         repeat-x !important;
     border: none !important;
     margin: 0 !important;
-    padding: 0 25px !important;
+    padding: 0 !important;
     position: relative;
     z-index: 100 !important;
-    /* Padding keeps the Quilamp text out of the corner graphics */
+    width: 100% !important;
+}
+
+body.skin-active .title-text,
+body.skin-active #playlist-title-bar .title-text {
+    display: none !important;
 }
 
 body.skin-active #playlist-box {
@@ -209,6 +238,7 @@ body.skin-active #playlist-box {
     background-color: transparent !important;
     position: relative;
     height: calc(100% - 58px) !important; /* 20 + 38 = 58 */
+    width: 100% !important;
     box-sizing: border-box;
     z-index: 10;
     overflow-y: scroll !important;
@@ -552,9 +582,7 @@ body.skin-active .pl-list-btn:active {
     /* text-shadow removed for flat look */
 }
 
-body.skin-active .title-text {
-    display: none;
-}
+/* Handled in skin-active blocks */
 
 .window-controls {
     display: flex;
