@@ -669,7 +669,7 @@ body.skin-active #main-display {
     top: 0;
     font-family: 'SF Digital Readout', sans-serif;
     font-weight: 400;
-    font-size: 18px;
+    font-size: 27px;
     color: #4dfd48;
     line-height: 20px;
     letter-spacing: 1px;
@@ -747,7 +747,7 @@ body.skin-active .visualizer {
 
 /* Seek Slider (Custom Div) */
 #seek-slider {
-    width: 248px;
+    width: 252px;
     height: 18px;
     /* hitbox */
     margin: 4px auto;
@@ -820,7 +820,7 @@ body.skin-active #seek-thumb {
     position: absolute;
     left: 80px;
     top: 0;
-    width: 154px;
+    width: 172px;
     display: flex;
     flex-direction: column;
     color: var(--text-primary);
@@ -853,7 +853,7 @@ body.skin-active #track-info {
     overflow: hidden;
     text-overflow: clip;
     /* We will scroll it with JS or CSS later */
-    border: 1px solid #222;
+    border: 0px solid #222;
     background: #0a0a0a;
     padding: 0 2px;
     text-shadow: 0 0 5px rgba(77, 253, 72, 0.5);
