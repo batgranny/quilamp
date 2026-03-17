@@ -962,7 +962,8 @@ body.skin-active .audio-stats {
 body.skin-active .audio-stats span {
     font-size: 9px !important;
     /* show the numbers */
-    color: #00ff00;
+    color: var(--skin-display-color, #00ff00);
+    text-shadow: 0 0 3px var(--skin-display-color, rgba(0, 255, 0, 0.8));
     font-family: 'Arial Narrow', sans-serif;
     /* more like winamp digits */
     margin-right: 32px;
