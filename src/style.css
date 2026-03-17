@@ -109,8 +109,20 @@ body.skin-active #title-bar {
 #playlist-container {
     width: 275px;
     flex-grow: 1;
-    min-height: 116px;
+    min-height: 178px;
     max-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#playlist-container.hidden {
+    display: none;
+}
+
+#playlist-inner {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
     background: linear-gradient(to bottom, #3a3a45, var(--bg-dark));
     border: 1px solid var(--border-dark);
     border-top: none;
@@ -118,8 +130,8 @@ body.skin-active #title-bar {
     position: relative;
     padding: 4px;
     box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
 }
 
 #playlist-title-bar {
@@ -127,6 +139,7 @@ body.skin-active #title-bar {
     background: #1d1d1d;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 4px;
     font-size: 8px;
     color: #f1f1f1;
@@ -142,7 +155,7 @@ body.skin-active #title-bar {
     overflow-y: auto;
 }
 
-body.skin-active #playlist-container {
+body.skin-active #playlist-inner {
     padding: 0 !important;
     border: none !important;
     background-color: var(--skin-playlist-bg-normal, #000) !important;
@@ -167,6 +180,7 @@ body.skin-active #playlist-title-bar {
     border: none !important;
     margin: 0 !important;
     padding: 0 25px !important;
+    position: relative;
     /* Padding keeps the Quilamp text out of the corner graphics */
 }
 
@@ -181,7 +195,7 @@ body.skin-active #playlist-box {
     /* Keep content and scrollbar above border backgrounds */
 }
 
-body.skin-active #playlist-container::before {
+body.skin-active #playlist-inner::before {
     content: "";
     position: absolute;
     top: 20px;
@@ -196,7 +210,7 @@ body.skin-active #playlist-container::before {
     z-index: 0;
 }
 
-body.skin-active #playlist-container::after {
+body.skin-active #playlist-inner::after {
     content: "";
     position: absolute;
     top: 20px;
@@ -243,7 +257,7 @@ body:not(.skin-active) #playlist-scrollbar {
 #playlist-scroll-thumb {
     position: absolute;
     top: 0;
-    left: 1px;
+    left: 4px;
     width: 8px;
     /* Sprite width */
     height: 18px;
@@ -269,6 +283,14 @@ body:not(.skin-active) #playlist-scrollbar {
 #playlist-items li.active {
     background: var(--skin-playlist-bg-selected, #0000a0);
     color: var(--skin-playlist-text-current, #ffffff);
+}
+
+#playlist-items li.dragging {
+    opacity: 0.5;
+}
+
+#playlist-items li.drag-over {
+    border-top: 2px solid #fff;
 }
 
 #playlist-bottom {
@@ -494,7 +516,7 @@ body.skin-active .pl-list-btn:active {
     background: var(--skin-titlebar-bg, #1d1d1d);
     background-position: 0 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     padding: 0 6px;
     font-size: 9px;
@@ -543,7 +565,8 @@ body.skin-active .window-controls {
     background: #333;
 }
 
-#btn-close:hover {
+#btn-close:hover,
+#pl-btn-close:hover {
     background: #e81123;
     color: white;
 }
@@ -582,6 +605,26 @@ body.skin-active #btn-close:active {
     background-position: -293px -27px !important;
 }
 
+/* Playlist close button as a transparent hitbox in skinned mode */
+body.skin-active #pl-btn-close {
+    background: transparent !important;
+    border: none !important;
+    color: transparent !important;
+    width: 9px !important;
+    height: 9px !important;
+    top: 3px !important;
+    right: 3px !important;
+    position: absolute !important;
+    z-index: 105 !important;
+    cursor: pointer;
+    -webkit-app-region: no-drag !important;
+}
+
+body.skin-active #pl-btn-close:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+    /* Subtle feedback */
+}
+
 .ctrl-btn:not(.skin-active):active {
     border: inset 1px #666;
     border-right-color: #fff;
@@ -592,16 +635,16 @@ body.skin-active #btn-close:active {
     display: flex;
     flex-direction: column;
     padding: 4px;
-    height: 60px;
-    /* increased to fit seek bar */
+    height: 76px;
     background: #000;
     margin: 4px;
     border: inset 2px #444;
 }
 
 .main-top-row {
-    display: flex;
-    height: 32px;
+    display: block;
+    height: 52px;
+    position: relative;
 }
 
 body.skin-active #main-display {
@@ -621,24 +664,24 @@ body.skin-active #main-display {
 
 /* Digital Time */
 #time-display {
+    position: absolute;
+    left: 4px;
+    top: 0;
     font-family: 'SF Digital Readout', sans-serif;
     font-weight: 400;
-    font-size: 22px;
+    font-size: 27px;
     color: #4dfd48;
-    /* Brighter neon green */
-    line-height: 24px;
+    line-height: 20px;
     letter-spacing: 1px;
     text-shadow: 0 0 10px rgba(77, 253, 72, 0.9), 0 0 4px rgba(77, 253, 72, 0.4);
-    width: 80px;
-    text-align: right;
-    padding-right: 4px;
-    margin-top: 0px;
+    width: 76px;
+    text-align: left;
+    padding: 0;
     background: rgba(0, 0, 0, 0.4);
     border-radius: 3px;
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
     cursor: pointer;
     pointer-events: auto;
-    /* Ensure it receives clicks even if parent has pointer-events: none */
 }
 
 body.skin-active #time-display {
@@ -670,14 +713,16 @@ body.skin-active #time-display {
 
 /* Visualizer Placeholder */
 .visualizer {
-    width: 60px;
-    height: 100%;
+    position: absolute;
+    left: 4px;
+    top: 20px;
+    width: 76px;
+    height: 32px;
     border: 1px solid #0a0a0a;
     background: #001100;
-    margin-left: 4px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
 }
 
@@ -702,7 +747,7 @@ body.skin-active .visualizer {
 
 /* Seek Slider (Custom Div) */
 #seek-slider {
-    width: 248px;
+    width: 252px;
     height: 18px;
     /* hitbox */
     margin: 4px auto;
@@ -772,15 +817,18 @@ body.skin-active #seek-thumb {
 
 /* Track Info */
 #track-info {
-    flex-grow: 1;
+    position: absolute;
+    left: 80px;
+    top: 0;
+    width: 172px;
     display: flex;
     flex-direction: column;
-    margin-left: 4px;
     color: var(--text-primary);
     font-family: 'VT323', monospace;
-    font-size: 14px;
+    font-size: 13px;
     overflow: hidden;
     padding: 2px 0;
+    box-sizing: border-box;
 }
 
 body.skin-active #track-info {
@@ -805,7 +853,7 @@ body.skin-active #track-info {
     overflow: hidden;
     text-overflow: clip;
     /* We will scroll it with JS or CSS later */
-    border: 1px solid #222;
+    border: 0px solid #222;
     background: #0a0a0a;
     padding: 0 2px;
     text-shadow: 0 0 5px rgba(77, 253, 72, 0.5);
@@ -1039,7 +1087,7 @@ body.skin-active #btn-next:active {
 }
 
 body.skin-active #btn-eject {
-    background-position: -114px 0 !important;
+    background-position: -114px 0px !important;
 }
 
 body.skin-active #btn-eject:active {
@@ -1161,10 +1209,10 @@ body.skin-active #volume-slider {
 /* Pan slider position */
 body.skin-active #pan-slider {
     position: absolute;
-    left: 161px;
+    left: 151px;
     /* 177px from window left - 16px controls-panel left */
     top: -31px;
-    width: 56px;
+    width: 47px;
     /* wider than spec 38px for better usability at 1.5x zoom */
     height: 13px;
 }

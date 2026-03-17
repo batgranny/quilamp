@@ -32,10 +32,16 @@ const btnMinimize = document.getElementById('btn-minimize');
 const btnClose = document.getElementById('btn-close');
 const btnShuffle = document.getElementById('btn-shuffle');
 const btnRepeat = document.getElementById('btn-repeat');
+const playlistToggleBtn = document.getElementById('pl-btn-close');
+const playlistInner = document.getElementById('playlist-inner');
+const playlistContainer = document.getElementById('playlist-container');
+const kbpsDisplay = document.getElementById('kbps');
+const khzDisplay = document.getElementById('khz');
 
 // --- Web Audio API & Visualizer State ---
 let audioCtx = null;
 let analyser = null;
+let panner = null;
 let source = null;
 let visualizerCanvas = null;
 let visualizerCtx = null;
@@ -43,13 +49,17 @@ let animationId = null;
 
 // Built-in default Winamp spectrum colors (from bottom up: 17 to 2)
 let visColors = new Array(24).fill('rgb(0,0,0)');
-// Default palette values (approximate classic Winamp colors)
-for (let i = 2; i <= 17; i++) {
-    const green = Math.floor((17 - i) * (255 / 15));
-    visColors[i] = `rgb(0, ${green}, 0)`;
+function setDefaultVisColors() {
+    visColors.fill('rgb(0,0,0)');
+    // Default palette values (approximate classic Winamp colors)
+    for (let i = 2; i <= 17; i++) {
+        const green = Math.floor((17 - i) * (255 / 15));
+        visColors[i] = `rgb(0, ${green}, 0)`;
+    }
+    visColors[23] = 'rgb(255, 255, 255)'; // Peak indicator
+    visColors[0] = 'rgb(0, 0, 0)';       // Background
 }
-visColors[23] = 'rgb(255, 255, 255)'; // Peak indicator
-visColors[0] = 'rgb(0, 0, 0)';       // Background
+setDefaultVisColors();
 
 // Peak tracking
 const numBars = 18;
@@ -62,7 +72,7 @@ function initVisualizer() {
 
     visualizerCanvas = document.createElement('canvas');
     visualizerCanvas.width = 76;
-    visualizerCanvas.height = 16;
+    visualizerCanvas.height = 32;
     container.innerHTML = '';
     container.appendChild(visualizerCanvas);
     visualizerCtx = visualizerCanvas.getContext('2d');
@@ -73,9 +83,16 @@ function startVisualizer() {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
         analyser.fftSize = 1024;
+        panner = audioCtx.createStereoPanner();
         source = audioCtx.createMediaElementSource(audio);
-        source.connect(analyser);
+        
+        // Connect source -> panner -> analyser -> destination
+        source.connect(panner);
+        panner.connect(analyser);
         analyser.connect(audioCtx.destination);
+        
+        // Initial pan value sync
+        panner.pan.value = (panValue * 2) - 1;
     }
 
     if (audioCtx.state === 'suspended') {
@@ -139,7 +156,7 @@ function animate() {
         if (barHeights[i] < 0) barHeights[i] = 0;
 
         let drawHeight = Math.round(barHeights[i]);
-        const x = i * totalBarWidth + 4; // Horizontal offset
+        const x = i * totalBarWidth; // Removed horizontal offset to align flush left
 
         // Draw segmented bar (classic winamp style)
         for (let segment = 0; segment < drawHeight; segment += 2) {
@@ -180,6 +197,28 @@ if (window.electronAPI) {
         btnClose.addEventListener('click', () => {
             window.electronAPI.closeWindow();
         });
+    }
+
+    if (playlistToggleBtn) {
+        playlistToggleBtn.addEventListener('click', togglePlaylist);
+    }
+
+    window.electronAPI.onTogglePlaylist(() => {
+        togglePlaylist();
+    });
+}
+
+function togglePlaylist() {
+    console.log('Toggling playlist visibility...');
+    playlistContainer.classList.toggle('hidden');
+    const isHidden = playlistContainer.classList.contains('hidden');
+
+    if (isHidden) {
+        // Player height: adjusted from 180 to 210 to prevent clipping with larger layout elements
+        window.electronAPI.resizeWindow(413, 210);
+    } else {
+        // Default height with 9 tracks (scaled 1.5x)
+        window.electronAPI.resizeWindow(413, 477);
     }
 }
 
@@ -271,7 +310,7 @@ function initPlaylistScrollbar() {
 initPlaylistScrollbar();
 
 // Custom slider state
-let volumeValue = 1.0; // 0-1
+let volumeValue = 0.7; // 0-1 (70%)
 let panValue = 0.5;    // 0-1 (0.5 = center)
 
 // CSS zoom factor applied to the body — needed to correct getBoundingClientRect coordinates
@@ -371,7 +410,7 @@ function makeDraggableSlider(track, thumb, initialValue, onChange, onStart, onEn
     };
 }
 
-const volumeControl = makeDraggableSlider(volumeSlider, volumeThumb, 1.0, (ratio) => {
+const volumeControl = makeDraggableSlider(volumeSlider, volumeThumb, 0.7, (ratio) => {
     volumeValue = ratio;
     audio.volume = ratio;
     // Update track background row if skin is active
@@ -381,10 +420,17 @@ const volumeControl = makeDraggableSlider(volumeSlider, volumeThumb, 1.0, (ratio
 
 const panControl = makeDraggableSlider(panSlider, panThumb, 0.5, (ratio) => {
     panValue = ratio;
+    if (panner) {
+        // Map 0-1 to -1 to 1
+        panner.pan.value = (ratio * 2) - 1;
+    }
     // Update track background row if skin is active
     const bmpUrl = getSkinUrl('--skin-balance-bg');
     if (bmpUrl) updatePanTrack(ratio, bmpUrl);
 });
+
+// Sync initial audio volume
+audio.volume = volumeValue;
 
 // Helper – extract raw URL from a CSS custom property containing url("...")
 function getSkinUrl(prop) {
@@ -494,6 +540,7 @@ function renderPlaylist() {
 
         const li = document.createElement('li');
         li.textContent = `${index + 1}. ${displayName}`;
+        li.draggable = true;
 
         if (index === currentTrackIndex) {
             li.classList.add('active');
@@ -502,12 +549,59 @@ function renderPlaylist() {
         li.addEventListener('dblclick', () => {
             loadTrack(index);
         });
+
+        // Drag and Drop events
+        li.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', index);
+            li.classList.add('dragging');
+        });
+
+        li.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            li.classList.add('drag-over');
+        });
+
+        li.addEventListener('dragleave', () => {
+            li.classList.remove('drag-over');
+        });
+
+        li.addEventListener('drop', (e) => {
+            e.preventDefault();
+            li.classList.remove('drag-over');
+            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIndex = index;
+
+            if (fromIndex !== toIndex) {
+                moveTrack(fromIndex, toIndex);
+            }
+        });
+
+        li.addEventListener('dragend', () => {
+            li.classList.remove('dragging');
+        });
+
         playlistItemsContainer.appendChild(li);
     });
 
     // Notify scrollbar that heights may have changed
     const box = document.getElementById('playlist-box');
     if (box) box.dispatchEvent(new Event('playlistUpdated'));
+}
+
+function moveTrack(fromIndex, toIndex) {
+    const item = trackList.splice(fromIndex, 1)[0];
+    trackList.splice(toIndex, 0, item);
+
+    // Update currentTrackIndex to follow the playing song
+    if (currentTrackIndex === fromIndex) {
+        currentTrackIndex = toIndex;
+    } else if (fromIndex < currentTrackIndex && toIndex >= currentTrackIndex) {
+        currentTrackIndex--;
+    } else if (fromIndex > currentTrackIndex && toIndex <= currentTrackIndex) {
+        currentTrackIndex++;
+    }
+
+    renderPlaylist();
 }
 
 // Update track name and play
@@ -553,6 +647,14 @@ async function loadTrack(index) {
                     trackNameDisplay.textContent = `${tags.artist} - ${tags.title}`;
                 } else if (tags.title) {
                     trackNameDisplay.textContent = tags.title;
+                }
+
+                // Update bitrate and sample rate
+                if (tags.bitrate && kbpsDisplay) {
+                    kbpsDisplay.textContent = Math.round(tags.bitrate / 1000);
+                }
+                if (tags.sampleRate && khzDisplay) {
+                    khzDisplay.textContent = Math.round(tags.sampleRate / 1000);
                 }
             }
         } else {
@@ -1119,9 +1221,14 @@ if (window.electronAPI) {
             '--skin-numbers-bg', '--skin-posbar-bg', '--skin-gen-bg', '--skin-pledit-left',
             '--skin-pledit-right', '--skin-pledit-bottom-left', '--skin-pledit-bottom-right',
             '--skin-pledit-bottom-fill', '--skin-pledit-menu-bg', '--skin-pledit-top-left',
-            '--skin-pledit-top-right', '--skin-pledit-top-fill', '--skin-pledit-scroll-handle'
+            '--skin-pledit-top-right', '--skin-pledit-top-fill', '--skin-pledit-scroll-handle',
+            '--skin-playlist-text-normal', '--skin-playlist-text-current', '--skin-playlist-bg-normal',
+            '--skin-playlist-bg-selected', '--skin-vis-bg', '--skin-display-color'
         ];
         props.forEach(p => document.documentElement.style.removeProperty(p));
+
+        // Reset visualizer colors
+        setDefaultVisColors();
 
         // Reset slider backgrounds
         const vTrack = document.getElementById('volume-slider');
@@ -1141,10 +1248,13 @@ if (window.electronAPI) {
         if (vThumb) vThumb.style.cssText = '';
         if (pThumb) pThumb.style.cssText = '';
 
+        // Re-sync UI positions
+        if (volumeControl) volumeControl.setValue(volumeValue);
+        if (panControl) panControl.setValue(panValue);
+
         console.log("Skin reset to default");
     });
 
-    // Handle adding tracks from context menu
     window.electronAPI.onAddTracks((paths) => {
         if (paths && paths.length > 0) {
             const wasEmpty = trackList.length === 0;
@@ -1157,7 +1267,9 @@ if (window.electronAPI) {
             }
         }
     });
-
+    
+    // Initial sync of window constraints for the default state (player + playlist)
+    window.electronAPI.resizeWindow(413, 477);
 } else {
     console.warn("Running in browser, local file loading via dialog not available.");
 }
