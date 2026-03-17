@@ -240,13 +240,15 @@ function syncWindowSize() {
             const trackH = 14;  
             const contentH = playerH + titleH + (Math.min(trackCount, 18) * trackH) + bottomH;
             // Floor all heights to exact multiples of 4 to ensure physical pixel alignment
-            logicalH = Math.max(296, Math.ceil(contentH / 4) * 4);
+            // 400 logical px fits player (116) + title (20) + 16 tracks (224) + bottom (38) = 398
+            logicalH = Math.max(400, Math.ceil(contentH / 4) * 4);
         }
-        logicalW = 276; 
+        logicalW = 275; 
     } else {
         // Default UI
-        logicalH = isHidden ? 140 : 340;
-        logicalW = 276;
+        // fits 116 player + 14 title + 256 content (16 * 16) + 38 bottom = 424
+        logicalH = isHidden ? 140 : 424;
+        logicalW = 275;
     }
 
     // Precise physical scale + 2px "Bleed" buffer to prevent layout compression jitter
