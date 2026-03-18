@@ -18,60 +18,30 @@ A modern, cross-platform clone of the classic Winamp media player built with Ele
 ![Quilamp Skin View](img/classic.png)
 
 ## Installation
-Go to the latest release page [here](https://github.com/batgranny/quilamp/releases) and download the .dmg or .exe file. Double click to install.
+Go to the latest release page [here](https://github.com/batgranny/quilamp/releases) and download the version for your computer:
+- **macOS (Apple Silicon - M1/M2/M3)**: `Quilamp-1.2.1-arm64.dmg`
+- **macOS (Intel)**: `Quilamp-1.2.1.dmg`
+- **Windows**: `Quilamp Setup 1.2.1.exe`
 
-## Quick Start (Development)
+Double click to install.
 
-Ensure you have [Node.js](https://nodejs.org/) installed, then follow these steps:
+> [!IMPORTANT]
+> **macOS Users**: Since this application is currently unsigned, you may see a message stating that the app is "damaged" or from an unidentified developer. Please see the [Troubleshooting](#troubleshooting-macos) section below for the fix (no terminal required!).
 
-1. Navigate to the repository:
-   ```bash
-   cd quilamp
-   ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Troubleshooting (macOS)
+If you see a message stating the app is **"damaged"** or **"can't be opened because it is from an unidentified developer"**, follow these simple steps (no Terminal needed):
 
-3. Build and Start the application:
-   ```bash
-   npm run build
-   npm start
-   ```
-   *Note: Using `npm run build` generates the required output in the `build/` directory, while `npm start` launches Electron pointing to that build folder.*
+### Method 1: The Right-Click Shortcut (Fastest)
+1. Locate **Quilamp** in your `Applications` folder.
+2. **Right-click** (or Control-click) the app icon and select **Open**.
+3. A dialog will appear asking if you're sure. Click **Open**.
+   *Note: You only need to do this once.*
 
-### Live Development (HMR)
-
-To make changes to CSS or JS and see them immediately:
-
-1. In one terminal, start the Vite dev server:
-   ```bash
-   npm run dev
-   ```
-
-2. In a second terminal, launch Electron in dev mode:
-   ```bash
-   npx electron .
-   ```
-   The app will automatically connect to `localhost:5173` and reload whenever you save a file.
-
-## Building / Packaging (macOS)
-
-To build a distributable macOS Application (`.app` and `.dmg`), run the following command:
-
-```bash
-npm run dist
-```
-
-After the build completes, look in the `dist/` directory for the `Quilamp-1.1.0-mac.zip` or `Quilamp-1.1.0.dmg`. Build uses standard `electron-builder` Mac templates.
-
-## Built With
-- **Electron**
-- **Vite**
-- **Butterchurn** (MilkDrop 2 WebGL implementation)
-- **Vanilla web tech**
-
-![Quilamp Default View](img/default.png)
-![Quilamp Skin View](img/classic.png)
-![Nucleo Skin View](img/nucleo.png)
+### Method 2: System Settings
+1. Try to open the app normally so the error appears, then click **OK**.
+2. Open **System Settings** (or System Preferences) on your Mac.
+3. Navigate to **Privacy & Security**.
+4. Scroll down to the **Security** section where you see a message about **"Quilamp" was blocked...**.
+5. Click the **Open Anyway** button.
+6. Enter your password and confirm by clicking **Open**.
