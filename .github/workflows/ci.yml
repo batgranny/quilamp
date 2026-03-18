@@ -30,6 +30,7 @@ jobs:
       run: npm run build
       env:
         NODE_ENV: production
+        GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
 
     - name: Run tests
       run: npm test
@@ -37,3 +38,5 @@ jobs:
     - name: Package (Pack only, no upload)
       run: npm run pack
       if: matrix.os == 'macos-latest'
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}

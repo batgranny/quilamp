@@ -46,7 +46,7 @@ jobs:
         id: latest_release
         run: echo "TAG=$(gh release list -L 1 --json tagName -q '.[0].tagName')" >> $GITHUB_OUTPUT
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
@@ -56,7 +56,7 @@ jobs:
             release/Quilamp-Silicon.dmg
             release/Quilamp-*.dmg
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
   build-win:
     runs-on: windows-latest
@@ -83,7 +83,7 @@ jobs:
         run: echo "TAG=$(gh release list -L 1 --json tagName -q '.[0].tagName')" >> $GITHUB_OUTPUT
         shell: bash
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
@@ -91,4 +91,4 @@ jobs:
           tag_name: ${{ steps.latest_release.outputs.TAG }}
           files: release/Quilamp Setup *.exe
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
