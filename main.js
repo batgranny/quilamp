@@ -8,7 +8,9 @@ if (process.platform === 'darwin') {
 }
 
 const isDev = !app.isPackaged && process.env.NODE_ENV !== 'production';
+let mainWindow = null;
 let visualizerWindow = null;
+let pendingFiles = [];
 
 // Helper to get skin items for menus
 function getSkinItems() {
@@ -177,7 +179,7 @@ function getMenuTemplate(focusedWindow) {
 }
 
 function createWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 414,
         minWidth: 414,
         maxWidth: 414,
@@ -204,6 +206,18 @@ function createWindow() {
     } else {
         mainWindow.loadFile(path.join(__dirname, 'dist/index.html'));
     }
+
+    // Pass pending files to renderer once it's completely ready to handle IPC
+    mainWindow.webContents.on('did-finish-load', () => {
+        if (pendingFiles.length > 0) {
+            mainWindow.webContents.send('add-tracks', pendingFiles);
+            pendingFiles = [];
+        }
+    });
+
+    mainWindow.on('closed', () => {
+        mainWindow = null;
+    });
 
     // Set up initial Application Menu
     const menu = Menu.buildFromTemplate(getMenuTemplate(mainWindow));
@@ -339,6 +353,19 @@ ipcMain.handle('load-playlist', async () => {
     } catch (err) {
         console.error('Failed to load playlist:', err);
         return null;
+    }
+});
+
+app.on('open-file', (event, filePath) => {
+    event.preventDefault();
+    if (mainWindow && mainWindow.webContents && !mainWindow.webContents.isLoading()) {
+        mainWindow.webContents.send('add-tracks', [filePath]);
+    } else {
+        pendingFiles.push(filePath);
+        // If app is ready but window is closed, create it
+        if (app.isReady() && !mainWindow) {
+            createWindow();
+        }
     }
 });
 
