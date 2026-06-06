@@ -25,7 +25,7 @@ jobs:
         run: npx vite build
 
       - name: Build Silicon App (Dir)
-        run: npx electron-builder --mac dir --arm64
+        run: npx electron-builder --mac dir --arm64 --publish never
 
       - name: Ad-hoc Sign Silicon App
         run: |
@@ -40,7 +40,7 @@ jobs:
           hdiutil create -volname "Quilamp" -srcfolder release/dmg_staging -ov -format UDZO release/Quilamp-Silicon.dmg
 
       - name: Build Intel DMG
-        run: npx electron-builder --mac dmg --x64
+        run: npx electron-builder --mac dmg --x64 --publish never
 
       - name: Find Latest Release
         id: latest_release
@@ -76,7 +76,7 @@ jobs:
         run: npx vite build
 
       - name: Build Windows App
-        run: npx electron-builder --win
+        run: npx electron-builder --win --publish never
 
       - name: Find Latest Release
         id: latest_release
