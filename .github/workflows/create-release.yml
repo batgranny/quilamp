@@ -122,7 +122,9 @@ jobs:
         run: npx vite build
 
       - name: Build Silicon App (Dir)
-        run: npx electron-builder --mac dir --arm64 --publish never
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: npx electron-builder --dir --mac --arm64 --publish never
 
       - name: Ad-hoc Sign Silicon App
         run: |
@@ -137,6 +139,8 @@ jobs:
           hdiutil create -volname "Quilamp" -srcfolder release/dmg_staging -ov -format UDZO release/Quilamp-Silicon.dmg
 
       - name: Build Intel DMG
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: npx electron-builder --mac dmg --x64 --publish never
 
       - name: Upload to Release
@@ -168,6 +172,8 @@ jobs:
         run: npx vite build
 
       - name: Build Windows App
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: npx electron-builder --win --publish never
 
       - name: Upload to Release
