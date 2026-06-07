@@ -26,8 +26,36 @@ permissions:
   contents: write
 
 jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run build (Vite)
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run tests
+        run: npm test
+
   create-release:
+    needs: test
     runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.determine_version.outputs.TAG }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -72,5 +100,80 @@ jobs:
           draft: ${{ inputs.is_draft }}
           prerelease: ${{ inputs.is_prerelease }}
           generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+  build-mac:
+    needs: create-release
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Vite
+        run: npx vite build
+
+      - name: Build Silicon App (Dir)
+        run: npx electron-builder --mac dir --arm64 --publish never
+
+      - name: Ad-hoc Sign Silicon App
+        run: |
+          xattr -cr release/mac-arm64/Quilamp.app
+          codesign --force --deep --sign - release/mac-arm64/Quilamp.app
+
+      - name: Create Silicon DMG (User-Friendly)
+        run: |
+          mkdir -p release/dmg_staging
+          cp -R release/mac-arm64/Quilamp.app release/dmg_staging/
+          ln -s /Applications release/dmg_staging/Applications
+          hdiutil create -volname "Quilamp" -srcfolder release/dmg_staging -ov -format UDZO release/Quilamp-Silicon.dmg
+
+      - name: Build Intel DMG
+        run: npx electron-builder --mac dmg --x64 --publish never
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.create-release.outputs.release_tag }}
+          files: |
+            release/Quilamp-Silicon.dmg
+            release/Quilamp-*.dmg
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+  build-win:
+    needs: create-release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Vite
+        run: npx vite build
+
+      - name: Build Windows App
+        run: npx electron-builder --win --publish never
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.create-release.outputs.release_tag }}
+          files: release/Quilamp Setup *.exe
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
