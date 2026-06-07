@@ -134,23 +134,26 @@ jobs:
 
       - name: Create Silicon DMG (User-Friendly)
         run: |
+          APP_VERSION=$(node -p "require('./package.json').version")
           mkdir -p release/dmg_staging
           cp -R release/mac-arm64/Quilamp.app release/dmg_staging/
           ln -s /Applications release/dmg_staging/Applications
-          hdiutil create -volname "Quilamp" -srcfolder release/dmg_staging -ov -format UDZO release/Quilamp-Silicon.dmg
+          hdiutil create -volname "Quilamp" -srcfolder release/dmg_staging -ov -format UDZO release/Quilamp-${APP_VERSION}-arm.dmg
 
       - name: Build Intel DMG
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: npx electron-builder --mac dmg --x64 --publish never
+        run: |
+          APP_VERSION=$(node -p "require('./package.json').version")
+          npx electron-builder --mac dmg --x64 --publish never
+          mv release/Quilamp-${APP_VERSION}.dmg release/Quilamp-${APP_VERSION}-intel.dmg
+          rm -f release/*.zip # Remove generated zip to keep assets clean
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.create-release.outputs.release_tag }}
-          files: |
-            release/Quilamp-Silicon.dmg
-            release/Quilamp-*.dmg
+          files: release/Quilamp-*.dmg
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
