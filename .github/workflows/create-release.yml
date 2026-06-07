@@ -93,6 +93,37 @@ jobs:
             fi
           fi
 
+      - name: Generate Release Notes
+        id: release_notes
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          gh api --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name="${{ steps.determine_version.outputs.TAG }}" | jq -r .body > release_notes.md || echo "Release Notes" > release_notes.md
+
+          cat << 'EOF' >> release_notes.md
+
+          ---
+
+          ## 📥 Installation Guide
+
+          ### macOS
+          Download the appropriate `.dmg` file for your Mac:
+          - **Apple Silicon (M1/M2/M3)**: Choose `Quilamp-*-arm.dmg`
+          - **Intel Macs**: Choose `Quilamp-*-intel.dmg`
+
+          1. Double-click the `.dmg` file to mount it.
+          2. Drag the **Quilamp** app into your `Applications` folder.
+          3. **Important**: Because Quilamp is currently unsigned by an official Apple Developer certificate, macOS might show a warning that the app is "damaged" or "cannot be opened." 
+             * **Fix**: Right-click (or Control-click) the Quilamp icon in your Applications folder and select **Open**. You only need to do this the very first time!
+
+          ### Windows
+          - Download the `Quilamp Setup *.exe` file.
+          - Double-click to run the installer.
+          EOF
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -100,7 +131,7 @@ jobs:
           name: ${{ inputs.release_name || steps.determine_version.outputs.TAG }}
           draft: ${{ inputs.is_draft }}
           prerelease: ${{ inputs.is_prerelease }}
-          generate_release_notes: true
+          body_path: release_notes.md
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
