@@ -47,6 +47,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
 
       - name: Run tests
         run: npm test
