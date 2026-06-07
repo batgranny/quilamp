@@ -1,0 +1,76 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_tag:
+        description: 'Version tag (e.g., v1.3.0). If empty, auto-increments patch version of last release.'
+        required: false
+        type: string
+      release_name:
+        description: 'Release name (optional, defaults to version tag)'
+        required: false
+        type: string
+      is_draft:
+        description: 'Create as Draft?'
+        required: true
+        type: boolean
+        default: false
+      is_prerelease:
+        description: 'Create as Pre-release?'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine Version Tag
+        id: determine_version
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          if [ -n "${{ inputs.version_tag }}" ]; then
+            echo "TAG=${{ inputs.version_tag }}" >> $GITHUB_OUTPUT
+            echo "Calculated Tag: ${{ inputs.version_tag }} (from input)"
+          else
+            LATEST_TAG=$(gh release list -L 1 --json tagName -q '.[0].tagName' 2>/dev/null || echo "")
+            if [ -z "$LATEST_TAG" ]; then
+              echo "TAG=v1.0.0" >> $GITHUB_OUTPUT
+              echo "Calculated Tag: v1.0.0 (default)"
+            else
+              CLEAN_TAG="${LATEST_TAG#v}"
+              IFS='.' read -r major minor patch <<< "$CLEAN_TAG"
+              if [ -z "$patch" ]; then
+                echo "TAG=${LATEST_TAG}-1" >> $GITHUB_OUTPUT
+                echo "Calculated Tag: ${LATEST_TAG}-1"
+              else
+                next_patch=$((patch + 1))
+                if [[ $LATEST_TAG == v* ]]; then
+                  echo "TAG=v${major}.${minor}.${next_patch}" >> $GITHUB_OUTPUT
+                  echo "Calculated Tag: v${major}.${minor}.${next_patch}"
+                else
+                  echo "TAG=${major}.${minor}.${next_patch}" >> $GITHUB_OUTPUT
+                  echo "Calculated Tag: ${major}.${minor}.${next_patch}"
+                fi
+              fi
+            fi
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.determine_version.outputs.TAG }}
+          name: ${{ inputs.release_name || steps.determine_version.outputs.TAG }}
+          draft: ${{ inputs.is_draft }}
+          prerelease: ${{ inputs.is_prerelease }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
